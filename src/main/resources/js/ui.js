@@ -18,7 +18,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 /* global uiTextEn, Mousetrap */
 
-var uiText = uiTextEn;
+var uiText = null;
 
 /** Returns the element corresponding to the browser event. */
 function getEventEl(ev) {
@@ -4865,7 +4865,6 @@ function showPopupForMakeEntryNotebook() {
 
 			html += endOfForm();
 
-
 			addThenCenterPopup(popup, html);
 		};
 
@@ -6871,6 +6870,7 @@ new Image().src = getRefreshPngUrl();
 
 /** Called after a page is finished loading. */
 function onFinishFullPageLoad() {
+	uiText = uiTextEn;
 	displayIeLt8Message();
 	window.onpopstate = handlePopStateGetPage;
 	window.oncontextmenu = onContextMenu;
@@ -7323,5 +7323,3 @@ function markFunctionsAsUsed() {
 }
 
 markFunctionsAsUsed();
-
-onFinishFullPageLoad();

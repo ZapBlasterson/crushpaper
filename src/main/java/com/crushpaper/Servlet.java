@@ -2554,11 +2554,28 @@ public class Servlet extends HttpServlet {
 										+ "  '/js/uiTextEn.js',\n"
 										+ "  '/js/ui.js'\n"
 										+ "];\n"
+										+ "function loadScript(src, callback) {\n"
+										+ "	 var script = document.createElement('script');\n"
+										+ "	 script.type = 'text/javascript';\n"
+										+ "	 script.src = src;\n"
+										+ "	 script.onload = callback;\n"
+										+ "	 script.onreadystatechange = function() {\n"
+										+ "	   if (this.readyState == 'complete') {\n"
+										+ "		 callback();\n"
+										+ "	   }\n"
+										+ "	 }\n"
+										+ "  document.head.appendChild(script);\n"
+										+ "}\n"
+										+ "var srcsLoaded = 0;\n"
+										+ "function maybeCallFinish() {\n"
+										+ "  if(++srcsLoaded === asyncScripts.length + 1) {"
+										+ "    onFinishFullPageLoad();\n"
+										+ "  }\n"
+										+ "}\n"
 										+ "for(var scriptIndex = 0; scriptIndex < asyncScripts.length; ++scriptIndex) {\n"
 										+ "  var script = document.createElement('script');\n"
-										+ "  script.src = asyncScripts[scriptIndex];\n"
-										+ "  document.head.appendChild(script);\n"
-										+ "};"
+										+ "  loadScript(asyncScripts[scriptIndex], maybeCallFinish);\n"
+										+ "}"
 										+ "</script>\n");
 					}
 
@@ -2984,6 +3001,9 @@ public class Servlet extends HttpServlet {
 
 					final boolean isForPageRefresh = getIsForPageRefresh();
 					if (!isForPageRefresh) {
+						requestAndResponse.print("<script type=\"text/javascript\">\n"
+								+ "maybeCallFinish();\n"
+								+ "</script>\n");
 						requestAndResponse.print("</body>" + "</html>");
 					}
 				}
