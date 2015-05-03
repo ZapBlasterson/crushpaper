@@ -1,0 +1,11 @@
+{
+  "unused": true,
+  "eqeqeq": true,
+  "futurehostile": true,
+  "latedef": "nofunc",
+  "nocomma": true,
+  "nonew": true,
+  "undef": true,
+  "browser": true,
+  "maxerr": 1000
+}

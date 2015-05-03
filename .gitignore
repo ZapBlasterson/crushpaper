@@ -1,0 +1,10 @@
+*
+!src
+!doc
+!pom.xml
+!.gitignore
+!README.md
+!todo.txt
+!License.txt
+!.project
+!.jshintrc
