@@ -62,12 +62,13 @@ h3 { font-size:medium; }
 div.paneSection:last-child { border-bottom:none; }
 div.infoheader { margin-bottom:10px; }
 td.listItem { width:100%; }
-div.listItemFooter, div.listItemFooter > div { font-size:x-small; display:inline-block; color:#AAA; }
+table.alonetd { width:100%; }
+div.listItemFooter { font-size:x-small; display:inline-block; color:#AAA; width:100%; }
 div.day { font-size:x-small; margin-bottom:1px; margin-top:10px; }
 div.subtree { margin-bottom:0px; }
 span.entryDomain { color:#999; }
 span.placeholder { font-style:italic; }
-div.note, div.quotation { 
+div.note, div.quotation, div.sourceTitle { 
 cursor:text;
 /* old ie */
 -ms-word-break: break-all;
@@ -81,6 +82,8 @@ word-break: break-word;
 -ms-hyphens: auto;
 hyphens: auto;
 }
+
+div.sourceTitle { margin-top:2px; margin-bottom:2px; display:inline; }
 div.note { margin-top:2px; margin-bottom:2px; display:inline-block; }
 td.content { width:100%; padding-left:5px !important; }
 div.quotation { font-family:Georgia, serif; background:#FDFFAA; padding:4px 8px 4px 8px; border-left:1px solid #dedede; color:#555; display:inline-block; } 

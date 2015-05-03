@@ -2092,7 +2092,7 @@ public class Servlet extends HttpServlet {
 
 		if (includeJustTextFields) {
 			result.append(",\"noteHtml\":"
-					+ JsonBuilder.quote(getNoteMarkdown(entry, false)) + "\n");
+					+ JsonBuilder.quote(getNoteMarkdown(entry, false, entry.hasQuotation())) + "\n");
 			result.append(",\"quotationHtml\":"
 					+ JsonBuilder.quote(getQuotationMarkdown(entry, false))
 					+ "\n");
@@ -3414,7 +3414,7 @@ public class Servlet extends HttpServlet {
 				break;
 			}
 
-			addEntryHtmlToList(entry, result, true, resultNumber, paneId,
+			addEntryHtmlToList(entry, result, resultNumber, paneId,
 					embedContext);
 
 			addEntryToInfoList(entry, entryInfoList);
@@ -3586,9 +3586,13 @@ public class Servlet extends HttpServlet {
 	}
 
 	/** Returns the entry's note markdown. */
-	private String getNoteMarkdown(Entry entry, boolean noLinks) {
+	private String getNoteMarkdown(Entry entry, boolean noLinks, boolean noPlaceholder) {
 		final String value = entry.getNoteOrNotebookTitle();
 		if (value == null || value.isEmpty()) {
+			if(noPlaceholder) {
+				return "";
+			}
+			
 			String placeholder = servletText.fragmentBlankNote();
 			if (entry.isSource() || entry.isNotebook()) {
 				placeholder = servletText.fragmentBlankTitle();
@@ -5619,7 +5623,7 @@ public class Servlet extends HttpServlet {
 
 	/** Helper method. Adds the HTML for an entry to a list. */
 	private void addEntryHtmlToList(Entry entry, StringBuilder result,
-			boolean includeSourceDetails, int resultNumber, String rootId,
+			int resultNumber, String rootId,
 			SourceEmbedContext embedContext) throws IOException {
 		startItemListItem(result, rootId, entry.getId());
 
@@ -5639,19 +5643,19 @@ public class Servlet extends HttpServlet {
 
 		result.append("<div class=\"note\" title=\""
 				+ servletText.noteInListTooltip(entry.getType()) + "\">");
-		result.append(getNoteMarkdown(entry, true));
-		result.append("</div><br>");
+		result.append(getNoteMarkdown(entry, true, entry.hasQuotation()));
+		result.append("</div>");
 
 		final StringBuilder atString = new StringBuilder();
-		atString.append("<div title=\""
+		atString.append("<div class=\"listModTime\" title=\""
 				+ servletText.modTimeInListTooltip(entry.getType()) + "\">"
 				+ servletText.fragmentLastModified() + " <span>");
 		atString.append(formatDateAndTime(entry.getModTime())
 				+ "<span class=\"rawDateTime\">" + entry.getModTime()
-				+ "</span></span></div><br>");
+				+ "</span></span></div>");
 
 		boolean sourceIncluded = false;
-		if (includeSourceDetails) {
+		if (embedContext != SourceEmbedContext.InSourceQuotations) {
 			final Entry source = dbLogic.getEntryById(entry.getSourceId());
 			if (source != null) {
 				addSourceHtml(source, result, embedContext,
@@ -5772,7 +5776,7 @@ public class Servlet extends HttpServlet {
 			result.append("<div class=\"alone " + entry.getId()
 					+ "\" id=\"alone_" + entry.getId() + "\">");
 
-			result.append("<table class=\"nopadding\"><tr><td onmousedown=\"triangleOnMouseDown(event); return false;\" class=\"triTd justDrag\">"
+			result.append("<table class=\"nopadding alonetd\"><tr><td onmousedown=\"triangleOnMouseDown(event); return false;\" class=\"triTd justDrag\">"
 					+ "<div></div></td><td>"
 					+ "<table class=\"nopadding\"><tr><td class=\"nowords\"><img onmouseover=\"plusOnMouseOver(event);\" onmouseout=\"plusOnMouseOut(event);\" alt=\"plus\" title=\""
 					+ servletText.plusTooltip()
@@ -5789,8 +5793,8 @@ public class Servlet extends HttpServlet {
 			}
 
 			result.append("<div class=\"note\">");
-			result.append(getNoteMarkdown(entry, false));
-			result.append("</div><br>");
+			result.append(getNoteMarkdown(entry, false, entry.hasQuotation()));
+			result.append("</div>");
 
 			result.append("<span class=\"entryDaytime\">"
 					+ servletText.fragmentLastModified() + " "
@@ -5976,6 +5980,8 @@ public class Servlet extends HttpServlet {
 		} catch (final URISyntaxException e) {
 		}
 
+		result.append("<div class=\"sourceTitle\">");
+		
 		if (domain != null && embedContext != SourceEmbedContext.InSources) {
 			result.append("<a onclick=\"newTab(event); return false;\" target=\"_blank\" title=\""
 					+ servletText.showExternalSourceLinkTooltip()
@@ -5993,18 +5999,14 @@ public class Servlet extends HttpServlet {
 			title = servletText.fragmentVisitExternalSource();
 		}
 
-		result.append("<div class=\"note\">");
 		result.append(StringEscapeUtils.escapeHtml4(title));
-		result.append("</div>");
-
-		if (embedContext != SourceEmbedContext.InSource) {
-			result.append("<br>");
-		}
 
 		if (domain != null && embedContext != SourceEmbedContext.InSources) {
 			result.append("</a>");
 		}
 
+		result.append("</div>");
+		
 		result.append(" ");
 
 		if (domain != null) {

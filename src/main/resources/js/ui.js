@@ -3867,7 +3867,10 @@ function updateDisplayedEntryDetails(response) {
 	for (var i = 0; i < aloneEls.length; ++i) {
 		var aloneEl = aloneEls[i];
 
-		getNoteElOfAloneEl(aloneEl).innerHTML = response.noteHtml;
+		var note = getNoteElOfAloneEl(aloneEl);
+		if(note) {
+			note.innerHTML = response.noteHtml;
+		}
 
 		if (isAloneElAQuotation(aloneEl)) {
 			getQuotationElOfAloneEl(aloneEl).innerHTML = response.quotationHtml;
