@@ -25,9 +25,11 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. Install Maven. The version of Maven used during development is 3.2.5.
 1. In the root of the crushpaper project run `mvn package`. This should compile all classes, run all tests, and create the executable JAR.
 1. To build without running the tests run `mvn package -Dmaven.test.skip=true`.
-
+1. To build with Eclipse follow <a onclick="newPaneForLink(event, null, 'help'); return false;" href="/help/Get-Started-Coding">these directions</a>. 
+ 
 ### How to Install the CrushPaper Server
 1. Either download or build (see below) the CrushPaper Server executable Jar. It is named crushpaper-&lt;version.jar.
+  1. You can download it from <a target="_blank" href="https://github.com/ZapBlasterson/crushpaper/releases">GitHub</a>.
 1. It is recommended that you run the CrushPaper server as a dedicated OS userid but this is optional.
 1. It is recommended that you use HTTPS but this is optional. You can generate an SSL certificate for free by following <a target="_blank" href=" http://wiki.eclipse.org/Jetty/Howto/Configure_SSL#Generating_Key_Pairs_and_Certificates">these directions</a>.
 1. Choose the directory where you want to run CrushPaper. Call it `$CRUSHPAPER`.

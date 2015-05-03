@@ -824,6 +824,7 @@ public class Servlet extends HttpServlet {
 
 		startHelpSection(requestAndResponse, "For Contributors");
 		addHelpLink(requestAndResponse, "Code Contribution Guidelines");
+		addHelpLink(requestAndResponse, "Get Started Coding");
 		addHelpLink(requestAndResponse, "Release Process");
 		addHelpLink(requestAndResponse, "Testing Strategy");
 		addHelpLink(requestAndResponse, "Licenses");

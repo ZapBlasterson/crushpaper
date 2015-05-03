@@ -39,6 +39,8 @@ This [page](doc/Why-I-Created-CrushPaper.md) explains why I created CrushPaper.
 
 This [page](doc/Why-CrushPaper-Is-Free.md) explains why CrushPaper is free.
 
+This [page](doc/Get-Started-Coding.md) explains how to get started developing CrushPaper.
+
 CrushPaper is made mostly by one person. That is me Zap Blasterson. If you have any suggestions or complaints you can message me on Twitter, GitHub or Google Groups and I will do my very best to improve CrushPaper.
 
 You can try CrushPaper for free at http://crushpaper.com.
