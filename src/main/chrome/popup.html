@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Save Quotation to CrushPaper</title>
+    <style>
+body, html { font-family:'Segoe UI', Tahoma, sans-serif; font-size:small; margin:0px; padding:0px; color:black; background:white; }
+button {
+    padding:10px 20px 10px 20px;
+    background-color:#009afd;
+    border:1px solid #1777b7;
+    color:#FFF;
+    box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 1px 1px rgba(100,100,100,0.3);
+    border-radius:4px;
+    float:right;
+}
+button:hover {
+    background:#006DFD;
+}
+
+span.successMessage { color:green; }
+span.errorMessage { color:red; }
+span.closebutton { float:right; color:#777; margin-left:15px; }
+span.title { font-size:large; font-weight:bold; }
+hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
+textarea {
+	padding:7px;
+	border-radius:5px;
+	width:100%;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	margin-bottom:10px;
+	height:100px
+}
+
+input[type="text"] {
+    padding:1px 7px 1px 7px;
+    border:1px solid #aaa;
+    border-radius:3px;
+	width:400px;
+	margin-bottom:10px;
+}
+table { border-padding:0px; }
+#title { margin-top:10px; }
+
+table.responseAndSave { border-spacing:0px; width:100%; }
+table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
+
+	</style>
+	<script src="/mousetrap.min.js"></script>
+  </head>
+  <body>
+  <div style="margin:10px">
+  <span class="title">Save Quotation to CrushPaper</span>
+  <span class="closebutton" id="closebutton">&#10006;</span>
+  <hr class="title"/>  
+  <div id="needsConfigurationMessage"></div> 
+  <input type="text" id="title" placeholder="Open this window on a web page and the title will be here."><br>
+  <input type="text" id="url" placeholder="Open this window on a web page and the URL will be here."><br>
+
+  <textarea id="quotation" placeholder="Select text on a web page and it will be here."></textarea><br>
+  <textarea id="note" placeholder="Type your note about the quotation here." autofocus></textarea>
+  
+  <table class="responseAndSave"><tr>
+	<td id="response"></td>
+	<td><button id="save"><u>S</u>ave</button></td>
+  </tr></table>
+
+  <script src="getSessionIdLib.js"></script>
+  <script src="popup.js"></script>  
+  </body>
+</html>
+

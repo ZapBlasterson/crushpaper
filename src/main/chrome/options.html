@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CrushPaper Options</title>
+        <style>
+body, html { font-family:'Segoe UI', Tahoma, sans-serif; font-size:small; margin:0px; padding:0px; color:black; background:white; }
+button {
+    padding:10px 20px 10px 20px;
+    background-color:#009afd;
+    border:1px solid #1777b7;
+    color:#FFF;
+    box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 1px 1px rgba(100,100,100,0.3);
+    border-radius:4px;
+    float:right;
+}
+button:hover {
+    background:#006DFD;
+}
+
+span.closebutton { float:right; color:#777; margin-left:15px; }
+span.title { font-size:large; font-weight:bold; }
+hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
+span.successMessage { color:green; }
+span.errorMessage { color:red; }
+
+input[type="text"] {
+    padding:1px 7px 1px 7px;
+    border:1px solid #aaa;
+    border-radius:3px;
+	width:400px;
+	margin-bottom:10px;
+	margin-top:10px;
+}
+input[type="password"] {
+    padding:1px 7px 1px 7px;
+    border:1px solid #aaa;
+    border-radius:3px;
+	width:400px;
+	margin-bottom:10px;
+	margin-top:10px;
+}
+div.message { float:right; }
+#title { margin-top:10px; }
+	</style>
+	<script src="/mousetrap.min.js"></script>
+  </head>
+  <body>
+  <div style="margin:10px">
+    <span class="title">CrushPaper Options</span>
+    <hr class="title"/>  
+    <table>
+    <tr><td>
+    <label for="service">Service:</label></td><td><input type="text" name="service" id="service" placeholder="http://www.example.com:port"><br>
+    </td></tr>
+    <tr><td colspan="2">
+    <button id="save"><u>S</u>ave</button>
+    </td></tr>
+    <tr><td colspan="2">
+    <div class="message"></div>
+    </td></tr></table>
+    
+    <div id="needsConfigurationMessage"></div>
+    </div>
+    
+    <script src="getSessionIdLib.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
