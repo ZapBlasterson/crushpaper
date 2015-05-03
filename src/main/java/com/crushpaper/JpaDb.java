@@ -505,17 +505,20 @@ public class JpaDb implements DbInterface {
 		}
 
 		// Index and add to the results.
-		HashSet<Entry> realResults = new HashSet<Entry>();
+		// Remove anything that has been deleted.
+		HashSet<Entry> deletedEntries = getCacheForDeletedEntries();
+		List<Entry> realResults = new ArrayList<Entry>();
 		for (Object object : dbResults) {
 			Entry entry = (Entry) object;
+			if (deletedEntries.contains(entry)) {
+				continue;
+			}
+			
 			realResults.add(entry);
 			entry.index(this);
 		}
 
-		// Remove anything that has been deleted.
-		realResults.removeAll(getCacheForDeletedEntries());
-
-		return new ArrayList<Object>(realResults);
+		return realResults;
 	}
 
 	/*
