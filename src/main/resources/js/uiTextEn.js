@@ -25,16 +25,24 @@ uiTextEn.capitalizeFirstLetter = function(value) {
 	return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
-uiTextEn.getPluralForEntryTerm = function(entryType) {
+uiTextEn.getPlural = function(entryType) {
 	return entryType + "s";
 };
 
-uiTextEn.getSingularForEntryTerm = function(entryType) {
-	return entryType;
+uiTextEn.maybeGetPlural = function(number, entryType) {
+	if (number === 1) {
+		return entryType;
+	}
+	
+	return uiTextEn.getPlural(entryType);
 };
 
-uiTextEn.getSingularForEntryTerm = function(entryType) {
-	return entryType;
+uiTextEn.areOrIs = function(number) {
+	if (number === 1) {
+		return "is";
+	}
+	
+	return "are";
 };
 
 uiTextEn.getAllEntryTerms = function(entryType) {
@@ -66,7 +74,7 @@ uiTextEn.getOneEntryTerm = function(entryType, capitalizeFirst, pluralize) {
 	}
 
 	if (pluralize) {
-		result = uiTextEn.getPluralForEntryTerm(result);
+		result = uiTextEn.getPlural(result);
 	}
 
 	if (capitalizeFirst) {
@@ -323,19 +331,20 @@ uiTextEn.errorTheEntryNeedsAParent = function(entryType) {
 };
 
 uiTextEn.sentenceNoteToDeleteAreNotVisible = function(notVisibleEntries, numToDelete, entryType) {
-	return "Warning: " + notVisibleEntries + " of the " + numToDelete + " " + uiTextEn.getOneEntryTermPlural(entryType) + " to delete are not visible where this window is scrolled.";
+	return "Warning: " + notVisibleEntries + " of the " + numToDelete + " " + uiTextEn.getOneEntryTermPlural(entryType) +
+	" to delete " + uiTextEn.areOrIs(notVisibleEntries) + " not visible where this window is scrolled.";
 };
 
 uiTextEn.sentenceNoteToMakeNotebooksAreNotVisible = function(notVisibleEntries, numToMakeNotebooks) {
-	return "Warning: " + notVisibleEntries + " of the " + numToMakeNotebooks + " notes to make notebooks are not visible where this window is scrolled.";
+	return "Warning: " + notVisibleEntries + " of the " + numToMakeNotebooks + " notes to make notebooks " + uiTextEn.areOrIs(notVisibleEntries) + " not visible where this window is scrolled.";
 };
 
 uiTextEn.sentenceNoteToDeleteHiddenChildren = function(numHiddenChildren, numToDelete, entryType) {
 	if (numToDelete === 1) {
-		return "Warning: The " + uiTextEn.getOneEntryTerm(entryType) + " to delete has sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that are hidden.";
+		return "Warning: The " + uiTextEn.getOneEntryTerm(entryType) + " to delete has sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that " + uiTextEn.areOrIs(numHiddenChildren) + " hidden.";
 	}
 
-	return "Warning: " + numHiddenChildren + " of the " + numToDelete + " " + uiTextEn.getOneEntryTermPlural(entryType) + " to delete have sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that are hidden.";
+	return "Warning: " + numHiddenChildren + " of the " + numToDelete + " " + uiTextEn.getOneEntryTermPlural(entryType) + " to delete have sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that " + uiTextEn.areOrIs(numHiddenChildren) + " hidden.";
 };
 
 uiTextEn.sentenceNumNotesWillBeDeleted = function(numSelectedDbIds, entryType) {
@@ -916,4 +925,25 @@ uiTextEn.tooltipPaneEdit = function(entryType) {
 
 uiTextEn.tooltipPaneDelete = function(entryType) {
 	return "Click to delete this " + entryType + ".";
+};
+
+
+uiTextEn.labelOnlyUnlinkSourcesAndQuotations = function(numSourcesFromNotebook, numQuotationsFromNotebook) {
+	var result = "Only unlink the ";
+	
+	if (numSourcesFromNotebook) {
+		result += numSourcesFromNotebook + " " + uiTextEn.maybeGetPlural(numSourcesFromNotebook, "source");
+	}
+	
+	if (numSourcesFromNotebook && numQuotationsFromNotebook) {
+		result += " and ";
+	}
+
+	if (numQuotationsFromNotebook) {
+		result += numQuotationsFromNotebook + " " + uiTextEn.maybeGetPlural(numQuotationsFromNotebook, "quotation");
+	}
+	
+	result += " that " + uiTextEn.areOrIs(numSourcesFromNotebook + numQuotationsFromNotebook) + " part of a notebook.";
+		
+	return result;
 };

@@ -587,4 +587,8 @@ public class DbLogicErrorMessages {
 		return "Sorry, the id " + stringWithQuotes(id)
 				+ "was used more than once.";
 	}
+	
+	public String errorUserOnlyQuotationsAndSourcesMayBeUnlinked() {
+		return "Sorry, only quotations and sources may be unlinked.";
+	}
 }

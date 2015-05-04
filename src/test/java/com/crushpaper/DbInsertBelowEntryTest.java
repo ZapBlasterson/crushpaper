@@ -49,7 +49,7 @@ public class DbInsertBelowEntryTest extends DbLogicTestBase {
 									createTime,
 									"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 									DbLogic.TreeRelType.Parent, true, false,
-									false, false, null, errors));
+									false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorRelatedIdIsInInvalidFormat()));
 			finalAssertions(user, expectedAfter);
@@ -73,7 +73,7 @@ public class DbInsertBelowEntryTest extends DbLogicTestBase {
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, dbLogic.getIdGenerator().getAnotherId(),
 					DbLogic.TreeRelType.Parent, true, false, false, false,
-					null, errors));
+					null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedParentEntryCouldNotBeFound()));
 			finalAssertions(user, expectedAfter);
@@ -99,7 +99,7 @@ public class DbInsertBelowEntryTest extends DbLogicTestBase {
 			final String parentNodeId = before.getIdForValue("1");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, parentNodeId, DbLogic.TreeRelType.Parent,
-					true, false, false, false, null, errors));
+					true, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -125,7 +125,7 @@ public class DbInsertBelowEntryTest extends DbLogicTestBase {
 			final String parentNodeId = before.getIdForValue("1");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, parentNodeId, DbLogic.TreeRelType.Parent,
-					true, false, false, false, null, errors));
+					true, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -152,7 +152,7 @@ public class DbInsertBelowEntryTest extends DbLogicTestBase {
 			final String parentNodeId = before.getIdForValue("1");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, parentNodeId, DbLogic.TreeRelType.Parent,
-					true, false, false, false, null, errors));
+					true, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 

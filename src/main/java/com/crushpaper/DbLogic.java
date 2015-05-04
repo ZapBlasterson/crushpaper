@@ -133,14 +133,13 @@ public class DbLogic {
 	/**
 	 * API method. A simplified interface for creating an note entry which is
 	 * related to another entry.
-	 * 
 	 * @param type
 	 *            only use this for unit testing.
 	 */
 	Entry createSimpleEntry(User user, String note, Long createTime,
 			String relatedId, TreeRelType relationship,
 			boolean insertAboveParentsChildren, boolean insertAsFirstChild,
-			boolean isPublic, boolean isAdmin, String type, Errors errors) {
+			boolean isPublic, boolean isAdmin, String type, Errors errors, Entry source) {
 		return createEntry(user, null, type != null ? type : Constants.note,
 				null, null, note, createTime, createTime, relatedId,
 				relationship, insertAboveParentsChildren, insertAsFirstChild,
@@ -654,39 +653,7 @@ public class DbLogic {
 			// else
 			// set the parent's last entry to the last child
 
-			final Entry firstChild = getEntryById(entry.getFirstChildId());
-			if (firstChild != null) {
-				final Entry previous = getEntryById(entry
-						.getPreviousSiblingId());
-				if (previous != null) {
-					previous.setNextSiblingId(firstChild.getId());
-					firstChild.setPreviousSiblingId(previous.getId());
-				} else {
-					parent.setFirstChildId(firstChild.getId());
-				}
-			} else {
-				final Entry previous = getEntryById(entry
-						.getPreviousSiblingId());
-				if (previous != null) {
-					previous.setNextSiblingId(entry.getNextSiblingId());
-				}
-			}
-
-			final Entry lastChild = getEntryById(entry.getLastChildId());
-			if (lastChild != null) {
-				final Entry next = getEntryById(entry.getNextSiblingId());
-				if (next != null) {
-					next.setPreviousSiblingId(lastChild.getId());
-					lastChild.setNextSiblingId(next.getId());
-				} else {
-					parent.setLastChildId(lastChild.getId());
-				}
-			} else {
-				final Entry next = getEntryById(entry.getNextSiblingId());
-				if (next != null) {
-					next.setPreviousSiblingId(entry.getPreviousSiblingId());
-				}
-			}
+			reparentChildren(entry, parent);
 
 			doNotUpdateSiblings = true;
 		}
@@ -747,6 +714,54 @@ public class DbLogic {
 		return true;
 	}
 
+	/** Move the children of `entry` to be chidlren of `parent`. */
+	private void reparentChildren(Entry entry, final Entry parent) {
+		// if this entry has children
+		// if this entry has a previous
+		// set the previous's next to the first child
+		// set the first child's previous to the entry's previous
+		// else
+		// set the parent's first entry to the first child
+		// if this entry has a next
+		// set the next's previous to the last child
+		// set the last child's next to the entry's next
+		// else
+		// set the parent's last entry to the last child
+		final Entry firstChild = getEntryById(entry.getFirstChildId());
+		if (firstChild != null) {
+			final Entry previous = getEntryById(entry
+					.getPreviousSiblingId());
+			if (previous != null) {
+				previous.setNextSiblingId(firstChild.getId());
+				firstChild.setPreviousSiblingId(previous.getId());
+			} else {
+				parent.setFirstChildId(firstChild.getId());
+			}
+		} else {
+			final Entry previous = getEntryById(entry
+					.getPreviousSiblingId());
+			if (previous != null) {
+				previous.setNextSiblingId(entry.getNextSiblingId());
+			}
+		}
+
+		final Entry lastChild = getEntryById(entry.getLastChildId());
+		if (lastChild != null) {
+			final Entry next = getEntryById(entry.getNextSiblingId());
+			if (next != null) {
+				next.setPreviousSiblingId(lastChild.getId());
+				lastChild.setNextSiblingId(next.getId());
+			} else {
+				parent.setLastChildId(lastChild.getId());
+			}
+		} else {
+			final Entry next = getEntryById(entry.getNextSiblingId());
+			if (next != null) {
+				next.setPreviousSiblingId(entry.getPreviousSiblingId());
+			}
+		}
+	}
+
 	/**
 	 * API method. Make the entry it a notebook.
 	 */
@@ -772,18 +787,60 @@ public class DbLogic {
 		final Entry parent = getEntryById(entry.getParentId());
 		if (parent != null) {
 			removeEntryFromParent(entry, parent, false);
-		} else {
-			return true;
 		}
 
 		return true;
 	}
 
 	/**
+	 * API method. Unlink the entry from parents and children
+	 */
+	public boolean unlinkEntry(User user, Entry entry, boolean isAdmin,
+			Errors errors) {
+		// Basic Validations.
+		if (entry == null) {
+			Errors.add(errors, errorMessages.errorEntryIsNull());
+			return false;
+		}
+
+		if (user == null) {
+			Errors.add(errors, errorMessages.errorUserIsNull());
+			return false;
+		}
+
+		if (!canUserModifyEntry(user, entry, isAdmin)) {
+			Errors.add(errors,
+					errorMessages.errorUserIsNotEntitledToModifyThisEntry());
+			return false;
+		}
+
+		if(!entry.isQuotation() && !entry.isSource()) {
+			Errors.add(errors,
+					errorMessages.errorUserOnlyQuotationsAndSourcesMayBeUnlinked());
+			return false;
+		}
+		
+		final Entry parent = getEntryById(entry.getParentId());
+		if(parent == null) {
+			return true;
+		}
+
+		reparentChildren(entry, parent);
+		removeEntryFromParent(entry, parent, true);
+		entry.setFirstChildId(null);
+		entry.setLastChildId(null);
+		for (Object objectChild : getEntriesByParentId(entry.getId())) {
+			Entry child = (Entry) objectChild;
+			child.setParentId(parent.getId());
+		}
+		
+		return true;
+	}
+
+	/**
 	 * Helper method. Removes the entry from its parent. After this method call
 	 * the entry is unattached go any parent or sibling. This method updates the
-	 * entry, its parents, and its siblings, but does not remove the
-	 * parent/child relationship.
+	 * entry, its parents, and its siblings.
 	 */
 	private void removeEntryFromParent(Entry entry, Entry parent,
 			boolean doNotUpdateSiblings) {
@@ -1855,7 +1912,7 @@ public class DbLogic {
 						entry.getQuotation(), addedAnyYet,
 						DbLogic.Constants.quotation);
 				addedAnyYet = JsonBuilder.addPropertyToJsonString(result,
-						entry.getNoteOrNotebookTitle(), addedAnyYet, DbLogic.Constants.note);
+						entry.getNoteOrTitle(), addedAnyYet, DbLogic.Constants.note);
 				addedAnyYet = JsonBuilder.addPropertyToJsonString(result,
 						entry.getModTime(), addedAnyYet,
 						DbLogic.Constants.modTime);

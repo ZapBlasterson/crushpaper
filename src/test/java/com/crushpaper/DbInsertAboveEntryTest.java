@@ -49,7 +49,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 									createTime,
 									"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 									DbLogic.TreeRelType.Child, false, false,
-									false, false, null, errors));
+									false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorRelatedIdIsInInvalidFormat()));
 			finalAssertions(user, expectedAfter);
@@ -73,7 +73,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, dbLogic.getIdGenerator().getAnotherId(),
 					DbLogic.TreeRelType.Child, false, false, false, false,
-					null, errors));
+					null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedRelatedEntryCouldNotBeFound()));
 			finalAssertions(user, expectedAfter);
@@ -99,7 +99,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			final String childNodeId = before.getIdForValue("1");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, childNodeId, DbLogic.TreeRelType.Child,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -125,7 +125,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			final String childNodeId = before.getIdForValue("1");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, childNodeId, DbLogic.TreeRelType.Child,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -151,7 +151,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			final String childNodeId = before.getIdForValue("2");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, childNodeId, DbLogic.TreeRelType.Child,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -180,7 +180,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			final String childNodeId = before.getIdForValue("2");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, childNodeId, DbLogic.TreeRelType.Child,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -211,7 +211,7 @@ public class DbInsertAboveEntryTest extends DbLogicTestBase {
 			final String childNodeId = before.getIdForValue("3");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, childNodeId, DbLogic.TreeRelType.Child,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 

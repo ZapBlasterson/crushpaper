@@ -23,12 +23,19 @@ package com.crushpaper;
  */
 class TestEntry {
 	private final String value;
-	private TestEntry[] children = null;
-	private String id = null;
+	private TestEntry[] children;
+	private String id;
 	private long createTime = -1L;
-
+	private boolean isSource;
+	private String sourceValue;
+	
 	public TestEntry(String value) {
 		this.value = value;
+	}
+
+	public TestEntry(String value, boolean isSource) {
+		this.value = value;
+		this.isSource = isSource;
 	}
 
 	public TestEntry(String value, long createTime) {
@@ -48,6 +55,19 @@ class TestEntry {
 
 	public void setChildren(TestEntry[] children) {
 		this.children = children;
+	}
+	
+	static TestEntry newQuotation(String value, String sourceValue) {
+		TestEntry entry = new TestEntry(value);
+		entry.sourceValue = sourceValue;
+		return entry;
+	}
+
+	static TestEntry newQuotation(String value, String sourceValue, TestEntry[] children) {
+		TestEntry entry = new TestEntry(value);
+		entry.sourceValue = sourceValue;
+		entry.children = children;
+		return entry;
 	}
 
 	/** equals() is not implemented so that hashCode() does not need to be. */
@@ -106,5 +126,13 @@ class TestEntry {
 
 	public long getCreateTime() {
 		return createTime;
+	}
+	
+	public boolean getIsSource() {
+		return isSource;
+	}
+
+	public String getSourceValue() {
+		return sourceValue;
 	}
 }

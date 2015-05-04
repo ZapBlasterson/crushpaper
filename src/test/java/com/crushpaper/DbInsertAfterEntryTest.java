@@ -49,7 +49,7 @@ public class DbInsertAfterEntryTest extends DbLogicTestBase {
 									createTime,
 									"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 									DbLogic.TreeRelType.Previous, false,
-									false, false, false, null, errors));
+									false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorRelatedIdIsInInvalidFormat()));
 			finalAssertions(user, expectedAfter);
@@ -73,7 +73,7 @@ public class DbInsertAfterEntryTest extends DbLogicTestBase {
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, dbLogic.getIdGenerator().getAnotherId(),
 					DbLogic.TreeRelType.Previous, false, false, false, false,
-					null, errors));
+					null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedRelatedEntryCouldNotBeFound()));
 			final TestEntrySet actualAfter = dbLogic.getEntryTestSet(user);
@@ -98,7 +98,7 @@ public class DbInsertAfterEntryTest extends DbLogicTestBase {
 			final String previousNodeId = before.getIdForValue("1");
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, previousNodeId, DbLogic.TreeRelType.Previous,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedSiblingEntryHasNoParent()));
 			finalAssertions(user, expectedAfter);
@@ -124,7 +124,7 @@ public class DbInsertAfterEntryTest extends DbLogicTestBase {
 			final String previousNodeId = before.getIdForValue("2");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, previousNodeId, DbLogic.TreeRelType.Previous,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -151,7 +151,7 @@ public class DbInsertAfterEntryTest extends DbLogicTestBase {
 			final String previousNodeId = before.getIdForValue("2");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, previousNodeId, DbLogic.TreeRelType.Previous,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 

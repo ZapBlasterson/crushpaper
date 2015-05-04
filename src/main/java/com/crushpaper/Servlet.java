@@ -1465,7 +1465,7 @@ public class Servlet extends HttpServlet {
 			this.isFromList = isFromList;
 		}
 
-		public final Entry entry;
+		public Entry entry;
 		public final boolean isFromList;
 	}
 
@@ -1733,7 +1733,8 @@ public class Servlet extends HttpServlet {
 		boolean insertAsFirstChild = false;
 		boolean isPublic = false;
 		String csrft = null;
-
+		boolean unlinkOnly = false;
+		
 		try {
 			final JsonNodeHelper json = getJsonNode(requestAndResponse);
 
@@ -1755,6 +1756,8 @@ public class Servlet extends HttpServlet {
 
 			isPublic = json.getBoolean("isPublic");
 
+			unlinkOnly = json.getBoolean("unlinkOnly");
+			
 			csrft = json.getString("csrft");
 		} catch (final IOException e) {
 			returnJson400(requestAndResponse, servletText.errorJson());
@@ -1884,17 +1887,27 @@ public class Servlet extends HttpServlet {
 
 					success = true;
 
-					final LinkedList<EntryAndIsFromList> entriesToDelete = new LinkedList<EntryAndIsFromList>();
+					final LinkedList<EntryAndIsFromList> entriesToDeleteOrUnlink = new LinkedList<EntryAndIsFromList>();
 					String errorMessage = validateEntriesParentsBeforeChildren(
-							requestAndResponse, idsArray, entriesToDelete);
+							requestAndResponse, idsArray, entriesToDeleteOrUnlink);
 
-					for (final EntryAndIsFromList entryToDelete : entriesToDelete) {
-						if (entryToDelete.entry.getType().equals(
+					for (final EntryAndIsFromList entryToDeleteOrUnlink : entriesToDeleteOrUnlink) {
+						if (entryToDeleteOrUnlink.entry.getType().equals(
 								Constants.tableofcontents)
-								|| entryToDelete.entry.getType().equals(
+								|| entryToDeleteOrUnlink.entry.getType().equals(
 										Constants.root)) {
 							errorMessage = servletText
 									.errorEntryCanNotBeDeleted();
+						}
+					}
+
+					final LinkedList<Entry> entriesToOnlyUnlink = new LinkedList<Entry>();
+					if (unlinkOnly) {
+						for (final EntryAndIsFromList entryToDeleteOrUnlink : entriesToDeleteOrUnlink) {
+							if (entryToDeleteOrUnlink.entry.isQuotation() || entryToDeleteOrUnlink.entry.isSource()) {
+								entriesToOnlyUnlink.push(entryToDeleteOrUnlink.entry);
+								entryToDeleteOrUnlink.entry = null;
+							}
 						}
 					}
 
@@ -1902,12 +1915,17 @@ public class Servlet extends HttpServlet {
 						success = false;
 						errors.add(errorMessage);
 					} else {
-						for (final EntryAndIsFromList entryToDelete : entriesToDelete) {
+						for (final Entry entryToUnlink : entriesToOnlyUnlink) {
+							success &= dbLogic.unlinkEntry(user,
+									entryToUnlink,
+									isUserAnAdmin(requestAndResponse),
+									errors);
+						}
+						
+						for (final EntryAndIsFromList entryToDelete : entriesToDeleteOrUnlink) {
 							// Check to make sure the entry has not already been
 							// deleted.
-							// So far I haven't been able to find a way to do
-							// this that doesn't throw an exception.
-							if (dbLogic
+							if (entryToDelete.entry == null || dbLogic
 									.wasEntryDeletedInThisTransaction(entryToDelete.entry)) {
 								continue;
 							}
@@ -1946,7 +1964,7 @@ public class Servlet extends HttpServlet {
 
 					entry = dbLogic.createSimpleEntry(user, note, time, id,
 							TreeRelType.Child, false, false, isPublic,
-							isUserAnAdmin(requestAndResponse), type, errors);
+							isUserAnAdmin(requestAndResponse), type, errors, null);
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("putUnderneath")) {
@@ -1959,7 +1977,7 @@ public class Servlet extends HttpServlet {
 
 					entry = dbLogic.createSimpleEntry(user, note, time, id,
 							TreeRelType.Parent, true, false, isPublic,
-							isUserAnAdmin(requestAndResponse), type, errors);
+							isUserAnAdmin(requestAndResponse), type, errors, null);
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("createChild")) {
@@ -1973,7 +1991,7 @@ public class Servlet extends HttpServlet {
 					entry = dbLogic.createSimpleEntry(user, note, time, id,
 							TreeRelType.Parent, false, insertAsFirstChild,
 							isPublic, isUserAnAdmin(requestAndResponse), type,
-							errors);
+							errors, null);
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("newNotebook")) {
@@ -1992,7 +2010,7 @@ public class Servlet extends HttpServlet {
 
 					entry = dbLogic.createSimpleEntry(user, note, time, id,
 							TreeRelType.Next, false, false, isPublic,
-							isUserAnAdmin(requestAndResponse), type, errors);
+							isUserAnAdmin(requestAndResponse), type, errors, null);
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("putAfter")) {
@@ -2006,7 +2024,7 @@ public class Servlet extends HttpServlet {
 					entry = dbLogic.createSimpleEntry(user, note, time, id,
 							TreeRelType.Previous, false, isPublic,
 							isUserAnAdmin(requestAndResponse), false, type,
-							errors);
+							errors, null);
 					includeNote = true;
 					success = entry != null;
 				} else {
@@ -2072,7 +2090,7 @@ public class Servlet extends HttpServlet {
 			boolean userWasSignedIn, boolean forceQuotationToNote)
 			throws IOException {
 		result.append("\"note\":"
-				+ JsonBuilder.quote(entry.getNoteOrNotebookTitle("")) + "\n");
+				+ JsonBuilder.quote(entry.getNoteOrTitle("")) + "\n");
 
 		result.append(",\"quotation\":"
 				+ JsonBuilder.quote(entry.getQuotation("")) + "\n");
@@ -3559,7 +3577,7 @@ public class Servlet extends HttpServlet {
 							result.append(entry.getId());
 							result.append("\", \"note\":\"");
 							result.append(StringEscapeUtils.escapeJson(entry
-									.getNoteOrNotebookTitle("")));
+									.getNoteOrTitle("")));
 							result.append("\", \"quotation\":\"");
 							result.append(StringEscapeUtils.escapeJson(entry
 									.getQuotation("")));
@@ -3587,7 +3605,7 @@ public class Servlet extends HttpServlet {
 
 	/** Returns the entry's note markdown. */
 	private String getNoteMarkdown(Entry entry, boolean noLinks, boolean noPlaceholder) {
-		final String value = entry.getNoteOrNotebookTitle();
+		final String value = entry.getNoteOrTitle();
 		if (value == null || value.isEmpty()) {
 			if(noPlaceholder) {
 				return "";
@@ -5906,7 +5924,7 @@ public class Servlet extends HttpServlet {
 			}
 
 			entryInfoList.add(new EntryInfo(entry.getId(), entry
-					.getNoteOrNotebookTitle(""), entry.getQuotation(""), entry
+					.getNoteOrTitle(""), entry.getQuotation(""), entry
 					.getIsPublic(), entry.hasFirstChildId(), entry
 					.hasParentId(), typeToAdd));
 		}
@@ -6342,7 +6360,7 @@ public class Servlet extends HttpServlet {
 		boolean userCanSee = false;
 		Entry root = null;
 		if (entry != null) {
-			titleIfCanSee = entry.getNoteOrNotebookTitle("");
+			titleIfCanSee = entry.getNoteOrTitle("");
 			paneId = entry.getId();
 			root = dbLogic.getEntryById(entry.getRootId());
 			userCanSee = dbLogic.canUserSeeEntry(user, entry,

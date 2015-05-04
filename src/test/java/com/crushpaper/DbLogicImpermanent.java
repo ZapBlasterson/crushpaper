@@ -38,7 +38,7 @@ public class DbLogicImpermanent extends DbLogic {
 
 	/** Converts a real entry to a test entry, including its children. */
 	private TestEntry convertToTestEntry(Entry entry) {
-		final TestEntry testEntry = new TestEntry(entry.getNote(),
+		final TestEntry testEntry = new TestEntry(entry.getNoteOrTitle(),
 				entry.getId());
 
 		final ArrayList<Entry> childrenEntries = getChildrenInOrder(entry);
@@ -93,7 +93,7 @@ public class DbLogicImpermanent extends DbLogic {
 		}
 
 		for (final TestEntry testEntry : testEntrySet.getRootEntries()) {
-			if (!addEntryHelper(testEntry, user, createTime, null, errors)) {
+			if (!addEntryHelper(testEntry, user, createTime, null, testEntrySet, errors)) {
 				return false;
 			}
 		}
@@ -103,7 +103,7 @@ public class DbLogicImpermanent extends DbLogic {
 
 	/** Adds a test entry and its children to the DB. */
 	private boolean addEntryHelper(TestEntry testEntry, User user,
-			long createTime, String parentId, Errors errors) {
+			long createTime, String parentId, TestEntrySet testEntrySet, Errors errors) {
 		if (testEntry == null) {
 			return false;
 		}
@@ -116,12 +116,24 @@ public class DbLogicImpermanent extends DbLogic {
 		if(testEntry.getCreateTime() != -1) {
 			entryCreateTime = testEntry.getCreateTime();
 		}
-		
-		final Entry entry = createSimpleEntry(user,
-				testEntry.getValue(), entryCreateTime, parentId,
-				parentId == null ? null : TreeRelType.Parent, false, false,
-				false, false, parentId == null ? DbLogic.Constants.root : null, errors);
 
+		Entry entry = null;
+		if (testEntry.getIsSource()) {
+			entry = updateOrCreateSource(user, null, testEntry.getValue(), testEntry.getValue(), entryCreateTime, entryCreateTime, false, errors);
+		} else {
+			Entry source = null;
+			String type = parentId == null ? DbLogic.Constants.root : null;
+			if (testEntry.getSourceValue() != null) {
+				type = DbLogic.Constants.quotation;
+				source = getEntryById(testEntrySet.getRootEntryByValue(testEntry.getSourceValue()).getId());
+			}
+		
+			entry = createSimpleEntry(user,
+					testEntry.getValue(), entryCreateTime, parentId,
+					parentId == null ? null : TreeRelType.Parent, false, false,
+					false, false, type, errors, source);
+		}
+		
 		if (entry == null) {
 			return false;
 		}
@@ -139,7 +151,7 @@ public class DbLogicImpermanent extends DbLogic {
 				}
 
 				if (!addEntryHelper(child, user, createTime,
-						entry.getId(), errors)) {
+						entry.getId(), testEntrySet, errors)) {
 					return false;
 				}
 			}

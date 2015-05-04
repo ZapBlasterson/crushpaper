@@ -49,7 +49,7 @@ public class DbInsertBeforeEntryTest extends DbLogicTestBase {
 									createTime,
 									"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 									DbLogic.TreeRelType.Next, false, false,
-									false, false, null, errors));
+									false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorRelatedIdIsInInvalidFormat()));
 			finalAssertions(user, expectedAfter);
@@ -73,7 +73,7 @@ public class DbInsertBeforeEntryTest extends DbLogicTestBase {
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, dbLogic.getIdGenerator().getAnotherId(),
 					DbLogic.TreeRelType.Next, false, false, false, false,
-					null, errors));
+					null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedRelatedEntryCouldNotBeFound()));
 			finalAssertions(user, expectedAfter);
@@ -97,7 +97,7 @@ public class DbInsertBeforeEntryTest extends DbLogicTestBase {
 			final String nextNodeId = before.getIdForValue("1");
 			assertEquals(null, dbLogic.createSimpleEntry(user, "Q",
 					createTime, nextNodeId, DbLogic.TreeRelType.Next, false,
-					false, false, false, null, errors));
+					false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages
 					.errorTheProposedSiblingEntryHasNoParent()));
 			finalAssertions(user, expectedAfter);
@@ -125,7 +125,7 @@ public class DbInsertBeforeEntryTest extends DbLogicTestBase {
 			final String nextNodeId = before.getIdForValue("2");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, nextNodeId, DbLogic.TreeRelType.Next, false,
-					false, false, false, null, errors));
+					false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 
@@ -152,7 +152,7 @@ public class DbInsertBeforeEntryTest extends DbLogicTestBase {
 			final String nextNodeId = before.getIdForValue("3");
 			assertNotNull(dbLogic.createSimpleEntry(user, "Q",
 					createTime, nextNodeId, DbLogic.TreeRelType.Next, false,
-					false, false, false, null, errors));
+					false, false, false, null, errors, null));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
 

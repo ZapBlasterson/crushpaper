@@ -3854,7 +3854,8 @@ function save(alreadyStartedSave) {
 	setInMessageFromCheckBox(message, 'childrenToDelete', 'childrenAction', 'delete');
 	copyCheckBoxToMessageIfTrue(message, 'insertAsFirstChild');
 	copyCheckBoxToMessageIfTrue(message, 'isPublic');
-
+	copyCheckBoxToMessageIfTrue(message, 'unlinkOnly');
+	
 	document.getElementById("response").innerHTML = uiText.sentenceSaving();
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
@@ -3898,10 +3899,18 @@ function updateEntryDetailsHasParent(dbId) {
 
 /** Remove each entry from any lists it is in. */
 function removeEntriesFromLists(noteop, idsValue) {
+	var onlyUnlink = isElementChecked("onlyUnlink");
+	
 	var ids = idsValue.split(",");
 	for (var j = 0; j < ids.length; ++j) {
 		var id = ids[j];
 
+		if (onlyUnlink && isListDbId(id) && isEntryAQuotation(id) || getEntryType(id) === "source") {
+			setEntryHasNoParent(id);
+			setEntryHasNoChildren(id);
+			continue;
+		}
+		
 		var dbId = getTrueDbIdFromListDbId(id);
 
 		var aloneEls = copyArray(document.getElementsByClassName(dbId));
@@ -4532,12 +4541,20 @@ function getEntryHasParent(dbId) {
 	return window.entryInfoDict[dbId][5];
 }
 
-/** Gets whether the entry has a parent. */
+/** Sets that the entry has a parent. */
 function setEntryHasParent(dbId) {
 	if (!window.entryInfoDict || !(dbId in window.entryInfoDict))
 		return;
 
 	window.entryInfoDict[dbId][5] = true;
+}
+
+/** Sets that the entry has no parent. */
+function setEntryHasNoParent(dbId) {
+	if (!window.entryInfoDict || !(dbId in window.entryInfoDict))
+		return;
+
+	window.entryInfoDict[dbId][5] = false;
 }
 
 /** Sets the information for an entry. Defaults hasChildren to false. */
@@ -4604,6 +4621,19 @@ function updateAllHasChildrenIcons(entryInfoDict) {
 	}
 }
 
+/** Returns an array of the object's keys. */
+function getObjectKeys(object) {
+    var keys = [];
+
+    for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+            keys.push(key);
+        }
+    }
+
+    return keys;
+}
+
 /** Shows the popup for deleting an entry. */
 function showPopupForDeleteEntry() {
 	if (!areCommandsAllowed) {
@@ -4648,8 +4678,19 @@ function showPopupForDeleteEntry() {
 		var anyHasParent = false;
 		var notVisibleEntries = 0;
 		var numHiddenChildren = 0;
+		var numSourcesFromNotebook = 0;
+		var numQuotationsFromNotebook = 0;
+		var uniqueDbIds = {};
 		for (var i = 0; i < selectedDbIds.length; ++i) {
 			selectedDbId = selectedDbIds[i];
+			
+			var uniqueDbId = getTrueDbIdFromListDbId(selectedDbId);
+			if (uniqueDbId in uniqueDbIds) {
+				continue;
+			}
+			
+			uniqueDbIds[uniqueDbId] = 1;
+			
 			var subtreeEl = getSubtreeElByDbId(selectedDbId);
 
 			var hasChildren = doesSubtreeElHaveChildrenDisplayed(subtreeEl);
@@ -4668,25 +4709,36 @@ function showPopupForDeleteEntry() {
 
 				anyHasChildren = true;
 			}
+
+			var isFromList = isListDbId(selectedDbId);
+			if(isEntryAQuotation(selectedDbId)) {
+				if (!isFromList || getEntryHasParent(selectedDbId)) {
+					++numQuotationsFromNotebook;
+				}
+			} else if(getEntryType(selectedDbId) === "source") {
+				if (!isFromList || getEntryHasParent(selectedDbId)) {
+					++numSourcesFromNotebook;
+				}
+			}
 		}
 
 		var showPopupForDeleteEntryHelper = function() {
 			var popup = createPopupForDialog(true, [removeDeleteOptionsShortCuts]);
 			addDeleteOptionsShortCuts();
 
-			var sortedSelectedDbIds = sortIdsByAscendingYPosition(selectedDbIds);
+			var sortedUniqueDbIds = sortIdsByAscendingYPosition(getObjectKeys(uniqueDbIds));
 			var html = decoratePopupTitle(title);
 
-			if (selectedDbIds.length > 1 && notVisibleEntries) {
-				html += "<span class=\"errorMessage\">" + uiText.sentenceNoteToDeleteAreNotVisible(notVisibleEntries, selectedDbIds.length, entryType) + "</span>";
+			if (sortedUniqueDbIds.length > 1 && notVisibleEntries) {
+				html += "<span class=\"errorMessage\">" + uiText.sentenceNoteToDeleteAreNotVisible(notVisibleEntries, sortedUniqueDbIds.length, entryType) + "</span>";
 			} else if (numHiddenChildren) {
-				html += "<span class=\"errorMessage\">" + uiText.sentenceNoteToDeleteHiddenChildren(numHiddenChildren, selectedDbIds.length, entryType) + "</span>";
+				html += "<span class=\"errorMessage\">" + uiText.sentenceNoteToDeleteHiddenChildren(numHiddenChildren, sortedUniqueDbIds.length, entryType) + "</span>";
 			} else {
-				html += uiText.sentenceNumNotesWillBeDeleted(selectedDbIds.length, entryType) + "<br>";
+				html += uiText.sentenceNumNotesWillBeDeleted(sortedUniqueDbIds.length, entryType) + "<br>";
 			}
 
 			html += "<input type=\"hidden\" value=\"" +
-			sortedSelectedDbIds.join() +
+			sortedUniqueDbIds.join() +
 			"\" id=\"ids\"><input type=\"hidden\" " +
 			"value=\"delete\" id=\"noteop\">";
 
@@ -4711,9 +4763,14 @@ function showPopupForDeleteEntry() {
 				 */
 
 				html += "<input " + childrenToDeleteDisabled + " " +
-				" checked type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete \">" + uiText.labelDelete() + "</label><br>";
+				" checked type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete\">" + uiText.labelDelete() + "</label><br>";
 			}
-
+			
+			if (numSourcesFromNotebook || numQuotationsFromNotebook) {
+				html += "<input checked type=\"checkbox\" name=\"unlinkOnly\" id=\"unlinkOnly\"><label for=\"unlinkOnly\">" +
+				uiText.labelOnlyUnlinkSourcesAndQuotations(numSourcesFromNotebook, numQuotationsFromNotebook) + "</label><br>";
+			}
+			
 			html += endOfForm("prepForDeleteAndSave");
 
 			addThenCenterPopup(popup, html);

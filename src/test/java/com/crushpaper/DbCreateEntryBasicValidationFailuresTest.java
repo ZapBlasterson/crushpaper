@@ -41,7 +41,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 
 			assertEquals(null, dbLogic.createSimpleEntry(user, "2",
 					createTime, null, DbLogic.TreeRelType.Parent, false,
-					false, false, false, null, errors));
+					false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages.errorRelatedIdIsNull()));
 			finalAssertions(user, expectedAfter);
 
@@ -63,7 +63,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 
 			assertEquals(null, dbLogic.createSimpleEntry(user, "2",
 					createTime, "", DbLogic.TreeRelType.Parent, false, false,
-					false, false, null, errors));
+					false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages.errorRelatedIdIsEmpty()));
 			finalAssertions(user, expectedAfter);
 
@@ -86,7 +86,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 			final String parentNodeId = before.getIdForValue("1");
 			assertEquals(null, dbLogic.createSimpleEntry(user, "2",
 					createTime, parentNodeId, DbLogic.TreeRelType.Child,
-					true, false, false, false, null, errors));
+					true, false, false, false, null, errors, null));
 			assertTrue(errors
 					.compare(errorMessages
 							.errorInsertingANewEntryAboveChildrenCanOnlyBeDoneWhenTheRelatedEntryIsAParent()));
@@ -111,7 +111,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 			final String parentNodeId = before.getIdForValue("1");
 			assertEquals(null, dbLogic.createSimpleEntry(user, "2",
 					null, parentNodeId, DbLogic.TreeRelType.Parent, false,
-					false, false, false, null, errors));
+					false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages.errorCreateTimeIsNull()));
 			finalAssertions(user, expectedAfter);
 
@@ -134,7 +134,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 			final String parentNodeId = before.getIdForValue("1");
 			assertEquals(null, dbLogic.createSimpleEntry(null, "2",
 					createTime, parentNodeId, DbLogic.TreeRelType.Parent,
-					false, false, false, false, null, errors));
+					false, false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages.errorUserIsNull()));
 			finalAssertions(user, expectedAfter);
 
@@ -155,7 +155,7 @@ public class DbCreateEntryBasicValidationFailuresTest extends
 					errors));
 
 			assertEquals(null, dbLogic.createSimpleEntry(user, "2",
-					createTime, null, null, false, false, false, false, null, errors));
+					createTime, null, null, false, false, false, false, null, errors, null));
 			assertTrue(errors.compare(errorMessages.errorCanNotCreateParentlessNote()));
 			finalAssertions(user, expectedAfter);
 	}

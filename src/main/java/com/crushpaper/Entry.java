@@ -428,7 +428,7 @@ public class Entry {
 		this.rootId = value;
 	}
 
-	public String getNoteOrNotebookTitle() {
+	public String getNoteOrTitle() {
 		if (note != null)
 			return note;
 
@@ -438,7 +438,7 @@ public class Entry {
 		return sourceTitle;
 	}
 
-	public String getNoteOrNotebookTitle(String defaultValue) {
+	public String getNoteOrTitle(String defaultValue) {
 		if (note != null)
 			return note;
 
@@ -450,5 +450,4 @@ public class Entry {
 
 		return defaultValue;
 	}
-
 }
