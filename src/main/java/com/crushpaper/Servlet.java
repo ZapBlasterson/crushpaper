@@ -1072,6 +1072,10 @@ public class Servlet extends HttpServlet {
 		final String queryUserId = getURIParameterOrUserId(requestAndResponse);
 		final User effectiveUser = dbLogic.getUserById(effectiveUserId);
 		final User queryUser = dbLogic.getUserById(queryUserId);
+		if (isUserAnAdmin(requestAndResponse)) {
+			return queryUser;
+		}
+		
 		if (effectiveUser == null) {
 			if (printError) {
 				requestAndResponse.print(servletText
@@ -1098,14 +1102,11 @@ public class Servlet extends HttpServlet {
 			return queryUser;
 		}
 
-		if (!isUserAnAdmin(requestAndResponse)) {
-			if (printError) {
-				requestAndResponse.print(servletText.errorMayNotSeeList());
-			}
-			return null;
-		}
 
-		return queryUser;
+		if (printError) {
+			requestAndResponse.print(servletText.errorMayNotSeeList());
+		}
+		return null;
 	}
 
 	/** Part of the HTML API. Shows a list of all the user's notebooks. */
