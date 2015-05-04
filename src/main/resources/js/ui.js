@@ -3152,13 +3152,13 @@ function handleDrop(dropTarget, justTheEntry) {
 			var targetId = getDbIdFromEl(dropTarget.el);
 			ensureDirectChildrenAreVisible(targetId,
 					function() {
-				makeEntrySiblingOrChild(dropTarget.el, sortedDroppedDbIds, justTheEntry, "/makeChildrenJson", uiText.popupTitleDragNodeToNewParent, null);
+				makeEntriesSiblingOrChild(dropTarget.el, sortedDroppedDbIds, justTheEntry, "/makeChildrenJson", uiText.popupTitleDragNodeToNewParent, null);
 			},
 			function() {
 				showPopupForError(title, uiText.errorChildrenNeededToBeLoadedFirst(entryType));
 			});
 		} else {
-			makeEntrySiblingOrChild(dropTarget.el, sortedDroppedDbIds, justTheEntry, "/makeSiblingsJson",
+			makeEntriesSiblingOrChild(dropTarget.el, sortedDroppedDbIds, justTheEntry, "/makeSiblingsJson",
 					uiText.popupTitleDragNodeToNewSibling, dropTarget.where === "top" ? "previous" : "next");
 		}
 	};
@@ -3208,8 +3208,8 @@ function sortIdsByAscendingYPosition(dbIds) {
 	return sortedIds;
 }
 
-/** Makes an entry a child or a sibling of another entry. */
-function makeEntrySiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri, popupTitleFunc, placement) {
+/** Makes a set of entries a child or a sibling of another entry. */
+function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri, popupTitleFunc, placement) {
 	var targetId = getDbIdFromEl(targetAloneEl);
 	var entryType = getEntryType(targetId);
 	var xhr = createJsonAsyncRequest("POST", uri + "?" + getAnUrlUniquer(), function() {
@@ -3342,7 +3342,10 @@ function makeEntrySiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri, p
 				}
 
 				// Update that the new parent has children.
-				setEntryHasChildren(getDbIdFromSubtreeEl(targetSubtreeEl));
+				if (placement === null) {
+					setEntryHasChildren(getDbIdFromSubtreeEl(targetSubtreeEl));
+				}
+				
 				updateEntryDetailsHasParent(movedId);
 			}
 		} else {
