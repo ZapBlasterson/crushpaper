@@ -708,6 +708,19 @@ uiTextEn.helpMouseHints = function(entryType) {
 };
 
 
+uiTextEn.helpInlineEdit = function() {
+	return "Inline Editing Commands";
+};
+
+uiTextEn.helpUndoInlineEdit = function() {
+	return "Undo unsaved changes you have made to the note";
+};
+
+uiTextEn.helpSaveInlineEdit = function() {
+	return "Save changes you have made to the note";
+};
+
+
 uiTextEn.helpAdvanced = function() {
 	return "Advanced Commands";
 };

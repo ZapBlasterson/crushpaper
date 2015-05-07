@@ -5765,6 +5765,21 @@ function getCommandMetaInfo(entryType) {
 	        	              ]
 	        },
 	        {
+	        	"header" : uiText.helpInlineEdit(),
+	        	"inContextMenu" : false,
+	        	"notGlobal" : true,
+	        	"commands" : [
+	        	              {
+	        	            	  "keys" : "Alt+s",
+	        	            	  "description" : uiText.helpSaveInlineEdit(),
+	        	              },
+	        	              {
+	        	            	  "keys" : "Esc",
+	        	            	  "description" : uiText.helpUndoInlineEdit(),
+	        	              },
+	        	              ]
+	        },
+	        {
 	        	"header" : uiText.helpMouse(),
 	        	"inContextMenu" : false,
 	        	"hints" : uiText.helpMouseHints(entryType),
@@ -6035,8 +6050,7 @@ function addGlobalShortCuts() {
 	var commandMetaInfo = getCommandMetaInfo(getDefaultEntryTypes());
 	for (var i = 0; i < commandMetaInfo.length; ++i) {
 		var commandMetaInfoSection = commandMetaInfo[i];
-
-		if ("commands" in commandMetaInfoSection) {
+		if (("commands" in commandMetaInfoSection) && !("notGlobal" in commandMetaInfoSection)) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				Mousetrap.bind(command.keys.toLowerCase(),
@@ -6062,7 +6076,7 @@ function removeGlobalShortCuts() {
 	for (var i = 0; i < commandMetaInfo.length; ++i) {
 		var commandMetaInfoSection = commandMetaInfo[i];
 
-		if ("commands" in commandMetaInfoSection) {
+		if (("commands" in commandMetaInfoSection) && !("notGlobal" in commandMetaInfoSection)) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				Mousetrap.unbind(command.keys.toLowerCase());
@@ -7520,11 +7534,15 @@ function addInlineNoteEditShortCuts() {
 		undoNoteEdit();
 		editedNoteEl.blur();
 	});
+	Mousetrap.bind("alt+s", function() {
+		editedNoteEl.blur();
+	});
 }
 
 /** Removes shortcuts for inline note text editing. */
 function removeInlineNoteEditShortCuts() {
 	Mousetrap.unbind("esc");
+	Mousetrap.unbind("alt+s");
 }
 
 /** Sets the caret position within an el tree. */
