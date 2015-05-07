@@ -80,12 +80,12 @@ function showSignInTabAndClose(service) {
 		"<br>The sign in page will be automatically opened in 5 seconds.</span>";
 	
 	setTimeout(function() {
-		showTab(service + "/?signIn=1")
+		showTab(service + "/?signIn=1");
 	}, 5000);
 }
 
 /** Shows the sign in page and closes the current popup. */
-function showSignedInAndClose(service) {
+function showSignedInAndClose() {
 	document.getElementById("needsConfigurationMessage").innerHTML = "<span class=\"successMessage\">You are signed into CrushPaper." +
 		"<br>This window will close in 5 seconds.";
 	
@@ -93,8 +93,6 @@ function showSignedInAndClose(service) {
 		window.close();
 	}, 5000);
 }
-
-showSignedInAndClose
 
 /** Returns a string to append to an URL so that a request for the URL can not be get cached by the browser. */
 function getAnUrlUniquer() {
@@ -104,17 +102,16 @@ function getAnUrlUniquer() {
 /** Confirm that the browser has a session and is signed in. */
 function confirmSessionAndSignedIn(service, closeEvenIfSignedIn, completionCallback) {
 	getServiceSessionCookie(service, function(sessionId) {
-		if(!sessionId || sessionId == "") {
+		if(!sessionId) {
 			showSignInTabAndClose(service);
 		} else {
 			var xhr = new XMLHttpRequest();
 
 			xhr.open("GET", service + "/isSignedIn/?sessionId=" + sessionId + "&" + getAnUrlUniquer(), true);
 			xhr.onreadystatechange = function() {
-				if (xhr.readyState == 4) {
-				
+				if (xhr.readyState === 4) {
 					var signedIn = false;
-					if (xhr.status == 200) {
+					if (xhr.status === 200) {
 						try {									
 							var response = JSON.parse(xhr.responseText);
 							if (("isSignedIn" in response) &&

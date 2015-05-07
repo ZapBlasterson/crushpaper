@@ -71,7 +71,7 @@ function onMouseOutCloseButton(ev) {
 }
 
 /** Handles mouseclick events for the close button of the popup window. */
-function onMouseClickCloseButton(ev) {
+function onMouseClickCloseButton() {
 	window.close();
 }
 
@@ -105,19 +105,20 @@ function sentenceSuccessfullySaved() {
 
 /** Returns the set of errors as a single string. */
 function getErrorText(responseText, whatDidNotHappen, whatProbablyDidNotHappen) {
+	var result;
 	if(responseText === "") {
-		var result = errorNoReponseFromServer(whatProbablyDidNotHappen);
+		result = errorNoReponseFromServer(whatProbablyDidNotHappen);
 	} else {
 		try {
 			var response = JSON.parse(responseText);
-			var result = whatDidNotHappen;
+			result = whatDidNotHappen;
 			if("errors" in response) {
 				for(var i = 0; i < response.errors.length; ++i) {
 					result += "<br>" + response.errors[i];
 				}
 			}
 		} catch(e) {
-			var result = errorJsonCouldNotBeParsed(whatProbablyDidNotHappen);
+			result = errorJsonCouldNotBeParsed(whatProbablyDidNotHappen);
 		}
 	}
 	
