@@ -2885,7 +2885,7 @@ public class Servlet extends HttpServlet {
 
 					if (!isOfficialSite) {
 						requestAndResponse
-								.print("<a class=\"externalsite\" title=\""
+								.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 										+ servletText
 												.labelCrushPaperComTooltip()
 										+ "\" href=\"http://www.crushpaper.com\">crushpaper.com</a>");
@@ -2898,17 +2898,17 @@ public class Servlet extends HttpServlet {
 					}
 
 					requestAndResponse
-							.print("<a class=\"externalsite\" title=\""
+							.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 									+ servletText.labelTwitterTooltip()
 									+ "\" href=\"https://twitter.com/ZapBlasterson\">Twitter</a>");
 
 					requestAndResponse
-							.print("<a class=\"externalsite\" title=\""
+							.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 									+ servletText.labelGithubTooltip()
 									+ "\" href=\"https://github.com/ZapBlasterson/crushpaper\">GitHub</a>");
 
 					requestAndResponse
-							.print("<a class=\"externalsite\" title=\""
+							.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 									+ servletText.labelGoogleGroupTooltip()
 									+ "\" href=\"https://groups.google.com/d/forum/crushpaper\">Google Group</a>");
 
