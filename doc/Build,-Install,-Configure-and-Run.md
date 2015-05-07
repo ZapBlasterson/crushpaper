@@ -87,17 +87,22 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. **temporary.directory = &lt;path/to/temporary/directory&gt;** - This is the path to the directory where temporary files are stored. These temporary files are JSON files that are in the process of being imported.
 1. **logs.directory = &lt;path/to/logs/directory&gt;** - This is the path to the directory where the server's HTTP request logs are stored.
  
-#### Mandatory Properties
+#### Recommended Properties
 1. **http.port = &lt;port&gt;** - This is the HTTP port that the server listens on. Either this property or `https.port` must be set. Both can be set.
+1. **singleUser = &lt;username&gt;** - If this set to any value then anyone who can access the server is treated as if they signed into the account named &lt;username&gt;. This may be reasonable to use if CrushPaper is installed on a PC or laptop which is accessible only to trusted networks. Defaults to blank which disables this functionality.
+1. **loopbackIsAdmin = &lt;true|false&gt;** - This treats any session as an admin user if the session is connected from the same host on which the CrushPaper server is running using the loopback interface, i.e `localhost:8080`, `loopback:8080`, `127.0.0.1:8080` or `0:0:0:0:0:0:0:1:8080`.
+1. **sessionStore.directory = &lt;path/to/directory&gt;** - This is the directory used to store HTTP session information. If this is not set then HTTP sessions will not be persist across server restarts.
+
+#### HTTPS Properties
 1. **https.port = &lt;port&gt;** - This is the HTTPS port that the server listens on. Either this property or `http.port` must be set. Both can be set.
 1. **https.keystore = &lt;path/to/file&gt;** - This is the keystore file used for HTTPS. It must be set if `https.port` is set.
 1. **https.keystorePassword = &lt;password&gt;** - This is the password for the keystore file. It is optional because not all keystores have passwords.
 1. **https.keymanagerPassword = &lt;password&gt;** - This is the keymanager password for the keystore file. Not all keystores require this.
+
+#### Optional Properties
 1. **allowSaveIfNotSignedIn = &lt;true|false&gt;** - If this is true creating a notebook automatically creates a new account for the session if the user is not signed in. Only set this to true for servers where you want to encourage people to try it out. Defaults to false.
 1. **allowSelfSignUp = &lt;true|false&gt;** - If this is true anyone who can access the server can create an account. Defaults to false.
-1. **singleUser = &lt;username&gt;** - If this set to any value then anyone who can access the server is treated as if they signed into the account named &lt;username&gt;. This may be reasonable to use if CrushPaper is installed on a PC or laptop which is accessible only to trusted networks. Defaults to blank which disables this functionality.
-1. **loopbackIsAdmin = &lt;true|false&gt;** - This treats any session as an admin user if the session is connected from the same host on which the CrushPaper server is running using the loopback interface, i.e `localhost:8080`, `loopback:8080`, `127.0.0.1:8080` or `0:0:0:0:0:0:0:1:8080`.
-1. **sessionStore.directory = &lt;path/to/directory&gt;** - This is the directory used to store HTTP session information. If this is not set then HTTP sessions will not be persist across server restarts.
+1. **https.proxiedPort = &lt;port&gt;** - Only set this if connections are forwarded from another port to `https.port`. This may only be set if `https.port` is set.
 
 ###H2 Database Documentation
 1. The H2 Database documentation is <a target="_blank" href="http://www.h2database.com">here</a>.

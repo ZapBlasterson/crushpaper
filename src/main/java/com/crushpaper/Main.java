@@ -81,6 +81,7 @@ public class Main {
 		File keyStorePath = configuration.getKeyStoreFile();
 		Integer httpPort = configuration.getHttpPort();
 		Integer httpsPort = configuration.getHttpsPort();
+		Integer httpsProxiedPort = configuration.getHttpsProxiedPort();
 		String keyStorePassword = configuration.getKeyStorePassword();
 		String keyManagerPassword = configuration.getKeyManagerPassword();
 		File temporaryDirectory = configuration.getTemporaryDirectory();
@@ -111,6 +112,14 @@ public class Main {
 			System.exit(1);
 		}
 
+		if (httpsProxiedPort != null && httpsPort == null) {
+			System.err.println("crushpaper: Sorry, `"
+					+ configuration.getHttpsProxiedPortKey() + "` can only be set if `"
+					+ configuration.getHttpsPortKey()
+					+ "` is set.");
+			System.exit(1);
+		}
+		
 		if (databaseDirectory == null) {
 			System.err.println("crushpaper: Sorry, `"
 					+ configuration.getDatabaseDirectoryKey()
@@ -146,9 +155,9 @@ public class Main {
 		dbLogic.createDb();
 		final Servlet servlet = new Servlet(dbLogic, singleUserName,
 				allowSelfSignUp, allowSaveIfNotSignedIn, loopbackIsAdmin,
-				httpPort, httpsPort, keyStorePath, keyStorePassword,
-				keyManagerPassword, temporaryDirectory, logDirectory,
-				sessionStoreDirectory, isOfficialSite, extraHeader);
+				httpPort, httpsPort, httpsProxiedPort, keyStorePath,
+				keyStorePassword, keyManagerPassword, temporaryDirectory,
+				logDirectory, sessionStoreDirectory, isOfficialSite, extraHeader);
 		servlet.run();
 	}
 

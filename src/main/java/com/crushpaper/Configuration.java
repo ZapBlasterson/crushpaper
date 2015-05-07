@@ -167,9 +167,21 @@ public class Configuration {
 		return "https.port";
 	}
 
+	/**
+	 * Returns the name of the key for the HTTPS port that is being proxied to the server's HTTPS port.
+	 */
+	public String getHttpsProxiedPortKey() {
+		return "https.proxiedPort";
+	}
+	
 	/** Returns the HTTPS port that the server should listen on. */
 	public Integer getHttpsPort() {
 		return getPort(getHttpsPortKey(), null);
+	}
+
+	/** Returns the HTTPS  port that is being proxied to the server's HTTPS port. */
+	public Integer getHttpsProxiedPort() {
+		return getPort(getHttpsProxiedPortKey(), null);
 	}
 
 	/** Returns the name of the key for the key store file used for SSL. */

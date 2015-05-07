@@ -126,7 +126,12 @@ function forwardToHttpsIfAvailableOrShow(search, func) {
 			toConcat = search;
 		}
 
-		location.assign("https://" + location.hostname + ":" + window.sessionDict.httpsPort +
+		var portString = "";
+		if(window.sessionDict.httpsPort !== "443") {
+			portString = ":" + window.sessionDict.httpsPort;
+		}
+		
+		location.assign("https://" + location.hostname + portString +
 				concatUrl(newPathname + location.search, toConcat));
 	} else {
 		func();

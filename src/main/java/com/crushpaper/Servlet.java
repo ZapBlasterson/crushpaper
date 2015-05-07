@@ -102,11 +102,11 @@ public class Servlet extends HttpServlet {
 
 	Servlet(DbLogic dbLogic, String singleUserName, Boolean allowSelfSignUp,
 			Boolean allowSaveIfNotSignedIn, Boolean loopbackIsAdmin,
-			Integer httpPort, Integer httpsPort, File keyStorePath,
-			String keyStorePassword, String keyManagerPassword,
-			File temporaryDirectory, File logDirectory,
-			File sessionStoreDirectory, Boolean isOfficialSite,
-			String extraHeader) {
+			Integer httpPort, Integer httpsPort, Integer httpsProxiedPort,
+			File keyStorePath, String keyStorePassword,
+			String keyManagerPassword, File temporaryDirectory,
+			File logDirectory, File sessionStoreDirectory,
+			Boolean isOfficialSite, String extraHeader) {
 		this.dbLogic = dbLogic;
 		this.singleUserName = singleUserName != null ? singleUserName
 				.toLowerCase() : null;
@@ -116,6 +116,7 @@ public class Servlet extends HttpServlet {
 		this.versionNumber = getVersionNumber();
 		this.httpPort = httpPort;
 		this.httpsPort = httpsPort;
+		this.httpsProxiedPort = httpsProxiedPort;
 		this.keyStorePath = keyStorePath;
 		this.keyStorePassword = keyStorePassword;
 		this.keyManagerPassword = keyManagerPassword;
@@ -134,6 +135,7 @@ public class Servlet extends HttpServlet {
 	private final String versionNumber;
 	private final Integer httpPort;
 	private final Integer httpsPort;
+	private final Integer httpsProxiedPort;
 	private final File keyStorePath;
 	private final String keyStorePassword;
 	private final String keyManagerPassword;
@@ -3021,7 +3023,11 @@ public class Servlet extends HttpServlet {
 
 					requestAndResponse
 							.print("\n<script type=\"application/json\" id=\"sessionDictJson\">{\n");
-					if (httpsPort != null) {
+
+					if (httpsProxiedPort != null) {
+						requestAndResponse.print("\"httpsPort\":"
+								+ httpsProxiedPort.intValue() + ",");
+					} else if (httpsPort != null) {
 						requestAndResponse.print("\"httpsPort\":"
 								+ httpsPort.intValue() + ",");
 					}
