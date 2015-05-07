@@ -94,7 +94,7 @@ div.helpDetails { margin-left:100px; }
 div.alone { border:1px solid transparent; padding:0px 2px 0px 2px; margin-bottom:3px; border-radius:4px; border:1px solid #DDD; position:relative; }
 div.fakealone { height:0px; border:none; border-top:solid 1px transparent; margin-bottom:0px; }
 div.hover-alone { background:#EFF8FD; border:1px solid #70c0e7; cursor:pointer; }
-div.selected-alone { background:#CCE5F0; border:1px solid #26a0da; cursor:pointer; }
+div.selected-alone { background:#E2F6FD; border:1px solid #26a0da; cursor:pointer; }
 div.hover-alone div.quotation { background:#D0E2EC; }
 div.selected-alone div.quotation { background:#8DC4E0; }
 img.handlesOwnClick { display:inline; }
