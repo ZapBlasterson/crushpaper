@@ -39,7 +39,6 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. They can be deleted. When you delete a note you can choose to delete the note's subnotes as well, or make them subnotes of the deleted note's parent.
 <!-- 1. You can choose whether just you or anyone can read a note. -->      
 1. The text of the note or quotation can be changed.
-1. The text of the note or quotation can contain <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a>. The markdown implementation used by CrushPaper is pegdown which is <a href="https://github.com/sirthias/pegdown/blob/master/README.markdown">documented here</a>.
 
 #### Searching and Browsing
 

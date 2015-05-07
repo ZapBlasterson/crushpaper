@@ -36,7 +36,6 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. Enable commenting and voting on notes.
 1. Support notification to other users with embedded @ in note.
 1. Support categorization with embedded @#tags in notes.
-1. When quoting with a browser extension automatically convert DOM in quoted text to markdown.
 1. Support creating quotations from PDFs.
 1. Add the capability to favorite notes.
 1. Support quoting on web sites that disable copy and paste.

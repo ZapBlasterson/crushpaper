@@ -336,7 +336,7 @@ public class DbLogic {
 		entry.setType(type);
 
 		if (note != null) {
-			note = note.trim();
+			note = cleanUpText(note);
 		}
 
 		if (entry.isNotebook()) {
@@ -346,7 +346,7 @@ public class DbLogic {
 		}
 
 		if (quotation != null) {
-			quotation.trim();
+			quotation = cleanUpText(quotation);
 			entry.setQuotation(quotation);
 		}
 
@@ -2551,11 +2551,11 @@ public class DbLogic {
 			}
 
 			if (url != null) {
-				url = url.trim();
+				url = cleanUpText(url);
 			}
 
 			if (title != null) {
-				title = title.trim();
+				title = cleanUpText(title);
 			}
 
 			// Create it.
@@ -2671,7 +2671,7 @@ public class DbLogic {
 		}
 
 		if (note != null) {
-			note = note.trim();
+			note = cleanUpText(note);
 		}
 
 		if (entry.isNotebook()) {
@@ -2691,12 +2691,17 @@ public class DbLogic {
 
 		if (entry.isQuotation()) {
 			if (quotation != null) {
-				quotation = quotation.trim();
+				quotation = cleanUpText(quotation);
 				entry.setQuotation(quotation);
 			}
 		}
 
 		return entry;
+	}
+
+	/** Fixes up the string for storing in the database. */
+	private String cleanUpText(String value) {
+		return value.replace("\r", "").trim();
 	}
 
 	/** API method. Shutdown the database. */

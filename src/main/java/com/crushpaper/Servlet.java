@@ -1836,7 +1836,7 @@ public class Servlet extends HttpServlet {
 			ArrayList<String> deletedEntryIds = null;
 			if (noteop != null) {
 				if (noteop.equals("edit") || noteop.equals("editNotebook")
-						|| noteop.equals("editSource")) {
+						|| noteop.equals("editSource") || noteop.equals("editNoteText")) {
 					if (id == null) {
 						returnJson400(requestAndResponse,
 								servletText.errorIdIsInvalidFormat());
@@ -1852,9 +1852,21 @@ public class Servlet extends HttpServlet {
 						return;
 					}
 
-					entry = dbLogic.editEntry(user, trueId, note, quotation,
-							isPublic, time, isUserAnAdmin(requestAndResponse),
-							errors);
+					if (noteop.equals("editNoteText")) {
+						entry = dbLogic.getEntryById(trueId);
+						if (entry == null) {
+							Errors.add(errors, servletText.errorEntryCouldNotBeFound());
+						} else {
+							entry = dbLogic.editEntry(user, trueId, note, entry.getQuotation(),
+									entry.getIsPublic(), time, isUserAnAdmin(requestAndResponse),
+									errors);
+						}
+					} else {
+						entry = dbLogic.editEntry(user, trueId, note, quotation,
+								isPublic, time, isUserAnAdmin(requestAndResponse),
+								errors);
+					}
+					
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("delete")
@@ -2056,7 +2068,8 @@ public class Servlet extends HttpServlet {
 							entry,
 							noteop.equals("edit")
 									|| noteop.equals("editNotebook")
-									|| noteop.equals("editSource"),
+									|| noteop.equals("editSource")
+									|| noteop.equals("editNoteText"),
 							noteop.equals("newNotebook"), userWasSignedIn, true);
 				}
 			}
@@ -2113,7 +2126,7 @@ public class Servlet extends HttpServlet {
 			result.append(",\"noteHtml\":"
 					+ JsonBuilder.quote(getNoteMarkdown(entry, false, entry.hasQuotation())) + "\n");
 			result.append(",\"quotationHtml\":"
-					+ JsonBuilder.quote(getQuotationMarkdown(entry, false))
+					+ JsonBuilder.quote(getQuotationMarkdown(entry))
 					+ "\n");
 		} else {
 			final StringBuilder innerResult = new StringBuilder();
@@ -3604,7 +3617,7 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	/** Returns the entry's note markdown. */
+	/** Returns the entry's note html. */
 	private String getNoteMarkdown(Entry entry, boolean noLinks, boolean noPlaceholder) {
 		final String value = entry.getNoteOrTitle();
 		if (value == null || value.isEmpty()) {
@@ -3620,18 +3633,23 @@ public class Servlet extends HttpServlet {
 			return "<span class=\"placeholder\">" + placeholder + "</span>";
 		}
 
-		return getMarkdownHtml(value, noLinks, false);
+		return textToPreishHtml(value);
 	}
 
-	/** Returns the entry's quotation markdown. */
-	private String getQuotationMarkdown(Entry entry, boolean noLinks) {
+	/** Converts to preish HTML. */
+	private String textToPreishHtml(final String value) {
+		return StringEscapeUtils.escapeHtml4(value).replace("\n", "<br>").replace(" ", "&nbsp;");
+	}
+
+	/** Returns the entry's quotation html. */
+	private String getQuotationMarkdown(Entry entry) {
 		final String value = entry.getQuotation();
 		if (value == null || value.isEmpty()) {
 			return "<span class=\"placeholder\">"
 					+ servletText.fragmentBlankQuotation() + "</span>";
 		}
 
-		return getMarkdownHtml(value, noLinks, false);
+		return textToPreishHtml(value);
 	}
 
 	/** Returns the destination directory for a new backup. */
@@ -5656,11 +5674,11 @@ public class Servlet extends HttpServlet {
 		if (entry.hasQuotation()) {
 			result.append("<div class=\"quotation\" title=\""
 					+ servletText.quotationInListTooltip() + "\">");
-			result.append(getQuotationMarkdown(entry, true));
+			result.append(getQuotationMarkdown(entry));
 			result.append("</div><br>");
 		}
 
-		result.append("<div class=\"note\" title=\""
+		result.append("<div class=\"note mousetrap\" title=\""
 				+ servletText.noteInListTooltip(entry.getType()) + "\">");
 		result.append(getNoteMarkdown(entry, true, entry.hasQuotation()));
 		result.append("</div>");
@@ -5807,11 +5825,11 @@ public class Servlet extends HttpServlet {
 
 			if (entry.hasQuotation()) {
 				result.append("<div class=\"quotation\">");
-				result.append(getQuotationMarkdown(entry, false));
+				result.append(getQuotationMarkdown(entry));
 				result.append("</div><br>");
 			}
 
-			result.append("<div class=\"note\">");
+			result.append("<div class=\"note mousetrap\">");
 			result.append(getNoteMarkdown(entry, false, entry.hasQuotation()));
 			result.append("</div>");
 

@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global isDisplayMobile */
+/* global mightHaveTouch */
 
 var uiTextEn = {};
 
@@ -97,7 +97,7 @@ uiTextEn.getOneEntryTermPlural = function(entryType) {
 };
 
 uiTextEn.popupTitleHelp = function() {
-	return "Keyboard and Mouse Help" + (!isDisplayMobile() ? " (press 'h' to see this at any time)" : "");
+	return "Keyboard and Mouse Help" + (!mightHaveTouch() ? " (press 'h' to see this at any time)" : "");
 };
 
 uiTextEn.sentenceSaving = function() {
@@ -911,10 +911,6 @@ uiTextEn.sentenceSuggestShortNotes = function() {
 	return "I suggest that you write short notes.<br>Make each list item a separate subnote by clicking the big white plus button.";
 };
 
-uiTextEn.sentenceFormattingText = function() {
-	return "<b>Text formatting hints:</b><br>&bull; *This is italicized* and **this is bolded**.<br>&bull; Indent four spaces to create a pre block.<br>&bull; End a line with two spaces to add a line break.<br><br>";
-};
-
 uiTextEn.tooltipPaneEdit = function(entryType) {
 	if (entryType === "notebooks") {
 		return "Click to enable or disable editing within this hierarchy of notebooks.";
@@ -946,4 +942,8 @@ uiTextEn.labelOnlyUnlinkSourcesAndQuotations = function(numSourcesFromNotebook, 
 	result += " that " + uiTextEn.areOrIs(numSourcesFromNotebook + numQuotationsFromNotebook) + " part of a notebook.";
 		
 	return result;
+};
+
+uiTextEn.errorNoteMustNotBeEmpty = function() {
+	return "Sorry, the note must not be blank.";
 };

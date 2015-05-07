@@ -162,7 +162,7 @@ function alreadySignedIn() {
 	html += uiText.sentenceSignInNotNeeded();
 
 	addThenCenterPopup(popup, html);
-	Mousetrap.bind(["enter"], closePopup);
+	Mousetrap.bind("enter", closePopup);
 }
 
 /** Starts the process of showing the create account dialog. */
@@ -565,6 +565,12 @@ function showPopupForError(title, message, onCloseCallbacks) {
 function createPopup(forError, onCloseCallbacks) {
 	commandsAreNowAllowed(false);
 
+	Mousetrap.bind("esc", function() {
+		if (closePopup()) {
+			return;
+		}
+	});
+
 	attachEventListener(document, "mousedown", clickToClosePopup);
 	var popup = window.popup = document.createElement('DIV');
 
@@ -572,7 +578,10 @@ function createPopup(forError, onCloseCallbacks) {
 		onCloseCallbacks = [];
 	}
 
-	onCloseCallbacks.unshift(function() { document.removeEventListener("mousedown", clickToClosePopup); } );
+	onCloseCallbacks.unshift(function() {
+		Mousetrap.unbind("esc");
+		document.removeEventListener("mousedown", clickToClosePopup);
+		} );
 
 	window.popupOnCloseCallbacks = onCloseCallbacks;
 	popup.onmousedown = popupOnMouseDown;
@@ -842,9 +851,9 @@ function refreshPane(ev) {
 }
 
 /** Refresh the contents of the pane. */
-function refreshPaneById(id, closeIfNotFound) {
+function refreshPaneById(id, closeIfNotFound, unlessIsPaneEl) {
 	var paneEl = document.getElementById(id);
-	if (paneEl) {
+	if (paneEl && paneEl !== unlessIsPaneEl) {
 		makePane(getUrlForPane(paneEl), null, paneEl, null, false, null, closeIfNotFound);
 	}
 }
@@ -855,29 +864,29 @@ function refreshBackupsPane() {
 }
 
 /** Refreshes the search pane. */
-function refreshSearchPane() {
-	refreshPaneById("search");
+function refreshSearchPane(unlessIsPaneEl) {
+	refreshPaneById("search", false, unlessIsPaneEl);
 }
 
 /** Refreshes the quotations pane. */
-function refreshQuotationsPane() {
-	refreshPaneById("quotations");
+function refreshQuotationsPane(unlessIsPaneEl) {
+	refreshPaneById("quotations", false, unlessIsPaneEl);
 }
 
 /** Refreshes the sources pane. */
-function refreshSourcesPane() {
-	refreshPaneById("sources");
+function refreshSourcesPane(unlessIsPaneEl) {
+	refreshPaneById("sources", false, unlessIsPaneEl);
 }
 
 /** Refreshes all source panes. */
-function refreshAllSourcePanes() {
+function refreshAllSourcePanes(unlessIsPaneEl) {
 	var allPanes = getAllPanesEl();
 	for (var i = 1; i < allPanes.childNodes.length; ++i) {
 		var paneIndex = i - 1;
 		var paneType = getPaneType(paneIndex);
 		if (paneType === "source") {
 			var paneEl = getPaneElByIndex(paneIndex);
-			refreshPaneById(paneEl.id, true);
+			refreshPaneById(paneEl.id, true, unlessIsPaneEl);
 		}
 	}
 }
@@ -959,7 +968,7 @@ function isDisplaySmall() {
 	return getWindowInnerWidth() < 500;
 }
 
-/** Closes the menu if on a mobile device. */
+/** Closes the menu if the the display is for a small device. */
 function closeMenuIfSmallDisplay() {
 	if (isDisplaySmall()) {
 		showOrHideMenu(true);
@@ -1983,7 +1992,13 @@ function documentOnMouseDown(ev, fromTouch) {
 	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
 	if (!clickedAloneEl) {
 		unselectAllEntries();
+		noteOnBlur();
 		return;
+	}
+
+	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note', '.alone');
+	if(!noteEl) {
+		noteOnBlur();
 	}
 
 	// Make sure the click handler for clickable things is called.
@@ -2158,7 +2173,7 @@ function elementToText(el) {
 
 	while (el) {
 		if (text !== "") {
-			text += ", ";
+			text += "; ";
 		}
 
 		text += el.nodeName;
@@ -2171,6 +2186,17 @@ function elementToText(el) {
 			text += " ." + el.className;
 		}
 
+		var offset = 0;
+		var temp = el;
+		while (temp.previousSibling) {
+			temp = temp.previousSibling;
+			++offset;
+		}
+		
+		if (el.parentNode) {
+			text += " (" + offset + "/" + el.parentNode.childNodes.length + ")";
+		}
+		
 		el = el.parentNode;
 	}
 
@@ -2310,8 +2336,8 @@ function handlePopStateGetPage() {
 			var bodyHtml = responseText;
 			if (bodyHtml.length) {
 				document.body.innerHTML = bodyHtml;
-				onFinishPageReload();
 				initializeInfoForPanes(true);
+				onFinishPageReload();
 				updateCurrentTitle();
 				showError = false;
 			}
@@ -2365,7 +2391,8 @@ function makeParentEntryMainOfTheContainer(aloneEl) {
 
 			addToEntryInfoDict(response.entryInfoDict);
 			fixPlusIcons(newSubtreeEl);
-
+			makeNotesInTreeContentEditable(newSubtreeEl);
+			
 			selectAndScrollToAloneEl(getAloneElByDbId(response.id));
 		} else {
 			var errorText = getErrorTextNotFound(xhr, uiText.errorParentNotFound());
@@ -2556,9 +2583,16 @@ function validateResponseForMakingParentMainOfContainer(responseText, prefix, ti
 	return showDictPopupForError(title, validateResponseText(responseText, prefix, [ "id", "entryInfoDict", "subtreeHtml", "skippedIndex"]));
 }
 
+var editResponseFields = [ "id", "note", "noteHtml", "quotation", "quotationHtml", "modTime", "isPublic", "type" ];
+
 /** Validate that a response from the server contains id, note, noteHtml, quotation, quotationHtml, modTime, isPublic and type. */
 function validateEditResponse(responseText) {
-	return showErrorInPopup(validateResponseText(responseText, uiText.errorProbablyNotSaved(), [ "id", "note", "noteHtml", "quotation", "quotationHtml", "modTime", "isPublic", "type" ]));
+	return showErrorInPopup(validateResponseText(responseText, uiText.errorProbablyNotSaved(), editResponseFields));
+}
+
+/** Validate that a response from the server contains id, note, noteHtml, quotation, quotationHtml, modTime, isPublic and type. */
+function validateInlineEditResponse(responseText, title) {
+	return showDictPopupForError(title, validateResponseText(responseText, uiText.errorProbablyNotSaved(), editResponseFields));
 }
 
 /** Validate that a response from the server contains id, note, quotation, subtreeHtml, isPublic, and type. */
@@ -2693,7 +2727,7 @@ function createEntryEl(entryData, subtreeEl, operation, entryType, quotationIt) 
 	formatDatetimesInSubtreeAndChildren(newSubtreeEl);
 	showOrHideDatetimesInSubtreeAndChildren(newSubtreeEl);
 	fixDivTitlesInSubtreeAndChildren(newSubtreeEl, entryType);
-
+	makeNotesInTreeContentEditable(newSubtreeEl);
 	return newSubtreeEl;
 }
 
@@ -4363,10 +4397,6 @@ function showPopupWithNoteFields(popup, title, entryType, noteop, dbId, extraHtm
 		html += "<input type=\"hidden\" id=\"noteoriginal\">";
 	}
 
-	if (entryType !== "notebook" && entryType !== "source") {
-		html += "<div class=\"infotext\">" + uiText.sentenceFormattingText() + "</div>";
-	}
-
 	html += endOfForm();
 
 	addThenCenterPopup(popup, html);
@@ -5485,19 +5515,6 @@ function selectDeleteOptionDelete() {
 	return false;
 }
 
-/** Adds all shortcuts at document creation. */
-function addAllShortCuts() {
-	addGlobalShortCuts();
-
-	Mousetrap.bind("esc", function() {
-		if (closePopup()) {
-			return;
-		}
-
-		unselectAllEntries();
-	});
-}
-
 /** Removes shortcuts for making a notebook public. */
 function removeMakePublicOptionShortCuts() {
 	// Disable for now this feature needs usability improvements.
@@ -5856,8 +5873,7 @@ function getCommandMetaInfo(entryType) {
 	        	              {
 	        	            	  "keys" : "Esc",
 	        	            	  "description" : uiText.helpUnselectAllOrDismiss(entryType),
-	        	            	  "neverRemove" : true
-	        	              },
+	        	            	  "function": unselectAllEntries	        	              },
 	        	              {
 	        	            	  "keys" : "Up",
 	        	            	  "description" : uiText.helpSelectAbove(entryType),
@@ -5916,7 +5932,7 @@ function removeContextMenuShortCuts() {
 
 /** Returns true if there should be a shortcut for the command in the context menu. */
 function supportShortcutInContextMenu(command) {
-	return command.keys.match("^[a-zA-Z0-9]+$") && !command.neverRemove;
+	return command.keys.match("^[a-zA-Z0-9]+$");
 }
 
 /** Shows the context menu popup. */
@@ -6018,10 +6034,8 @@ function addGlobalShortCuts() {
 		if ("commands" in commandMetaInfoSection) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
-				if (!command.neverRemove) {
-					Mousetrap.bind(command.keys.toLowerCase(),
-							command["function"]);
-				}
+				Mousetrap.bind(command.keys.toLowerCase(),
+						command["function"]);
 			}
 		}
 	}
@@ -6046,9 +6060,7 @@ function removeGlobalShortCuts() {
 		if ("commands" in commandMetaInfoSection) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
-				if (!command.neverRemove) {
-					Mousetrap.unbind(command.keys.toLowerCase());
-				}
+				Mousetrap.unbind(command.keys.toLowerCase());
 			}
 		}
 	}
@@ -6421,6 +6433,7 @@ function requestChildren(subtreeEl, levels) {
 					formatDatetimesInSubtreeAndChildren(newSubtreeEl);
 					showOrHideDatetimesInSubtreeAndChildren(newSubtreeEl);
 					fixDivTitlesInSubtreeAndChildren(newSubtreeEl, getEntryType(dbId));
+					makeNotesInTreeContentEditable(newSubtreeEl);
 				}
 
 				addToEntryInfoDict(response.entryInfoDict);
@@ -6943,7 +6956,7 @@ function onFinishFullPageLoad() {
 	document.ontouchend = documentOnTouchEnd;
 	window.onresize = recenterPopupWindow;
 	attachEventListener(document, "keydown", stopScrollTransition);
-	addAllShortCuts();
+	addGlobalShortCuts();
 	onFinishPageReload();
 	registerCommandKeyCallbacks();
 
@@ -7003,9 +7016,11 @@ function fixContainer(container, entryInfoDictEl, paneIndex) {
 			entryType = "account";
 		}
 
-		if (entryType) {
+		if (entryType) {	
 			fixDivTitlesInSubtreeAndChildren(container, entryType);
 		}
+		
+		makeNotesInTreeContentEditable(container, paneType);
 	}
 }
 
@@ -7332,6 +7347,368 @@ function showOrHideMenu(onlyHide) {
 			child.style.display = "block";
 		}
 	}
+}
+
+/** Makes every note in the element content editable if the pane is right and so is the platform. */
+function makeNotesInTreeContentEditable(el, paneType) {
+	if(!paneType) {
+		var paneEl = getContainingPaneEl(el);
+		var paneIndex = getIndexOfPaneEl(paneEl);
+		paneType = getPaneType(paneIndex);
+	}
+	
+	if (paneType === "notebooks" || mightHaveTouch() || !window.getSelection || !document.createRange) {
+		return;
+	}
+
+	var notes = el.getElementsByClassName("note");
+	for (var i = 0; i < notes.length; ++i) {
+		var note = notes[i];
+		note.setAttribute("contentEditable", true);
+		attachEventListener(note, "focus", noteOnFocus);
+		attachEventListener(note, "blur", noteOnBlur);
+		attachEventListener(note, "input", noteOnInput);
+	}
+}
+
+// Globals for note text editing.
+var editedNoteEl = null;
+var oldNoteHtml = null;
+var noteIsFocused = false;
+
+/** Undo the unsaved edit to a note text. */
+function undoNoteEdit() {
+	if (oldNoteHtml === null) {
+		return;
+	}
+	
+	editedNoteEl.innerHTML = oldNoteHtml;
+}
+
+/** Clear the note text editing globals. */
+function clearNoteFromEditing() {
+	oldNoteHtml = null;
+	editedNoteEl = null;
+}
+
+/** Handle the user focusing on note text either by
+ * clicking on it or dragging into it.
+ */
+function noteOnFocus(ev) {
+	noteIsFocused = true;
+	removeGlobalShortCuts();
+	addInlineNoteEditShortCuts();
+	prepareNoteForInlineEdit(ev);
+}
+
+/** Handle loss of focus on the note text either by clicking out of it
+ *  or programmatically.
+ */
+function noteOnBlur() {
+	noteIsFocused = false;
+	deselectAllSelections();
+	
+	if (!editedNoteEl) {
+		return;
+	}
+	
+	// In case blur is called twice.
+	if(!areCommandsAllowed) {
+		return;
+	}
+	
+	removeInlineNoteEditShortCuts();
+	if (!saveNoteTextAfterInlineEdit()) {
+		addGlobalShortCuts();
+	}
+}
+
+/** Handle input to the note.
+ * Can by by keypress, drag, cut or paste.
+ */
+function noteOnInput(ev) {
+	var eventEl = getEventEl(ev);
+	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note');
+
+	// In case HTML was dragged into the note replace it.
+	if (noteEl.childNodes.length !== 1 || (noteEl.childNodes.length === 1 && noteEl.childNodes[0].nodeName === "#text")) {
+		var caretPosition;
+		if (noteIsFocused) {
+			caretPosition = getCaretPosition(noteEl);
+		}
+		
+		var newNoteHtml = getHtmlOfEl(noteEl);
+		noteEl.innerHTML = newNoteHtml;
+		
+		if (noteIsFocused) {
+			setCaretPosition(noteEl, caretPosition);
+			getCaretPosition(noteEl);
+		}
+	}
+	
+	if (!noteIsFocused) {
+		saveNoteTextAfterInlineEdit(ev);
+	}
+}
+
+/** Prepare a note text for editing by stashing a copy of it. */
+function prepareNoteForInlineEdit(ev) {
+	if (oldNoteHtml !== null) {
+		return;
+	}
+
+	var eventEl = getEventEl(ev);
+	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note');
+	oldNoteHtml = getHtmlOfEl(noteEl);
+	editedNoteEl = noteEl;
+}
+
+/** Encode characters into HTML. */
+function htmlEncode(value) {
+	return value.
+		replace(/&/g, "&amp;").
+    	replace(/</g, "&lt;").
+    	replace(/>/g, "&gt;").
+    	replace(/\n/g, "<br>").
+    	replace(/ /g, "&nbsp;");
+}
+
+
+/** Returns the preish HTML text of a simple element tree. */
+function getHtmlOfEl(el) {
+	var result = "";
+	for (var i = 0; i < el.childNodes.length; i++) {
+        var child = el.childNodes[i];
+        if (child.nodeName === "#text") {
+        	result += htmlEncode(child.nodeValue);
+        } else if (child.nodeName === "BR") {
+        	result += "<br>";
+        } else {
+        	result += getHtmlOfEl(child);
+        }
+	}
+	
+	return result;
+}
+
+
+/** Returns the preish text of a simple element tree. */
+function getTextOfEl(el) {
+	var result = "";
+	for (var i = 0; i < el.childNodes.length; i++) {
+        var child = el.childNodes[i];
+        if (child.nodeName === "#text") {
+        	result += child.nodeValue.replace(/&nbsp;/g, " ").replace(/\u00A0/g, " ");
+        } else if (child.nodeName === "BR") {
+        	result += "\n";
+        } else {
+        	result += getTextOfEl(child);
+        }
+	}
+	
+	return result;
+}
+
+/** Adds shortcuts for inline note text editing. */
+function addInlineNoteEditShortCuts() {
+	Mousetrap.bind("esc", function() {
+		undoNoteEdit();
+		editedNoteEl.blur();
+	});
+}
+
+/** Removes shortcuts for inline note text editing. */
+function removeInlineNoteEditShortCuts() {
+	Mousetrap.unbind("esc");
+}
+
+/** Sets the caret position within an el tree. */
+function setCaretPosition(el, position) {
+	var length = 0;
+	var previousLength = 0;
+	for (var i = 0; i < el.childNodes.length; ++i) {
+		var child = el.childNodes[i];
+		previousLength = length;
+	    if (child.nodeName === "#text") {
+	    	length += child.nodeValue.length + 1;
+	    } else if (child.nodeName === "BR") {
+	    	length += 1;
+	    }
+
+	    if(length > position) {
+	    	position = position - previousLength;
+	    	setCaretPositionHelper(child, position);
+	    	return;
+	    }
+	}
+}
+
+var isFireFox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+/** Sets the caret position within an el. */
+function setCaretPositionHelper(el, position) {
+    if (window.getSelection && document.createRange) {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        var range = document.createRange();
+        if(isFireFox && el.nodeName === "BR") {
+        	var textNode = document.createTextNode("");
+       		el.parentNode.insertBefore(textNode, el);
+        	el = textNode;
+        }
+        
+	    range.setStart(el, position);
+	    range.setEnd(el, position);
+        sel.addRange(range);
+    }
+}
+
+/** Gets the caret position within an el tree. */
+function getCaretPosition(el) {
+	var caretPos = 0;
+	var range;
+	if (window.getSelection) {
+		var selection = window.getSelection();
+		if (selection.rangeCount) {
+			range = selection.getRangeAt(0);
+			if (range.commonAncestorContainer.nodeName === "#text") {
+				caretPos = range.endOffset + getCaretPositionHelper(el, range.startContainer);
+			} else {
+				var startNode = range.startContainer;
+				if (range.startContainer.childNodes.length !== 0) {
+					startNode = range.startContainer.childNodes[range.endOffset];
+				}
+				
+				caretPos = getCaretPositionHelper(el, startNode);
+			}
+		}
+	}
+	
+	return caretPos;
+}
+
+/** Gets the caret position within an el. */
+function getCaretPositionHelper(stopAt, el) {
+	if (stopAt === el || !el) {
+		return 0;
+	}
+	
+	var result = 0;
+	for (var i = 0; i < el.parentNode.childNodes.length; i++) {
+        var child = el.parentNode.childNodes[i];
+        if (child === el) {
+        	break;
+        }
+        
+       	result += getCaretPositionsInEl(child);
+	}
+
+	return result + getCaretPositionHelper(stopAt, el.parentNode);
+}
+
+/** Gets the logical length of an el in terms of cursor positions. */
+function getCaretPositionsInEl(el) {
+    if (el.nodeName === "#text") {
+    	return el.nodeValue.length + 1;
+    } else if (el.nodeName === "BR") {
+        return 1;
+    }
+
+	var result = 0;
+	for (var i = 0; i < el.childNodes.length; i++) {
+        var child = el.childNodes[i];
+       	result += getCaretPositionsInEl(child);
+	}
+
+	return result;
+}
+
+/** Removes any selection from the page. */
+function deselectAllSelections() {
+    var selection = ('getSelection' in window) ? window.getSelection() :
+        ('selection' in document) ? document.selection : null;
+	  
+    if ('removeAllRanges' in selection) {
+        selection.removeAllRanges();
+    } else if ('empty' in selection) {
+        selection.empty();
+    }
+}
+
+/** Save a note text after inline editing. */
+function saveNoteTextAfterInlineEdit() {
+	var noteEl = editedNoteEl;
+	var aloneEl = getCorrespondingAloneEl(noteEl);
+	var dbId = getDbIdFromEl(aloneEl);
+	var newNoteHtml = getHtmlOfEl(noteEl);
+	var newNoteText = getTextOfEl(noteEl);
+	
+	var doNotSave = false;
+	if (oldNoteHtml === newNoteHtml) {
+		doNotSave = true;
+	}
+	
+	var returnValue = false;
+	var entryType = getEntryType(dbId);
+	var title = uiText.popupTitleEditTheSelectedNote(entryType);
+	if (!doNotSave) {
+		if (newNoteText.trim() === "") {
+			showPopupForError(title, uiText.errorNoteMustNotBeEmpty());
+			doNotSave = true;
+			returnValue = true;
+		}
+	}
+	
+	if (doNotSave) {
+		undoNoteEdit();
+		clearNoteFromEditing();
+		return returnValue;
+	}
+	
+	var xhr = createJsonAsyncRequest("POST", "/noteOpJson?" + getAnUrlUniquer(), function() {
+		aRequestIsInProgress(false);
+		commandsAreNowAllowed(true);
+
+		if (xhr.status === 200) {
+			var response = validateInlineEditResponse(xhr.responseText, title);
+			if (!response) {
+				undoNoteEdit();
+				clearNoteFromEditing();
+				return;
+			}
+
+			clearNoteFromEditing();
+			
+			updateDisplayedEntryDetails(response);
+
+			setEntryInfo(response.id, response.note, response.quotation, response.isPublic, response.type, getEntryHasChildren(response.id));
+
+			var paneForEntryEl = document.getElementById(response.id);
+			if (paneForEntryEl) {
+				var pageTitleDiv = getTitleDivFromPaneEl(paneForEntryEl);
+				pageTitleDiv.innerHTML = response.noteHtml;
+				updatePaneTitle(getIndexOfPaneEl(paneForEntryEl), response.note);
+			}
+
+			refreshSearchPane();
+			addGlobalShortCuts();
+		} else {
+			undoNoteEdit();
+			clearNoteFromEditing();
+			var errorText = getErrorText(xhr, uiText.errorNotSaved(), uiText.errorProbablyNotSaved());
+			showPopupForError(title, errorText);
+		}
+	});
+
+	var message = { 'csrft': getCsrft(),
+			'noteop': 'editNoteText',
+			'id': dbId,
+			'note': newNoteText };
+	xhr.send(JSON.stringify(message));
+	aRequestIsInProgress(true);
+	commandsAreNowAllowed(false);
+
+	return true;
 }
 
 /** JSHint does not provide a method for annotating externally used function as used
