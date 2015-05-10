@@ -38,7 +38,14 @@ public class DbLogicImpermanent extends DbLogic {
 
 	/** Converts a real entry to a test entry, including its children. */
 	private TestEntry convertToTestEntry(Entry entry) {
-		final TestEntry testEntry = new TestEntry(entry.getNoteOrTitle(),
+		String value = entry.getNoteOrTitle();
+		
+		// This is pretty hacky. 
+		if (value == null && entry.isRoot()) {
+			value = "R";
+		}
+		
+		final TestEntry testEntry = new TestEntry(value,
 				entry.getId());
 
 		final ArrayList<Entry> childrenEntries = getChildrenInOrder(entry);
@@ -121,17 +128,33 @@ public class DbLogicImpermanent extends DbLogic {
 		if (testEntry.getIsSource()) {
 			entry = updateOrCreateSource(user, null, testEntry.getValue(), testEntry.getValue(), entryCreateTime, entryCreateTime, false, errors);
 		} else {
-			Entry source = null;
-			String type = parentId == null ? DbLogic.Constants.root : null;
-			if (testEntry.getSourceValue() != null) {
-				type = DbLogic.Constants.quotation;
-				source = getEntryById(testEntrySet.getRootEntryByValue(testEntry.getSourceValue()).getId());
+			if (testEntry.getRootValue() != null) {
+				entry = createEntryNoteBook(user,
+						testEntry.getValue(), entryCreateTime, parentId,
+						parentId == null ? null : TreeRelType.Parent, false, false,
+						false, false, errors);
+				if (entry != null) {
+					Entry root = getEntryById(entry.getRootId());
+					root.setNote(testEntry.getRootValue());
+				}
+			} else  if (testEntry.getNotebookValue() != null) {
+				Entry notebook = getEntryById(testEntrySet.getRootEntryByValue(testEntry.getNotebookValue()).getId());
+				if (notebook != null) {
+					entry = getEntryById(notebook.getRootId());
+				}
+			} else {
+				Entry source = null;
+				String type = parentId == null ? DbLogic.Constants.root : null;
+				if (testEntry.getSourceValue() != null) {
+					type = DbLogic.Constants.quotation;
+					source = getEntryById(testEntrySet.getRootEntryByValue(testEntry.getSourceValue()).getId());
+				}
+	
+				entry = createSimpleEntry(user,
+						testEntry.getValue(), entryCreateTime, parentId,
+						parentId == null ? null : TreeRelType.Parent, false, false,
+						false, false, type, errors, source);
 			}
-		
-			entry = createSimpleEntry(user,
-					testEntry.getValue(), entryCreateTime, parentId,
-					parentId == null ? null : TreeRelType.Parent, false, false,
-					false, false, type, errors, source);
 		}
 		
 		if (entry == null) {

@@ -28,6 +28,8 @@ class TestEntry {
 	private long createTime = -1L;
 	private boolean isSource;
 	private String sourceValue;
+	private String notebookValue;
+	private String rootValue;
 	
 	public TestEntry(String value) {
 		this.value = value;
@@ -52,6 +54,12 @@ class TestEntry {
 		this.value = value;
 		this.children = children;
 	}
+	
+	public TestEntry(String value, TestEntry[] children, String notebookValue) {
+		this.value = value;
+		this.children = children;
+		this.notebookValue = notebookValue;
+	}
 
 	public void setChildren(TestEntry[] children) {
 		this.children = children;
@@ -60,6 +68,12 @@ class TestEntry {
 	static TestEntry newQuotation(String value, String sourceValue) {
 		TestEntry entry = new TestEntry(value);
 		entry.sourceValue = sourceValue;
+		return entry;
+	}
+
+	static TestEntry newNotebook(String value, String rootValue) {
+		TestEntry entry = new TestEntry(value);
+		entry.rootValue = rootValue;
 		return entry;
 	}
 
@@ -134,5 +148,13 @@ class TestEntry {
 
 	public String getSourceValue() {
 		return sourceValue;
+	}
+	
+	public String getRootValue() {
+		return rootValue;
+	}
+	
+	public String getNotebookValue() {
+		return notebookValue;
 	}
 }

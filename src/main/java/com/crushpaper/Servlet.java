@@ -4195,11 +4195,18 @@ public class Servlet extends HttpServlet {
 							+ "\">"
 							+ "<table class=\"nopadding\"><tr><td>"
 							+ "<input type=\"file\" name=\"file\"/>"
-							+ "</td></tr><tr><td>"
+							+ "</td></tr>" 
+							+ "<tr><td>"
 							+ "<input type=\"checkbox\" name=\"reuseIds\" id=\"reuseIds\" checked><label for=\"reuseIds\">"
 							+ servletText.sentenceReuseIds()
 							+ "</label><br>"
-							+ "</td></tr><tr><td>"
+							+ "</td></tr>"
+							+ "<tr><td>"
+							+ "<input type=\"checkbox\" name=\"msWordListFormat\" id=\"msWordListFormat\" checked><label for=\"msWordListFormat\">"
+							+ servletText.sentenceMsWordListFormat()
+							+ "</label><br>"
+							+ "</td></tr>"
+							+ "<tr><td>"
 							+ "<button class=\"specialbutton withTopMargin\">"
 							+ servletText.buttonImport()
 							+ "</button>"
@@ -5118,10 +5125,8 @@ public class Servlet extends HttpServlet {
 		final Errors errors = new Errors();
 		final Part part = requestAndResponse.request.getPart("file");
 
-		final String reuseIdsString = requestAndResponse.request
-				.getParameter("reuseIds");
-		final boolean reuseIds = reuseIdsString != null
-				&& reuseIdsString.equals("on");
+		final boolean reuseIds = getCheckBoxValue(requestAndResponse, "reuseIds");
+		final boolean msWordListFormat = getCheckBoxValue(requestAndResponse, "msWordListFormat");
 
 		final String csrft = requestAndResponse.getParameter("csrft");
 
@@ -5140,9 +5145,17 @@ public class Servlet extends HttpServlet {
 			final InputStreamReader streamReader = new InputStreamReader(
 					stream, Charset.forName("UTF-8"));
 
-			final boolean result = dbLogic.importJsonForUser(
-					getEffectiveUserId(requestAndResponse), streamReader,
-					reuseIds, isUserAnAdmin(requestAndResponse), errors);
+			boolean result = false;
+			if (msWordListFormat) {
+				result = dbLogic.importMsWordListFormatForUser(
+					getEffectiveUserId(requestAndResponse), streamReader, isUserAnAdmin(requestAndResponse),
+					errors);
+			} else {
+				result = dbLogic.importJsonForUser(
+						getEffectiveUserId(requestAndResponse), streamReader,
+						reuseIds, isUserAnAdmin(requestAndResponse), errors);
+			}
+			
 			if (!result) {
 				requestAndResponse.print(servletText.errorImportFailed()
 						+ "<br>");
@@ -5164,6 +5177,14 @@ public class Servlet extends HttpServlet {
 		}
 
 		addIFrameFooter(requestAndResponse);
+	}
+
+	/** Returns the boolean value of a checkbox input field. */
+	private boolean getCheckBoxValue(RequestAndResponse requestAndResponse, String fieldName) {
+		final String valueString = requestAndResponse.request
+				.getParameter(fieldName);
+		return valueString != null
+				&& valueString.equals("on");
 	}
 
 	/* Prints an HTML header for an iframe page. */

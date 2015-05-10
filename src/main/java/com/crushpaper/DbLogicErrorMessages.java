@@ -591,4 +591,8 @@ public class DbLogicErrorMessages {
 	public String errorUserOnlyQuotationsAndSourcesMayBeUnlinked() {
 		return "Sorry, only quotations and sources may be unlinked.";
 	}
+
+	public String errorProblemReadingInput() {
+		return "Sorry, there was a problem reading the input.";
+	}
 }

@@ -17,6 +17,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.crushpaper;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -1476,6 +1477,119 @@ public class DbLogic {
 		return realChildIdsInOrder;
 	}
 
+	/**
+	 * API method. This method starts its own transactions. Imports a file of notes
+	 * and creates a notebook for those notes.
+	 */
+	public boolean importMsWordListFormatForUser(String userId,
+			InputStreamReader streamReader, boolean isAdmin,
+			Errors errors) {
+		boolean result = reallyImportMsWordListFormatForUser(userId, streamReader, isAdmin, errors);
+		if (!result) {
+			rollback();
+		} else {
+			commit();
+		}
+
+		return result;
+	}
+	
+	/** Helper method. Does all the real work for importMsWordListFormatForUser(). */
+	public boolean reallyImportMsWordListFormatForUser(String userId,
+			InputStreamReader streamReader, boolean isAdmin,
+			Errors errors) {
+
+		if (userId == null) {
+			Errors.add(errors, errorMessages.errorsUserIdIsNull());
+			return false;
+		}
+
+		if (streamReader == null) {
+			Errors.add(errors, errorMessages.errorsTheInputStreamReaderIsNull());
+			return false;
+		}
+		
+		BufferedReader bf = new BufferedReader(streamReader);
+		
+		final User user = getUserById(userId);
+		if (user == null) {
+			return false;
+		}
+
+		boolean createdAnyChildren = false;
+		try {
+			final long now = System.currentTimeMillis();
+			Entry notebook = createEntryNoteBook(user, "Imported Notebook", now,
+					null, null, false, false, false, isAdmin, errors);
+			if(notebook == null) {
+				return false;
+			}
+			
+			Entry root = getEntryById(notebook.getRootId());
+
+			ArrayList<Entry> parents = new ArrayList<Entry>();
+			HashMap<String, Integer> bulletToDepth = new HashMap<String, Integer>();
+			String line = null;
+			Integer previousDepth = 0;
+			parents.add(root);
+			while ((line = bf.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				
+				String note = line;
+				Integer depth = 1;
+				if (line.length() > 1 && line.charAt(1) == '\t') {
+					String bullet = line.substring(0, 1);
+					note = line.substring(2);
+					
+					depth = bulletToDepth.get(bullet);
+					if (depth == null) {
+						depth = new Integer(bulletToDepth.size() + 1);
+						bulletToDepth.put(bullet, depth);
+					}
+					
+					for (int i = parents.size(); i > depth.intValue(); --i) {
+						parents.remove(i - 1);
+					}
+					depth = new Integer(parents.size() + 1);
+				} else {
+					previousDepth = 0;
+					while (parents.size() > 1) {
+						parents.remove(parents.size() - 1);
+					}
+				}
+
+				if (parents.isEmpty()) {
+					return false;
+				}
+				
+				Entry parent = parents.get(parents.size() - 1);
+				
+				Entry entry = createSimpleEntry(user, note, now,
+								parent.getId(), TreeRelType.Parent,
+								false, false,
+								false, isAdmin, Constants.note, errors, null);
+				if (entry == null) {
+					return false;
+				}
+				
+				if (previousDepth.intValue() != depth.intValue()) {
+					parents.add(entry);
+				} else {
+					parents.set(parents.size() - 1, entry);
+				}
+				
+				createdAnyChildren = true;
+			}
+		} catch (IOException e) {
+			Errors.add(errors, errorMessages.errorProblemReadingInput());
+		}
+		
+		return createdAnyChildren;
+	}
+	
 	/**
 	 * API method. This method starts its own transactions. Imports JSON for a
 	 * user's entries and sources.

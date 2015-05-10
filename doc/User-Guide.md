@@ -54,7 +54,13 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 1. You can import notes, quotations and sources by uploading a JSON file to the server. (JSON is a text format that is easy to manipulate.)
 1. If you select "Reuse note IDs if possible" then the CrushPaper server will try to recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.
-1. If you unselect "Reuse note IDs if possible" then the CrushPaper server will generate new IDs for your notes, quotations and sources.
+1. If you select "The file is in MS Word List Format" then the CrushPaper server will treat the file as if it contains a single notebook in this format:
+<pre>
+*\tNote at level 1<br>
+O\tNote at level 2<br>
+?\tNote at level x<br>
+</pre>
+CrushPaper assumes that if the bullet character that appears at the beginning of the line has not been seen before then the line should be at a level below any other levels. 
 
 ### Account Information
 

@@ -96,7 +96,7 @@ public class TestEntrySet {
 				.entrySet()) {
 			final String otherId = other.getIdForValue(entry.getKey());
 
-			// Only check the values that are present in both
+			// Only check the values that are present in both.
 			if (otherId != null && !otherId.equals(entry.getValue().getId())) {
 				return false;
 			}

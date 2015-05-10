@@ -39,7 +39,7 @@ div.welcomePaneTitle { position:static; padding-bottom:10px; padding-right:10px;
 div.paneButtons { padding-right:10px; padding-bottom:13px; padding-top:10px; }
 div.paneButtonsBg { display:inline-block; position:relative; background-color:white; float:right; white-space:nowrap; border-radius:3px }
 div.paneButtons > * { vertical-align:middle; margin-left:5px; }
-iframe { border:0px; width:270px; height:100px; }
+iframe { border:0px; width:270px; height:115px; }
 .withTopMargin { margin-top:10px; }
 div.paneSection > h3:first-child { margin-top:0px; }
 div.paneSection { border-bottom:1px solid #DDD; padding:10px; position:relative; }

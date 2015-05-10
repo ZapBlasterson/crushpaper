@@ -1109,7 +1109,13 @@ public class ServletText {
 	public String introTextImport() {
 		return "You can import notes, quotations and sources by uploading a JSON file to the server using this page.<br><br>"
 				+ "If you select \"Reuse note IDs if possible\" then the CrushPaper server will try recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.<br><br>"
-				+ "If you unselect \"Reuse note IDs if possible\" then the CrushPaper server will generate new IDs for your notes, quotations and sources.<br><br>";
+				+ "If you select \"The file is in MS Word List Format\" then the CrushPaper server will treat the file as if it contains a single notebook in this format:" +
+				"<pre>" +
+				"*\tNote at level 1<br>" +
+				"O\tNote at level 2<br>" +
+				"?\tNote at level x<br>" +
+				"</pre>" +
+				"CrushPaper assumes that if the bullet character that appears at the beginning of the line has not been seen before then the line should be at a level below any other levels.";
 	}
 
 	public String tooltipOptions() {
@@ -1230,5 +1236,9 @@ public class ServletText {
 
 	public String errorNeedLongerQuery() {
 		return "Sorry, please try a longer query.";
+	}
+
+	public String sentenceMsWordListFormat() {
+		return "The file is in MS Word List Format.";
 	}
 }
