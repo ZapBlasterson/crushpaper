@@ -6976,7 +6976,7 @@ function onFinishFullPageLoad() {
 	document.onmouseover = documentOnMouseOver;
 	document.ontouchend = documentOnTouchEnd;
 	window.onresize = recenterPopupWindow;
-	attachEventListener(document, "keydown", stopScrollTransition);
+
 	addGlobalShortCuts();
 	onFinishPageReload();
 	registerCommandKeyCallbacks();
