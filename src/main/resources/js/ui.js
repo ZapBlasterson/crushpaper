@@ -2008,8 +2008,17 @@ function documentOnMouseDown(ev, fromTouch) {
 		noteOnBlur();
 	}
 
+	var clickedDbId = getDbIdFromEl(clickedAloneEl);
+	
 	// Make sure the click handler for clickable things is called.
 	if (isElementOfClass(eventEl, "justDrag")) {
+		if (ev.shiftKey) {
+			aloneElOnShiftClick(clickedAloneEl, clickedDbId);
+			return;
+		}
+
+		selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey);
+		
 		startAloneElDrag(clickedAloneEl, ev);
 		return;
 	}
@@ -2042,57 +2051,13 @@ function documentOnMouseDown(ev, fromTouch) {
 		return;
 	}
 
-	var clickedDbId = getDbIdFromEl(clickedAloneEl);
-
-	// Shift click
+	// Shift click.
 	if (ev.shiftKey) {
-		var clickedSubtreeEl = getSubtreeElForAloneEl(clickedAloneEl);
-		if (doesSubtreeElHaveParent(clickedSubtreeEl)) {
-			var parentClickedSubtreeEl = getParentOfSubtreeEl(clickedSubtreeEl);
-
-			var startFromTheFirstChildOfTheClickedParent = true;
-			var lastSelectedDbId = getSelectedDbId(true);
-			if (lastSelectedDbId) {
-				var lastSelectedSubtreeEl = getSubtreeElByDbId(lastSelectedDbId);
-
-				if (doesSubtreeElHaveParent(lastSelectedSubtreeEl)) {
-					var parentLastSelectedSubtreeEl = getParentOfSubtreeEl(lastSelectedSubtreeEl);
-
-					if (getDbIdFromSubtreeEl(parentLastSelectedSubtreeEl) === getDbIdFromSubtreeEl(parentClickedSubtreeEl)) {
-						startFromTheFirstChildOfTheClickedParent = false;
-					}
-				}
-			}
-
-			var childrenOfClickedParent = copyArray(getChildrenOfSubtreeEl(parentClickedSubtreeEl));
-
-			if (startFromTheFirstChildOfTheClickedParent) {
-				lastSelectedDbId = getDbIdFromSubtreeEl(childrenOfClickedParent[0]);
-			}
-
-			var indexOfLastSelected = getIndexOfChildById(childrenOfClickedParent, lastSelectedDbId);
-			var indexOfLastClicked = getIndexOfChildById(childrenOfClickedParent, clickedDbId);
-			var minIndex = Math.min(indexOfLastSelected, indexOfLastClicked);
-			var maxIndex = Math.max(indexOfLastSelected, indexOfLastClicked);
-			for (var i = minIndex; i <= maxIndex; ++i) {
-				selectAloneEl(getAloneElFromSubtreeEl(childrenOfClickedParent[i]));
-			}
-
-			// Make sure this is the last selected in case the user shift clicks again.
-			selectAloneEl(clickedAloneEl);
-		}
-
-		return false;
+		aloneElOnShiftClick(clickedAloneEl, clickedDbId);
+		return;
 	}
 
-	// Control click
-	if (!ev.ctrlKey && !ev.altKey) {
-		unselectAllEntries();
-	}
-
-	toggleSelection(clickedDbId);
-
-	updateSelectionDisplayForAloneEl(clickedAloneEl);
+	selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey);
 
 	var textIsSelectable = getElOrAncestor(eventEl, 'DIV', 'note', '.alone') ||
 	getElOrAncestor(eventEl, 'DIV', 'quotation', '.alone');
@@ -2112,9 +2077,6 @@ function documentOnMouseDown(ev, fromTouch) {
 		lastClickAloneEl = clickedAloneEl;
 	}
 
-	// This is in case the user clicks to drag after clicking to select.
-	selectAloneEl(clickedAloneEl);
-
 	// Allow the user to select text.
 	if (textIsSelectable) {
 		return;
@@ -2126,6 +2088,45 @@ function documentOnMouseDown(ev, fromTouch) {
 		// Without this buttons on the hover menu may be pressed unintentionally.
 		ev.preventDefault();
 		ev.stopPropagation();
+	}
+}
+
+/** Handle shift click of alone els. */
+function aloneElOnShiftClick(clickedAloneEl, clickedDbId) {
+	var clickedSubtreeEl = getSubtreeElForAloneEl(clickedAloneEl);
+	if (doesSubtreeElHaveParent(clickedSubtreeEl)) {
+		var parentClickedSubtreeEl = getParentOfSubtreeEl(clickedSubtreeEl);
+
+		var startFromTheFirstChildOfTheClickedParent = true;
+		var lastSelectedDbId = getSelectedDbId(true);
+		if (lastSelectedDbId) {
+			var lastSelectedSubtreeEl = getSubtreeElByDbId(lastSelectedDbId);
+
+			if (doesSubtreeElHaveParent(lastSelectedSubtreeEl)) {
+				var parentLastSelectedSubtreeEl = getParentOfSubtreeEl(lastSelectedSubtreeEl);
+
+				if (getDbIdFromSubtreeEl(parentLastSelectedSubtreeEl) === getDbIdFromSubtreeEl(parentClickedSubtreeEl)) {
+					startFromTheFirstChildOfTheClickedParent = false;
+				}
+			}
+		}
+
+		var childrenOfClickedParent = copyArray(getChildrenOfSubtreeEl(parentClickedSubtreeEl));
+
+		if (startFromTheFirstChildOfTheClickedParent) {
+			lastSelectedDbId = getDbIdFromSubtreeEl(childrenOfClickedParent[0]);
+		}
+
+		var indexOfLastSelected = getIndexOfChildById(childrenOfClickedParent, lastSelectedDbId);
+		var indexOfLastClicked = getIndexOfChildById(childrenOfClickedParent, clickedDbId);
+		var minIndex = Math.min(indexOfLastSelected, indexOfLastClicked);
+		var maxIndex = Math.max(indexOfLastSelected, indexOfLastClicked);
+		for (var i = minIndex; i <= maxIndex; ++i) {
+			selectAloneEl(getAloneElFromSubtreeEl(childrenOfClickedParent[i]));
+		}
+
+		// Make sure this is the last selected in case the user shift clicks again.
+		selectAloneEl(clickedAloneEl);
 	}
 }
 
