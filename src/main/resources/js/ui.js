@@ -2507,7 +2507,7 @@ function getMinusFromAloneEl(aloneEl) {
 	return getChildNodeAtPath(aloneEl, 0, 0, 0, 1, 0, 0, 1, 0, 0);
 }
 
-/** Sets the triangle and minux icons correctly for the aloneEl. */
+/** Sets the triangle, plus and minus icons correctly for the aloneEl. */
 function setTheRightChildIconsForAloneEl(aloneEl) {
 	if (isElementOfClass(aloneEl, "fakealone")) {
 		return;
@@ -2551,6 +2551,8 @@ function setTheRightChildIconsForAloneEl(aloneEl) {
 
 	if (!hasChildren) {
 		hidePlusIcon(aloneEl);
+	} else {
+		showPlusIcon(aloneEl);
 	}
 }
 
@@ -6538,14 +6540,14 @@ function showChildrenOfEntry(dbId) {
 function showPlusIcon(aloneEl) {
 	var plusIcon = getPlusFromAloneEl(aloneEl);
 	if (plusIcon) {
-		plusIcon.style.visibility = "";
+		plusIcon.style.visibility = "visible";
 	}
 }
 
 /** Returns true if the plus icon for the alone el is being shown. */
 function isShowingPlus(aloneEl) {
 	var plusIcon = getPlusFromAloneEl(aloneEl);
-	return plusIcon && plusIcon.style.visibility === "";
+	return plusIcon && plusIcon.style.visibility === "visible";
 }
 
 /** Hides the plus icon. */
@@ -6560,7 +6562,7 @@ function hidePlusIcon(aloneEl) {
 function showMinusIcon(aloneEl) {
 	var minusIcon = getMinusFromAloneEl(aloneEl);
 	if (minusIcon) {
-		minusIcon.style.visibility = "";
+		minusIcon.style.visibility = "visible";
 	}
 }
 
@@ -6753,7 +6755,7 @@ function setOptionShowEntryTimestamps(value) {
 
 /** Show or hide any timestamps. */
 function showOrHideEntryTimestamps(container) {
-	var display = getOptionShowEntryTimestamps() ? "" : "none";
+	var display = getOptionShowEntryTimestamps() ? "block" : "none";
 	var entryDayTimes = container.getElementsByClassName("entryDaytime");
 	for (var i = 0; i < entryDayTimes.length; ++i) {
 		entryDayTimes[i].style.display = display;
@@ -6762,7 +6764,7 @@ function showOrHideEntryTimestamps(container) {
 
 /** Show or hide a timestamp. */
 function showOrHideEntryTimestamp(el) {
-	var display = getOptionShowEntryTimestamps() ? "" : "none";
+	var display = getOptionShowEntryTimestamps() ? "block" : "none";
 	el.style.display = display;
 }
 

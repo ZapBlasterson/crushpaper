@@ -5844,10 +5844,10 @@ public class Servlet extends HttpServlet {
 					+ "<div></div></td><td>"
 					+ "<table class=\"nopadding\"><tr><td class=\"nowords\"><img onmouseover=\"plusOnMouseOver(event);\" onmouseout=\"plusOnMouseOut(event);\" alt=\"plus\" title=\""
 					+ servletText.plusTooltip()
-					+ "\" class=\"justDrag\" onmousedown=\"plusOnMouseDown(event); return false;\" src=\"/images/plus.png\"></td></tr>"
+					+ "\" class=\"justDrag plusOrMinus\" onmousedown=\"plusOnMouseDown(event); return false;\" src=\"/images/plus.png\"></td></tr>"
 					+ "<tr><td class=\"nowords\"><img onmouseover=\"minusOnMouseOver(event);\" onmouseout=\"minusOnMouseOut(event);\" alt=\"minus\" title=\""
 					+ servletText.minusTooltip()
-					+ "\" class=\"justDrag\" onmousedown=\"minusOnMouseDown(event); return false;\" src=\"/images/minus.png\"></td></tr></table>"
+					+ "\" class=\"justDrag plusOrMinus\" onmousedown=\"minusOnMouseDown(event); return false;\" src=\"/images/minus.png\"></td></tr></table>"
 					+ "</td><td class=\"content\">");
 
 			if (entry.hasQuotation()) {

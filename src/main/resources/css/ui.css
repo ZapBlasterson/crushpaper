@@ -57,6 +57,7 @@ a.externalsite { text-transform:lowercase !important; }
 span.versionNumber { font-size:xx-small; margin-top:10px; display:block; }
 #menu > div > a:hover, a.nextLink:hover, a:hover, a.previousLink:hover { color:#61CDF5; text-decoration:underline; }
 #appName, div.paneTitle { font-weight:bold !important; font-size:large; margin-bottom:0px; color:#555; }
+img.plusOrMinus { visibility:hidden; }
 h3 { font-size:medium; }
 #appName { font-weight:bold; color:#555; text-decoration:none; }
 div.paneSection:last-child { border-bottom:none; }
@@ -87,7 +88,7 @@ div.sourceTitle { margin-top:2px; margin-bottom:2px; display:inline; }
 div.note { margin-top:2px; margin-bottom:2px; display:inline-block; outline:0px solid transparent; }
 td.content { width:100%; padding-left:5px !important; }
 div.quotation { font-family:Georgia, serif; background:#FDFFAA; padding:4px 8px 4px 8px; border-left:1px solid #dedede; color:#555; display:inline-block; } 
-span.entryDaytime { color:#999; font-size:x-small; display:block; }
+span.entryDaytime { color:#999; font-size:x-small; display:none; }
 div.justchildren { margin-left:20px; }
 div.fakejustchildren { margin-left:0px; }
 div.helpDetails { margin-left:100px; }
