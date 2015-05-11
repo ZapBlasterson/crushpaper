@@ -4202,7 +4202,7 @@ public class Servlet extends HttpServlet {
 							+ "</label><br>"
 							+ "</td></tr>"
 							+ "<tr><td>"
-							+ "<input type=\"checkbox\" name=\"msWordListFormat\" id=\"msWordListFormat\" checked><label for=\"msWordListFormat\">"
+							+ "<input type=\"checkbox\" name=\"msWordListFormat\" id=\"msWordListFormat\"><label for=\"msWordListFormat\">"
 							+ servletText.sentenceMsWordListFormat()
 							+ "</label><br>"
 							+ "</td></tr>"
