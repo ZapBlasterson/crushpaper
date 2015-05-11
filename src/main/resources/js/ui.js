@@ -1857,25 +1857,6 @@ function removeAloneElFromSelections(aloneEl) {
 	}
 }
 
-/** Toggles whether the entry is selected. */
-function toggleSelection(dbId) {
-	setUpWindowForMousing();
-
-	if (dbId in window.allSelectedDbIds) {
-		delete window.allSelectedDbIds[dbId];
-
-		if (lastSelectedDbId === dbId) {
-			lastSelectedDbId = null;
-		}
-	} else {
-		window.allSelectedDbIds[dbId] = true;
-
-		lastSelectedDbId = dbId;
-	}
-
-	stopBackgroundTransitionById(dbId);
-}
-
 /** Updates data structures to mark the entry as selected. */
 function selectEntry(dbId) {
 	setUpWindowForMousing();
@@ -2012,14 +1993,12 @@ function documentOnMouseDown(ev, fromTouch) {
 	
 	// Make sure the click handler for clickable things is called.
 	if (isElementOfClass(eventEl, "justDrag")) {
-		if (ev.shiftKey) {
-			aloneElOnShiftClick(clickedAloneEl, clickedDbId);
+		if (handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev)) {
 			return;
 		}
-
-		selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey);
 		
 		startAloneElDrag(clickedAloneEl, ev);
+		
 		return;
 	}
 
@@ -2051,13 +2030,9 @@ function documentOnMouseDown(ev, fromTouch) {
 		return;
 	}
 
-	// Shift click.
-	if (ev.shiftKey) {
-		aloneElOnShiftClick(clickedAloneEl, clickedDbId);
+	if (handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev)) {
 		return;
 	}
-
-	selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey);
 
 	var textIsSelectable = getElOrAncestor(eventEl, 'DIV', 'note', '.alone') ||
 	getElOrAncestor(eventEl, 'DIV', 'quotation', '.alone');
@@ -2089,6 +2064,18 @@ function documentOnMouseDown(ev, fromTouch) {
 		ev.preventDefault();
 		ev.stopPropagation();
 	}
+}
+
+/** Handles selections. Returns true if mousedown processing should be stopped. */
+function handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev) {
+	if (ev.shiftKey) {
+		aloneElOnShiftClick(clickedAloneEl, clickedDbId);
+		return true;
+	}
+
+	selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey, ev.ctrlKey || ev.altKey);
+
+	return false;
 }
 
 /** Handle shift click of alone els. */
@@ -5406,13 +5393,20 @@ function moveSelection(direction) {
 }
 
 /** Selects the entry. */
-function selectAloneEl(aloneEl, unselectOthers) {
+function selectAloneEl(aloneEl, unselectOthers, toggleSelection) {
 	if (unselectOthers) {
 		unselectAllEntries();
 	}
 
-	selectEntry(getDbIdFromEl(aloneEl));
+	var dbId = getDbIdFromEl(aloneEl);
+	if(toggleSelection && isDbIdSelected(dbId)) {
+		unselectEntry(dbId); 
+	} else {
+		selectEntry(dbId);
+	}
+	
 	updateSelectionDisplayForAloneEl(aloneEl);
+	stopBackgroundTransitionById(dbId);
 }
 
 /** Selects the aloneEl and scrolls to it. */
