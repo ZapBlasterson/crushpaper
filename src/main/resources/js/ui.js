@@ -7443,8 +7443,7 @@ function noteOnBlur() {
 	}
 	
 	removeInlineNoteEditShortCuts();
-	saveNoteTextAfterInlineEdit();
-	addGlobalShortCuts();
+	saveNoteTextAfterInlineEdit(true);
 }
 
 /** Handle input to the note.
@@ -7453,7 +7452,7 @@ function noteOnBlur() {
  * If input is dragged or pasted into the note noteOnFocus() it is not called first,
  * but in that case the note does not have the focus.
  * And sometimes noteOnFocus() is not called even though the note has the focus.
- * It seems like a bug.
+ * It seems like a browser bug.
  */
 function noteOnInput(ev) {
 	var aloneEl = getAloneElByDbId(editedNoteDbId);
@@ -7686,7 +7685,7 @@ function deselectAllSelections() {
 var notesBeingSaved = {};
 
 /** Save a note text after inline editing. */
-function saveNoteTextAfterInlineEdit() {
+function saveNoteTextAfterInlineEdit(needsGlobalShortcuts) {
 	if (editedNoteDbId in notesBeingSaved) {
 		return;
 	}
@@ -7718,6 +7717,9 @@ function saveNoteTextAfterInlineEdit() {
 	if (doNotSave) {
 		undoNoteEdit(dbId, oldNoteHtml);
 		clearNoteFromEditing();
+		if (needsGlobalShortcuts && !isPopupUp()) {
+			addGlobalShortCuts();
+		}
 		return;
 	}
 	
@@ -7770,6 +7772,9 @@ function saveNoteTextAfterInlineEdit() {
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
 	commandsAreNowAllowed(false);
+	if (needsGlobalShortcuts) {
+		addGlobalShortCuts();
+	}
 }
 
 /** JSHint does not provide a method for annotating externally used function as used
