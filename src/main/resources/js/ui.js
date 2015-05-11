@@ -445,10 +445,12 @@ function popupOnMouseDown(ev) {
 }
 
 var areCommandsAllowed = true;
+var areCommandsAllowedCounter = 0;
 
 /** Changes whether or not commands are allowed. */
 function commandsAreNowAllowed(areThey) {
-	areCommandsAllowed = areThey;
+	areCommandsAllowedCounter += (areThey ? 1 : -1);
+	areCommandsAllowed = areCommandsAllowedCounter === 0;
 }
 
 /** Returns true if a popup is up. */
@@ -7380,34 +7382,40 @@ function makeNotesInTreeContentEditable(el, paneType) {
 		return;
 	}
 
-	var notes = el.getElementsByClassName("note");
-	for (var i = 0; i < notes.length; ++i) {
-		var note = notes[i];
-		note.setAttribute("contentEditable", true);
-		attachEventListener(note, "focus", noteOnFocus);
-		attachEventListener(note, "blur", noteOnBlur);
-		attachEventListener(note, "input", noteOnInput);
+	var noteEls = el.getElementsByClassName("note");
+	for (var i = 0; i < noteEls.length; ++i) {
+		var noteEl = noteEls[i];
+		noteEl.setAttribute("contentEditable", true);
+		attachEventListener(noteEl, "focus", noteOnFocus);
+		attachEventListener(noteEl, "blur", noteOnBlur);
+		attachEventListener(noteEl, "input", noteOnInput);
 	}
 }
 
 // Globals for note text editing.
-var editedNoteEl = null;
+var editedNoteDbId = null;
 var oldNoteHtml = null;
 var noteIsFocused = false;
 
 /** Undo the unsaved edit to a note text. */
-function undoNoteEdit() {
-	if (oldNoteHtml === null) {
+function undoNoteEdit(dbId, htmlToReplaceWith) {
+	if (htmlToReplaceWith === null) {
 		return;
 	}
 	
-	editedNoteEl.innerHTML = oldNoteHtml;
+	var aloneEl = getAloneElByDbId(dbId);
+	if (!aloneEl) {
+		return;
+	}
+	
+	var noteEl = getNoteElOfAloneEl(aloneEl); 
+	noteEl.innerHTML = htmlToReplaceWith;
 }
 
 /** Clear the note text editing globals. */
 function clearNoteFromEditing() {
 	oldNoteHtml = null;
-	editedNoteEl = null;
+	editedNoteDbId = null;
 }
 
 /** Handle the user focusing on note text either by
@@ -7417,7 +7425,9 @@ function noteOnFocus(ev) {
 	noteIsFocused = true;
 	removeGlobalShortCuts();
 	addInlineNoteEditShortCuts();
-	prepareNoteForInlineEdit(ev);
+	var eventEl = getEventEl(ev);
+	var aloneEl = getCorrespondingAloneEl(eventEl);
+	prepareNoteForInlineEdit(aloneEl);
 }
 
 /** Handle loss of focus on the note text either by clicking out of it
@@ -7427,28 +7437,32 @@ function noteOnBlur() {
 	noteIsFocused = false;
 	deselectAllSelections();
 	
-	if (!editedNoteEl) {
-		return;
-	}
-	
-	// In case blur is called twice.
-	if(!areCommandsAllowed) {
+	if (!editedNoteDbId) {
 		return;
 	}
 	
 	removeInlineNoteEditShortCuts();
-	if (!saveNoteTextAfterInlineEdit()) {
-		addGlobalShortCuts();
-	}
+	saveNoteTextAfterInlineEdit();
+	addGlobalShortCuts();
 }
 
 /** Handle input to the note.
  * Can by by keypress, drag, cut or paste.
+ * Usually noteOnFocus() is called before this.
+ * If input is dragged or pasted into the note noteOnFocus() it is not called first,
+ * but in that case the note does not have the focus.
+ * And sometimes noteOnFocus() is not called even though the note has the focus.
+ * It seems like a bug.
  */
 function noteOnInput(ev) {
-	var eventEl = getEventEl(ev);
-	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note');
+	var aloneEl = getAloneElByDbId(editedNoteDbId);
+	if (!aloneEl) {
+		return;
+	}
 
+	prepareNoteForInlineEdit(aloneEl);
+
+	var noteEl = getNoteElOfAloneEl(aloneEl); 
 	// In case HTML was dragged into the note replace it.
 	if (noteEl.childNodes.length !== 1 || (noteEl.childNodes.length === 1 && noteEl.childNodes[0].nodeName === "#text")) {
 		var caretPosition;
@@ -7461,7 +7475,6 @@ function noteOnInput(ev) {
 		
 		if (noteIsFocused) {
 			setCaretPosition(noteEl, caretPosition);
-			getCaretPosition(noteEl);
 		}
 	}
 	
@@ -7471,15 +7484,15 @@ function noteOnInput(ev) {
 }
 
 /** Prepare a note text for editing by stashing a copy of it. */
-function prepareNoteForInlineEdit(ev) {
-	if (oldNoteHtml !== null) {
+function prepareNoteForInlineEdit(aloneEl) {
+	var dbId = getDbIdFromEl(aloneEl);
+	if (dbId === editedNoteDbId) {
 		return;
 	}
-
-	var eventEl = getEventEl(ev);
-	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note');
+	
+	var noteEl = getNoteElOfAloneEl(aloneEl); 
 	oldNoteHtml = getHtmlOfEl(noteEl);
-	editedNoteEl = noteEl;
+	editedNoteDbId = dbId;
 }
 
 /** Encode characters into HTML. */
@@ -7491,7 +7504,6 @@ function htmlEncode(value) {
     	replace(/\n/g, "<br>").
     	replace(/ /g, "&nbsp;");
 }
-
 
 /** Returns the preish HTML text of a simple element tree. */
 function getHtmlOfEl(el) {
@@ -7509,7 +7521,6 @@ function getHtmlOfEl(el) {
 	
 	return result;
 }
-
 
 /** Returns the preish text of a simple element tree. */
 function getTextOfEl(el) {
@@ -7531,11 +7542,24 @@ function getTextOfEl(el) {
 /** Adds shortcuts for inline note text editing. */
 function addInlineNoteEditShortCuts() {
 	Mousetrap.bind("esc", function() {
-		undoNoteEdit();
-		editedNoteEl.blur();
+		undoNoteEdit(editedNoteDbId, oldNoteHtml);
+		var aloneEl = getAloneElByDbId(editedNoteDbId);
+		if (!aloneEl) {
+			return;
+		}
+		
+		var noteEl = getNoteElOfAloneEl(aloneEl); 
+		noteEl.blur();
 	});
+	
 	Mousetrap.bind("alt+s", function() {
-		editedNoteEl.blur();
+		var aloneEl = getAloneElByDbId(editedNoteDbId);
+		if (!aloneEl) {
+			return;
+		}
+		
+		var noteEl = getNoteElOfAloneEl(aloneEl); 
+		noteEl.blur();
 	});
 }
 
@@ -7658,11 +7682,21 @@ function deselectAllSelections() {
     }
 }
 
+var notesBeingSaved = {};
+
 /** Save a note text after inline editing. */
 function saveNoteTextAfterInlineEdit() {
-	var noteEl = editedNoteEl;
-	var aloneEl = getCorrespondingAloneEl(noteEl);
-	var dbId = getDbIdFromEl(aloneEl);
+	if (editedNoteDbId in notesBeingSaved) {
+		return;
+	}
+	
+	var aloneEl = getAloneElByDbId(editedNoteDbId);
+	if (!aloneEl) {
+		return;
+	}
+	
+	var noteEl = getNoteElOfAloneEl(aloneEl);
+	var dbId = editedNoteDbId;
 	var newNoteHtml = getHtmlOfEl(noteEl);
 	var newNoteText = getTextOfEl(noteEl);
 	
@@ -7671,36 +7705,39 @@ function saveNoteTextAfterInlineEdit() {
 		doNotSave = true;
 	}
 	
-	var returnValue = false;
 	var entryType = getEntryType(dbId);
 	var title = uiText.popupTitleEditTheSelectedNote(entryType);
 	if (!doNotSave) {
 		if (newNoteText.trim() === "") {
 			showPopupForError(title, uiText.errorNoteMustNotBeEmpty());
 			doNotSave = true;
-			returnValue = true;
 		}
 	}
 	
 	if (doNotSave) {
-		undoNoteEdit();
+		undoNoteEdit(dbId, oldNoteHtml);
 		clearNoteFromEditing();
-		return returnValue;
+		return;
 	}
 	
+	var copyOfOldNoteHtml = oldNoteHtml;
 	var xhr = createJsonAsyncRequest("POST", "/noteOpJson?" + getAnUrlUniquer(), function() {
 		aRequestIsInProgress(false);
 		commandsAreNowAllowed(true);
-
+		delete notesBeingSaved[dbId];
+		var aloneEl = getAloneElByDbId(dbId);
+		if (aloneEl) {
+			var noteEl = getNoteElOfAloneEl(aloneEl); 
+			noteEl.setAttribute("contentEditable", true);
+			noteEl.style.cursor = "";
+		}
+		
 		if (xhr.status === 200) {
 			var response = validateInlineEditResponse(xhr.responseText, title);
 			if (!response) {
-				undoNoteEdit();
-				clearNoteFromEditing();
+				undoNoteEdit(dbId, copyOfOldNoteHtml);
 				return;
 			}
-
-			clearNoteFromEditing();
 			
 			updateDisplayedEntryDetails(response);
 
@@ -7714,15 +7751,17 @@ function saveNoteTextAfterInlineEdit() {
 			}
 
 			refreshSearchPane();
-			addGlobalShortCuts();
 		} else {
-			undoNoteEdit();
-			clearNoteFromEditing();
+			undoNoteEdit(dbId, copyOfOldNoteHtml);
 			var errorText = getErrorText(xhr, uiText.errorNotSaved(), uiText.errorProbablyNotSaved());
 			showPopupForError(title, errorText);
 		}
 	});
 
+	noteEl.setAttribute("contentEditable", false);
+	noteEl.style.cursor = "progress";
+	clearNoteFromEditing();
+	notesBeingSaved[editedNoteDbId] = true;
 	var message = { 'csrft': getCsrft(),
 			'noteop': 'editNoteText',
 			'id': dbId,
@@ -7730,8 +7769,6 @@ function saveNoteTextAfterInlineEdit() {
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
 	commandsAreNowAllowed(false);
-
-	return true;
 }
 
 /** JSHint does not provide a method for annotating externally used function as used
