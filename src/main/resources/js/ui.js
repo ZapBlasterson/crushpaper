@@ -4784,7 +4784,7 @@ function showPopupForDeleteEntry() {
 				html += uiText.sentenceWhatToDoWithChildren(entryType) + "<br>";
 				if (anyHasParent) {
 					html += "<input " + childrenToParentDisabled  +
-					" type=\"radio\" name=\"children\" value=\"parent\" id=\"childrenToParent\"><label for=\"childrenToParent\">" + uiText.labelMoveToParent(entryType) + "</label><br>";
+					" checked type=\"radio\" name=\"children\" value=\"parent\" id=\"childrenToParent\"><label for=\"childrenToParent\">" + uiText.labelMoveToParent(entryType) + "</label><br>";
 				}
 
 				/** Disable for now because probably no one will want this feature unless it is more polished.
@@ -4793,7 +4793,7 @@ function showPopupForDeleteEntry() {
 				 */
 
 				html += "<input " + childrenToDeleteDisabled + " " +
-				" checked type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete\">" + uiText.labelDelete() + "</label><br>";
+					" " + (!anyHasParent ? "checked " : "") + " type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete\">" + uiText.labelDelete() + "</label><br>";
 			}
 			
 			if (numSourcesFromNotebook || numQuotationsFromNotebook) {
