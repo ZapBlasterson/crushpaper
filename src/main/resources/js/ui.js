@@ -377,16 +377,8 @@ function getMouseOffset(target, ev) {
 
 /** Returns the position of the element. */
 function getPosition(el) {
-	var x = 0;
-	var y = 0;
-
-	while (el) {
-		x += (el.offsetLeft - el.scrollLeft + el.clientLeft);
-		y += (el.offsetTop - el.scrollTop + el.clientTop);
-		el = el.offsetParent;
-	}
-
-	return { x: x, y: y };
+	var rect = el.getBoundingClientRect();
+	return { x: rect.left , y: rect.top };
 }
 
 /** Returns the position of the mouse for an event. */
@@ -405,7 +397,7 @@ function getMousePosition(eventEl) {
 	};
 }
 
-//Globals for popup dragging.
+// Globals for popup dragging.
 var draggedPopupMouseOffset = null;
 var draggedPopup = null;
 
@@ -2177,13 +2169,14 @@ function startAloneElDrag(clickedAloneEl, ev) {
 }
 
 /** Converts the element to text for logging purposes. */
-function elementToText(el) {
+function elementToText(el, limit) {
 	if (el === null) {
 		return "null";
 	}
 
 	var text = "";
 
+	var i = 0;
 	while (el) {
 		if (text !== "") {
 			text += "; ";
@@ -2208,6 +2201,11 @@ function elementToText(el) {
 		
 		if (el.parentNode) {
 			text += " (" + offset + "/" + el.parentNode.childNodes.length + ")";
+		}
+		
+		++i;
+		if (i === limit) {
+			break;
 		}
 		
 		el = el.parentNode;
@@ -3107,8 +3105,8 @@ function addDashedBorder(dropTarget, color) {
 		entryDropSiblingDividerEl.style["border-top"] = "dashed 1px " + color;
 		entryDropSiblingDividerEl.style.width = dropTarget.el.offsetWidth + "px";
 		entryDropSiblingDividerEl.style.top = getScrollTop() + dropTarget.pos.y +
-		(dropTarget.where === "bottom" ? dropTarget.el.offsetHeight
-				: -3) + "px";
+		(dropTarget.where === "bottom" ? dropTarget.el.offsetHeight + 1
+				: -2) + "px";
 		entryDropSiblingDividerEl.style.left = getScrollLeft() + dropTarget.pos.x + "px";
 
 		entryDropSiblingDividerEl.style.display = "";
