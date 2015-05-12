@@ -2167,6 +2167,10 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	ev.preventDefault();
 	ev.stopPropagation();
 
+	Mousetrap.bind("esc", function() {
+		dragEntryOnMouseUp();
+	});
+	
 	return true;
 }
 
@@ -2888,7 +2892,8 @@ function dragEntryOnMouseMove(ev) {
 	if (draggedEntryClone) {
 		draggedEntryClone.style.top = (mousePos.y - draggedEntryMouseOffset.y) + "px";
 		draggedEntryClone.style.left = (mousePos.x - draggedEntryMouseOffset.x) + "px";
-		dragEntryOnMouseMoveHelper(mousePos, !ev.ctrlKey);
+		var justTheEntry = !ev.ctrlKey && !ev.altKey;
+		dragEntryOnMouseMoveHelper(mousePos, justTheEntry);
 
 		if (acceptabilityDescEl) {
 			acceptabilityDescEl.style.top = (mousePos.y - 10) + "px";
@@ -3156,23 +3161,30 @@ function dragEntryOnMouseUp(ev) {
 	removeCueFromDropTarget();
 	document.body.removeChild(draggedEntryClone);
 
-	// Check everything again one last time in case the user pressed or
-	// unpressed control before mousing up.
-	var mousePos = getMousePosition(ev);
-	var dropTarget = getDropTarget(mousePos);
-	var acceptabilityInfo = acceptabilityOfDropTarget(dropTarget, !ev.ctrlKey);
-	var acceptability = acceptabilityInfo[0];
-	if (acceptability === "pointer") {
-		handleDrop(dropTarget, !ev.ctrlKey);
+	if (ev) {
+		// Check everything again one last time in case the user pressed or
+		// unpressed control before mousing up.
+		var mousePos = getMousePosition(ev);
+		var dropTarget = getDropTarget(mousePos)
+		var justTheEntry = !ev.ctrlKey && !ev.altKey;
+		var acceptabilityInfo = acceptabilityOfDropTarget(dropTarget, justTheEntry);
+		var acceptability = acceptabilityInfo[0];
+		if (acceptability === "pointer") {
+			handleDrop(dropTarget, justTheEntry);
+		} else {
+			commandsAreNowAllowed(true);
+		}
 	} else {
 		commandsAreNowAllowed(true);
 	}
-
+	
 	aloneElBeingDragged = null;
 	draggedEntryClone = null;
 	document.onmousemove = null;
 	document.onmouseup = null;
 	updateAcceptabilityDescription(null, null);
+	
+	Mousetrap.unbind("esc");
 }
 
 /** Handles dropping on a drop target. */

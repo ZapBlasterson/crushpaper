@@ -719,12 +719,13 @@ uiTextEn.helpMouseHints = function(entryType) {
 	             "Right click or Command click a " + uiTextEn.getOneEntryTerm(entryType) + " or press <u>m</u> to display a context menu",
 	             "Drag a " + uiTextEn.getOneEntryTerm(entryType) + " to the left or right of another " + uiTextEn.getOneEntryTerm(entryType) + " to make it the next or previous of the other " + uiTextEn.getOneEntryTerm(entryType),
 	             "Drag a " + uiTextEn.getOneEntryTerm(entryType) + " into another " + uiTextEn.getOneEntryTerm(entryType) + " to make it a sub" + uiTextEn.getOneEntryTerm(entryType) + " of the other " + uiTextEn.getOneEntryTerm(entryType),
-	             "Hold down Ctrl to drag a " + uiTextEn.getOneEntryTerm(entryType) + "'s sub" + uiTextEn.getOneEntryTermPlural(entryType) + " with it",
+	             "Hold down Ctrl or Alt to drag a " + uiTextEn.getOneEntryTerm(entryType) + "'s sub" + uiTextEn.getOneEntryTermPlural(entryType) + " with it",
 	             "Double click a " + uiTextEn.getOneEntryTerm(entryType) + " to edit it",
 	             "Click the + or - icons to show or hide a " + uiTextEn.getOneEntryTerm(entryType) + "'s sub" + uiTextEn.getOneEntryTermPlural(entryType),
 	             "Click a " + uiTextEn.getOneEntryTerm(entryType) + " to select it or Ctrl or Alt click to unselect it",
 	             "Ctrl or Alt click other " + uiTextEn.getOneEntryTermPlural(entryType) + " to add them to the selection",
-	             "Shift click to add " + uiTextEn.getOneEntryTermPlural(entryType) + " between the clicked " + uiTextEn.getOneEntryTerm(entryType) + " and the last selected " + uiTextEn.getOneEntryTerm(entryType) + " to the selection"
+	             "Shift click to add " + uiTextEn.getOneEntryTermPlural(entryType) + " between the clicked " + uiTextEn.getOneEntryTerm(entryType) + " and the last selected " + uiTextEn.getOneEntryTerm(entryType) + " to the selection",
+	             "Press Escape when dragging to cancel the drag"
 	             ];
 
 	var results = [];
