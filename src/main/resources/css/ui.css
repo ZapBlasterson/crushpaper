@@ -124,11 +124,14 @@ div.dropHint { padding:2px 4px 2px 4px;
     z-index:101;
     position:absolute;
     box-shadow:0px 3px 13px rgba(0,0,0,0.55);
+    border-radius:2px;
 }
 
-div.canNotDrop { background:pink; border:1px solid rgb(239, 151, 164); }
+div.dropHintpointer { background:rgb(215, 253, 215); border:1px solid rgb(138, 215, 138); }
 
-div.canDrop { background:rgb(215, 253, 215); border:1px solid rgb(138, 215, 138); }
+div.dropHintmove { background:#E2F6FD; border:1px solid #26a0da; }
+
+div.dropHintno-drop { background:pink; border:1px solid rgb(239, 151, 164); }
 
 div.popupSection { padding:20px; border-bottom:1px solid #DDD; cursor:move; }
 div.popupSectionError { padding:20px; border-bottom:1px solid rgb(239, 151, 164); background:pink; cursor:move; }

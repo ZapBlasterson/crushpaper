@@ -45,6 +45,34 @@ uiTextEn.areOrIs = function(number) {
 	return "are";
 };
 
+uiTextEn.theirOrIts = function(number) {
+	if (number === 1) {
+		return "its";
+	}
+	
+	return "their";
+};
+
+uiTextEn.oneOrOneOf = function(number, entryType) {
+	if (number === 1) {
+		return "The " + uiTextEn.getOneEntryTerm(entryType);
+	} else {
+		return "One of the " + number + " selected " + uiTextEn.getOneEntryTermPlural(entryType);
+	}
+};
+
+uiTextEn.maybeGetPluralWithNumber = function(number, entryType) {
+	if (number === 1) {
+		return entryType;
+	}
+	
+	return number + " " + uiTextEn.getPlural(entryType);
+};
+
+uiTextEn.termWithNumber = function(number, entryType) {
+	return number + " " + uiTextEn.maybeGetPlural(number, entryType);
+};
+
 uiTextEn.getAllEntryTerms = function(entryType) {
 	if (entryType.constructor === Array) {
 		var result = "";
@@ -830,12 +858,17 @@ uiTextEn.helpHelpHelp = function() {
 };
 
 
-uiTextEn.dragHintCanDropHere = function(entryType) {
-	return "You can drop this " + uiTextEn.getOneEntryTerm(entryType) + " here.";
+uiTextEn.dragHintWhatIsBeingDragged = function(entryType, number, justTheEntry) {
+	return "You are dragging " + uiTextEn.termWithNumber(number, entryType) +
+		(justTheEntry ? "" : " with " + uiTextEn.theirOrIts(number) + " sub" + uiTextEn.getPlural(entryType)) + ".";
 };
 
-uiTextEn.dragHintCanNotDropIntoSelected = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into a selected " + uiTextEn.getOneEntryTerm(entryType) + ".";
+uiTextEn.dragHintCanDropHere = function(entryType, number) {
+	return "You can drop the " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " here.";
+};
+
+uiTextEn.dragHintCanNotDropIntoSelected = function(entryType, number) {
+	return "The " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " cannot be dragged into a " + uiTextEn.getOneEntryTerm(entryType) + " that is also being dragged.";
 };
 
 uiTextEn.dragHintCanNotDropNotebookIntoNote = function() {
@@ -854,36 +887,36 @@ uiTextEn.dragHintCanNotDropNoteIntoThis = function(entryType) {
 	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into a list. It can only be dragged into other notes.";
 };
 
-uiTextEn.dragHintCanNotDropIntoParent = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into its parent.";
+uiTextEn.dragHintCanNotDropIntoParent = function(entryType, number) {
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged into its parent.";
 };
 
-uiTextEn.dragHintCanNotDropIntoSelf = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into itself.";
+uiTextEn.dragHintCanNotDropIntoSelf = function(entryType, number) {
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged into itself.";
 };
 
-uiTextEn.dragHintCanNotDropIntoNonEditablePane = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into an uneditable pane. Click the pencil icon first.";
+uiTextEn.dragHintCanNotDropIntoNonEditablePane = function(entryType, number) {
+	return "The " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " cannot be dragged into an uneditable pane. Click the pencil icon first.";
 };
 
-uiTextEn.dragHintCanNotDropIntoList = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into a list. It can only be dragged into a notebook.";
+uiTextEn.dragHintCanNotDropIntoList = function(entryType, number) {
+	return "The " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " cannot be dragged into a list. It can only be dragged into a notebook.";
 };
 
-uiTextEn.dragHintCanNotDropIntoSub = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged into its sub" + uiTextEn.getOneEntryTerm(entryType) + " while Ctrl is pressed.";
+uiTextEn.dragHintCanNotDropIntoSub = function(entryType, number) {
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged into its sub" + uiTextEn.getOneEntryTerm(entryType) + " while Ctrl is pressed.";
 };
 
-uiTextEn.dragHintCanNotDropNextToItself = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged next to itself.";
+uiTextEn.dragHintCanNotDropNextToItself = function(entryType, number) {
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged next to itself.";
 };
 
-uiTextEn.dragHintCanNotDropNextToSomethingThatHasNoParent = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged next to a " + uiTextEn.getOneEntryTerm(entryType) + " that has no parent.";
+uiTextEn.dragHintCanNotDropNextToSomethingThatHasNoParent = function(entryType, number) {
+	return "The " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " cannot be dragged next to a " + uiTextEn.getOneEntryTerm(entryType) + " that has no parent.";
 };
 
-uiTextEn.dragHintCanNotDropNextToItsOwnChild = function(entryType) {
-	return "The " + uiTextEn.getOneEntryTerm(entryType) + " cannot be dragged next to its own sub" + uiTextEn.getOneEntryTerm(entryType) + ".";
+uiTextEn.dragHintCanNotDropNextToItsOwnChild = function(entryType, number) {
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged next to its own sub" + uiTextEn.getOneEntryTerm(entryType) + ".";
 };
 
 uiTextEn.tooltipOpen = function(entryType) {

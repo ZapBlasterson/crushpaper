@@ -2119,11 +2119,23 @@ function aloneElOnShiftClick(clickedAloneEl, clickedDbId) {
 
 /** Starts the drag of the alone e. */
 function startAloneElDrag(clickedAloneEl, ev) {
+	var draggedAloneEl = clickedAloneEl;
+	var clickedDbId = getDbIdFromEl(clickedAloneEl);
+	var clickedIsSelected = isDbIdSelected(clickedDbId);
+	if (!clickedIsSelected) {
+		var selectedDbId = getSelectedDbId(true);
+		if (!selectedDbId) {
+			return;
+		}
+		
+		draggedAloneEl = getAloneElByDbId(selectedDbId);
+	}
+	
 	commandsAreNowAllowed(false);
 
 	// Support dragging.
-	aloneElBeingDragged = clickedAloneEl;
-	draggedEntryClone = clickedAloneEl.cloneNode(true);
+	aloneElBeingDragged = draggedAloneEl;
+	draggedEntryClone = draggedAloneEl.cloneNode(true);
 	var position = getPosition(clickedAloneEl);
 
 	document.onmouseup = dragEntryOnMouseUp;
@@ -2138,8 +2150,8 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	document.body.appendChild(draggedEntryClone);
 
 	// This would work without the pixel adjustments here if padding was 0px.
-	draggedEntryClone.style.width = (clickedAloneEl.clientWidth - 4) + "px";
-	draggedEntryClone.style.height = clickedAloneEl.clientHeight + "px";
+	draggedEntryClone.style.width = (draggedAloneEl.clientWidth - 4) + "px";
+	draggedEntryClone.style.height = draggedAloneEl.clientHeight + "px";
 	draggedEntryClone.style.top = (getScrollTop() + position.y - 1) + "px";
 	draggedEntryClone.style.left = (getScrollLeft() + position.x - 1) + "px";
 	draggedEntryMouseOffset = getMouseOffset(draggedEntryClone, ev);
@@ -2868,6 +2880,9 @@ function getDropTarget(mousePos) {
 
 /** Handles dragging of an entry. */
 function dragEntryOnMouseMove(ev) {
+    // In case the user ctrl clicked and unselected the last clicked entry
+	unhoverAllEntries();
+	
 	var mousePos = getMousePosition(ev);
 
 	if (draggedEntryClone) {
@@ -2904,33 +2919,35 @@ dropped on the target.
 The second is a null or the reason why no-drop was returned.
  */
 function acceptabilityOfDropTarget(dropTarget, justTheEntry) {
-	if (!dropTarget || dropTarget.el === aloneElBeingDragged) {
-		return [ "move", null ];
-	}
-
 	var draggedEntryType = getEntryType(getDbIdFromEl(aloneElBeingDragged));
+	var selectedDbIds = getSelectedDbIds(true);
+	var numSelectedDbIds = selectedDbIds.length;
+
+	if (!dropTarget || dropTarget.el === aloneElBeingDragged) {
+		return [ "move", uiText.dragHintWhatIsBeingDragged(draggedEntryType, numSelectedDbIds, justTheEntry) ];
+	}
 
 	var paneEl = getContainingPaneEl(dropTarget.el);
 	var paneIndex = getIndexOfPaneEl(paneEl);
 
 	if (!isPaneATree(paneIndex)) {
-		return [ "no-drop", uiText.dragHintCanNotDropIntoList(draggedEntryType) ];
+		return [ "no-drop", uiText.dragHintCanNotDropIntoList(draggedEntryType, numSelectedDbIds) ];
 	}
 
 	// A user can't drop onto something that is selected because it is also being dragged.
 	var dropTargetId = getDbIdFromEl(dropTarget.el);
 
 	if (isDbIdSelected(dropTargetId)) {
-		return [ "no-drop", uiText.dragHintCanNotDropIntoSelected(draggedEntryType) ];
+		return [ "no-drop", uiText.dragHintCanNotDropIntoSelected(draggedEntryType, numSelectedDbIds) ];
 	}
 
 	var subtreeElDropTarget = getSubtreeElForAloneEl(dropTarget.el);
 	var targetEntryType = getEntryType(dropTargetId);
 
-	var selectedDbIds = getSelectedDbIds(true);
-	for (var i = 0; i < selectedDbIds.length; ++i) {
+	for (var i = 0; i < numSelectedDbIds; ++i) {
 		var selectedDbId = selectedDbIds[i];
-		var error = acceptabilityOfDropTargetHelper(dropTarget.where, justTheEntry, subtreeElDropTarget, selectedDbId, targetEntryType, draggedEntryType);
+		var error = acceptabilityOfDropTargetHelper(dropTarget.where, justTheEntry, subtreeElDropTarget,
+				selectedDbId, targetEntryType, draggedEntryType, numSelectedDbIds);
 		if (error) {
 			return [ "no-drop", error ];
 		}
@@ -2938,14 +2955,15 @@ function acceptabilityOfDropTarget(dropTarget, justTheEntry) {
 
 	// Do this here so that better error messages can be returned.
 	if (!isPaneEditable(paneIndex)) {
-		return [ "no-drop", uiText.dragHintCanNotDropIntoNonEditablePane(draggedEntryType) ];
+		return [ "no-drop", uiText.dragHintCanNotDropIntoNonEditablePane(draggedEntryType, numSelectedDbIds) ];
 	}
 
-	return [ "pointer", uiText.dragHintCanDropHere(draggedEntryType) ];
+	return [ "pointer", uiText.dragHintCanDropHere(draggedEntryType, numSelectedDbIds) ];
 }
 
 /** Helper for acceptabilityOfDropTarget(). */
-function acceptabilityOfDropTargetHelper(where, justTheEntry, subtreeElDropTarget, draggedDbId, targetEntryType, draggedEntryType) {
+function acceptabilityOfDropTargetHelper(where, justTheEntry, subtreeElDropTarget, draggedDbId,
+		targetEntryType, draggedEntryType, numSelectedDbIds) {
 	var targetTypeIsNotebook = targetEntryType === "notebook" || targetEntryType === "tableofcontents";
 	var targetTypeIsNote = targetEntryType === "note" || targetEntryType === "root" || targetEntryType === "source";
 	if (draggedEntryType === "notebook" && !targetTypeIsNotebook) {
@@ -2978,9 +2996,9 @@ function acceptabilityOfDropTargetHelper(where, justTheEntry, subtreeElDropTarge
 	// In case it is being dragged into itself from a list.
 	if (subtreeElDropTarget === subtreeElBeingDragged) {
 		if (where === "middle") {
-			return uiText.dragHintCanNotDropIntoSelf(draggedEntryType);
+			return uiText.dragHintCanNotDropIntoSelf(draggedEntryType, numSelectedDbIds);
 		} else {
-			return uiText.dragHintCanNotDropNextToItself(draggedEntryType);
+			return uiText.dragHintCanNotDropNextToItself(draggedEntryType, numSelectedDbIds);
 		}
 	}
 
@@ -2988,13 +3006,13 @@ function acceptabilityOfDropTargetHelper(where, justTheEntry, subtreeElDropTarge
 	if (where === "middle" &&
 			doesSubtreeElHaveParent(subtreeElBeingDragged) &&
 			subtreeElDropTarget === getParentOfSubtreeEl(subtreeElBeingDragged)) {
-		return uiText.dragHintCanNotDropIntoParent(draggedEntryType);
+		return uiText.dragHintCanNotDropIntoParent(draggedEntryType, numSelectedDbIds);
 	}
 
 	// Prevents circular references.
 	if (!justTheEntry) {
 		if (isEntryDescendentOfAncestor(subtreeElDropTarget, subtreeElBeingDragged)) {
-			return uiText.dragHintCanNotDropIntoSub(draggedEntryType);
+			return uiText.dragHintCanNotDropIntoSub(draggedEntryType, numSelectedDbIds);
 		}
 	}
 
@@ -3002,20 +3020,20 @@ function acceptabilityOfDropTargetHelper(where, justTheEntry, subtreeElDropTarge
 	if (doesSubtreeElHavePrevious(subtreeElBeingDragged) &&
 			getPreviousOfSubtreeEl(subtreeElBeingDragged) === subtreeElDropTarget &&
 			where === "bottom") {
-		return uiText.dragHintCanNotDropNextToItself(draggedEntryType);
+		return uiText.dragHintCanNotDropNextToItself(draggedEntryType, numSelectedDbIds);
 	}
 
 	if (doesSubtreeElHaveNext(subtreeElBeingDragged) &&
 			getNextOfSubtreeEl(subtreeElBeingDragged) === subtreeElDropTarget &&
 			where === "top") {
-		return uiText.dragHintCanNotDropNextToItself(draggedEntryType);
+		return uiText.dragHintCanNotDropNextToItself(draggedEntryType, numSelectedDbIds);
 	}
 
 	if ((where === "top" || where === "bottom")) {
 		if (!doesSubtreeElHaveParent(subtreeElDropTarget)) {
 			return uiText.dragHintCanNotDropNextToSomethingThatHasNoParent(targetEntryType);
 		} else if (subtreeElBeingDragged === getParentOfSubtreeEl(subtreeElDropTarget)) {
-			return uiText.dragHintCanNotDropNextToItsOwnChild(targetEntryType);
+			return uiText.dragHintCanNotDropNextToItsOwnChild(targetEntryType, numSelectedDbIds);
 		}
 	}
 
@@ -3075,7 +3093,7 @@ function addDashedBorder(dropTarget, color) {
 }
 
 /** Updates the acceptability description for the drop target. */
-function updateAcceptabilityDescription(canDrop, acceptabilityDesc) {
+function updateAcceptabilityDescription(acceptability, acceptabilityDesc) {
 	if (acceptabilityDesc === lastEntryDropTargetAcceptabilityDesc) {
 		return;
 	}
@@ -3091,7 +3109,7 @@ function updateAcceptabilityDescription(canDrop, acceptabilityDesc) {
 	}
 
 	acceptabilityDescEl = document.createElement("DIV");
-	acceptabilityDescEl.className = "dropHint " + (canDrop ? "canDrop" : "canNotDrop");
+	acceptabilityDescEl.className = "dropHint dropHint" + acceptability;
 	acceptabilityDescEl.innerHTML = acceptabilityDesc;
 	document.body.appendChild(acceptabilityDescEl);
 }
@@ -3101,7 +3119,7 @@ function dragEntryOnMouseMoveHelper(mousePos, justTheEntry) {
 	var dropTarget = getDropTarget(mousePos);
 	var acceptabilityInfo = acceptabilityOfDropTarget(dropTarget, justTheEntry);
 	var acceptability = acceptabilityInfo[0];
-	updateAcceptabilityDescription(acceptability === "pointer", acceptabilityInfo[1]);
+	updateAcceptabilityDescription(acceptability, acceptabilityInfo[1]);
 
 	draggedEntryClone.style.cursor = acceptability;
 
