@@ -4118,7 +4118,7 @@ function removeEntriesFromTree(noteop, idsValue, childrenToParent, removeCorresp
 				setEntryHasNoChildren(getDbIdFromSubtreeEl(parentEl));
 			}
 			
-			showOrHidePlusUpToRoot(getParentOfSubtreeEl(parentEl));
+			showOrHidePlusUpToRoot(parentEl);
 		}
 	}
 
@@ -4914,6 +4914,15 @@ function showPopupForDeleteEntry() {
 			html += endOfForm("prepForDeleteAndSave");
 
 			addThenCenterPopup(popup, html);
+
+			// Do not auto focus on mobile. It messes up the window.
+			// Do not auto focus for notebooks since deleting has such a greater impact.
+			if (entryType !== "notebook" && !isDisplaySmall()) {
+				var submit = document.getElementById('submit');
+				if (submit) {
+					submit.focus();
+				}
+			}
 		};
 
 		if (selectedDbIds.length === 1) {

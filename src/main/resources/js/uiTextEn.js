@@ -369,7 +369,7 @@ uiTextEn.sentenceNoteToMakeNotebooksAreNotVisible = function(notVisibleEntries, 
 
 uiTextEn.sentenceNoteToDeleteHiddenChildren = function(numHiddenChildren, numToDelete, entryType) {
 	if (numToDelete === 1) {
-		return "Warning: The " + uiTextEn.getOneEntryTerm(entryType) + " to delete has sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that " + uiTextEn.areOrIs(numHiddenChildren) + " hidden.";
+		return "Warning: The " + uiTextEn.getOneEntryTerm(entryType) + " to delete has a sub" + uiTextEn.getOneEntryTerm(entryType) + " that " + uiTextEn.areOrIs(numHiddenChildren) + " hidden.";
 	}
 
 	return "Warning: " + numHiddenChildren + " of the " + numToDelete + " " + uiTextEn.getOneEntryTermPlural(entryType) + " to delete have sub" + uiTextEn.getOneEntryTermPlural(entryType) + " that " + uiTextEn.areOrIs(numHiddenChildren) + " hidden.";
