@@ -2283,6 +2283,14 @@ function unhoverAllEntries(exceptDbId) {
 	}
 }
 
+/** Removes any hover menu that is displayed. */
+function removeTheHoverMenu() {
+	if (aloneHoverMenuEl) {
+		aloneHoverMenuEl.parentNode.removeChild(aloneHoverMenuEl);
+		aloneHoverMenuEl = null;
+	}
+}
+
 /** Adds a context menu/right click menu. */
 function onContextMenu(ev) {
 	var eventEl = getEventEl(ev);
@@ -7561,6 +7569,7 @@ function noteOnFocus(ev) {
 	var eventEl = getEventEl(ev);
 	var aloneEl = getCorrespondingAloneEl(eventEl);
 	prepareNoteForInlineEdit(aloneEl);
+	removeTheHoverMenu();
 }
 
 /** Handle loss of focus on the note text either by clicking out of it
