@@ -1439,7 +1439,7 @@ function splitUris(uri) {
 	return uris;
 }
 
-//Globals for pane dragging.
+// Globals for pane dragging.
 var draggedPaneLastMousePos = null;
 var draggedPane = null;
 
@@ -1470,35 +1470,15 @@ function resetDraggedPane() {
 	document.onmousemove = null;
 }
 
-/** Returns the mouse position if the pane is draggable from where the mouse is. */
-function isPaneDraggableFromHere(ev, paneEl) {
-	var mousePos = getMousePosition(ev);
-	var panePos = getPosition(paneEl);
-	var paneWidth = parseInt(paneEl.offsetWidth);
-	var rightOfPane = getScrollLeft() + panePos.x + paneWidth;
-	if (mousePos.x > rightOfPane || mousePos.x < rightOfPane - 20) {
-		return null;
-	}
-
-	return mousePos;
-}
-
 /** Handles mousedown for a pane. */
 function paneOnMouseDown(ev) {
 	var eventEl = getEventEl(ev);
-	if (!isElementOfClass(eventEl, "dragPane")) {
-		return true;
-	}
-
-	var mousePos = isPaneDraggableFromHere(ev, eventEl);
-	if (!mousePos) {
-		return true;
-	}
-
-	draggedPane = eventEl.parentNode;
+	draggedPane = getElOrAncestor(eventEl, 'DIV', 'paneSection');
 	document.onmouseup = paneOnMouseUp;
-	draggedPaneLastMousePos = mousePos;
+	draggedPaneLastMousePos = getMousePosition(ev);
 	document.onmousemove = paneOnMouseMoveDown;
+	ev.preventDefault();
+	ev.stopPropagation();
 	return false;
 }
 
