@@ -3452,6 +3452,10 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 					if (oldParentOfMoved && !doesSubtreeElHaveChildrenDisplayed(oldParentOfMoved)) {
 						setEntryHasNoChildren(getDbIdFromSubtreeEl(oldParentOfMoved));
 					}
+					
+					if (oldParentOfMoved) {
+						showOrHidePlusUpToRoot(oldParentOfMoved);
+					}
 				}
 
 				// Update that the new parent has children.
@@ -6462,6 +6466,7 @@ function getNextLevelToShow(subtreeEl) {
 function showOrHidePlusUpToRoot(subtreeEl) {
 	var nextLevelToShow = 0;
 
+	var isFirst = true;
 	while (true) {
 		if (nextLevelToShow === 0) {
 			nextLevelToShow = getNextLevelToShow(subtreeEl);
@@ -6473,13 +6478,13 @@ function showOrHidePlusUpToRoot(subtreeEl) {
 		}
 
 		if (nextLevelToShow !== 0) {
-			if (isShowingPlus(aloneEl)) {
+			if (!isFirst && isShowingPlus(aloneEl)) {
 				break;
 			}
 			
 			showPlusIcon(aloneEl);
 		} else {
-			if (!isShowingPlus(aloneEl)) {
+			if (!isFirst && !isShowingPlus(aloneEl)) {
 				break;
 			}
 			
@@ -6491,6 +6496,7 @@ function showOrHidePlusUpToRoot(subtreeEl) {
 		}
 
 		subtreeEl = getParentOfSubtreeEl(subtreeEl);
+		isFirst = false;
 	}
 }
 
