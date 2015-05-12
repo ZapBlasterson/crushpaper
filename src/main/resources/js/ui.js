@@ -2117,6 +2117,8 @@ function aloneElOnShiftClick(clickedAloneEl, clickedDbId) {
 	}
 }
 
+var padDraggedEntryInterval = null;
+
 /** Starts the drag of the alone e. */
 function startAloneElDrag(clickedAloneEl, ev) {
 	var draggedAloneEl = clickedAloneEl;
@@ -2139,8 +2141,8 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	var position = getPosition(clickedAloneEl);
 
 	document.onmouseup = dragEntryOnMouseUp;
-
 	document.onmousemove = dragEntryOnMouseMove;
+	padDraggedEntryInterval = window.setInterval(scrollToPadDraggedEntry, 50);
 	draggedEntryClone.style.opacity = 0.4;
 	draggedEntryClone.style.filter = "alpha(opacity=40)"; // For IE.
 	draggedEntryClone.style["z-index"] = "100";
@@ -2882,27 +2884,43 @@ function getDropTarget(mousePos) {
 	return null;
 }
 
+var dragEntryMousePos = null;
+var dragEntryJustTheEntry = null;
+
 /** Handles dragging of an entry. */
 function dragEntryOnMouseMove(ev) {
     // In case the user ctrl clicked and unselected the last clicked entry
 	unhoverAllEntries();
 	
-	var mousePos = getMousePosition(ev);
-
+	if (ev) {
+		var mousePos = getMousePosition(ev);
+		if (!isNaN(mousePos.x) && !isNaN(mousePos.y)) {
+			dragEntryMousePos = mousePos;
+			dragEntryJustTheEntry = !ev.ctrlKey && !ev.altKey;
+		}
+	}
+	
 	if (draggedEntryClone) {
-		draggedEntryClone.style.top = (mousePos.y - draggedEntryMouseOffset.y) + "px";
-		draggedEntryClone.style.left = (mousePos.x - draggedEntryMouseOffset.x) + "px";
-		var justTheEntry = !ev.ctrlKey && !ev.altKey;
-		dragEntryOnMouseMoveHelper(mousePos, justTheEntry);
+		draggedEntryClone.style.top = (dragEntryMousePos.y - draggedEntryMouseOffset.y) + "px";
+		draggedEntryClone.style.left = (dragEntryMousePos.x - draggedEntryMouseOffset.x) + "px";
+		dragEntryOnMouseMoveHelper(dragEntryMousePos, dragEntryJustTheEntry);
 
 		if (acceptabilityDescEl) {
-			acceptabilityDescEl.style.top = (mousePos.y - 10) + "px";
-			acceptabilityDescEl.style.left = (mousePos.x + 8) + "px";
+			acceptabilityDescEl.style.top = (dragEntryMousePos.y - 10) + "px";
+			acceptabilityDescEl.style.left = (dragEntryMousePos.x + 8) + "px";
 		}
 
-		scrollToPadMouse(mousePos);
-
 		return false;
+	}
+}
+
+/** Scrolls the window to pad the dragged entry. */
+function scrollToPadDraggedEntry() {
+	if (dragEntryMousePos) {
+		var change = scrollToPadMouse(dragEntryMousePos);
+		dragEntryMousePos.x += change.x;
+		dragEntryMousePos.y += change.y;
+		dragEntryOnMouseMove();
 	}
 }
 
@@ -3158,6 +3176,9 @@ function dragEntryOnMouseUp(ev) {
 		return;
 	}
 
+	clearInterval(padDraggedEntryInterval);
+	padDraggedEntryInterval = null;
+
 	removeCueFromDropTarget();
 	document.body.removeChild(draggedEntryClone);
 
@@ -3165,7 +3186,7 @@ function dragEntryOnMouseUp(ev) {
 		// Check everything again one last time in case the user pressed or
 		// unpressed control before mousing up.
 		var mousePos = getMousePosition(ev);
-		var dropTarget = getDropTarget(mousePos)
+		var dropTarget = getDropTarget(mousePos);
 		var justTheEntry = !ev.ctrlKey && !ev.altKey;
 		var acceptabilityInfo = acceptabilityOfDropTarget(dropTarget, justTheEntry);
 		var acceptability = acceptabilityInfo[0];
@@ -6288,7 +6309,12 @@ function scrollToPadMouse(mousePos) {
 		newScrollTop = 0;
 	}
 
-	window.scroll(newScrollLeft, newScrollTop);
+	var change = { "x": newScrollLeft - getScrollLeft(), "y": newScrollTop - getScrollTop() };
+	if (change.x || change.y) {
+		window.scroll(newScrollLeft, newScrollTop);
+	}
+	
+	return change;
 }
 
 /** Creates a transition scroll for the dbId.  updateIntervalMs has a default. */
