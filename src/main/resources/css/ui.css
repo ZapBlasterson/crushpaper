@@ -18,6 +18,7 @@ div.contentPane { min-width:300px; }
 #menu > div { display:none; }
 #menu > div:first-child { display:block; border-bottom:0; }
 #showMenu { position:absolute; top:5px; right:-10px; width:50px; height:20px; margin:auto; }
+img.resize { display:none; }
 }
 
 #siteRequirements { margin-top:0px; text-align:center; background:pink; border:1px solid rgb(239, 151, 164); color:black; }
@@ -145,6 +146,7 @@ div.popup { z-index:100; position:absolute; overflow:hidden; background:white; d
 @media only screen and (min-width: 500px) {
    div.popup { min-width:300px; }
 }
+
 div.divider { height:0px; z-index:6; display:block; position:absolute; border-top:dashed 1px red; }
 
 div.hoverMenu { z-index:6; position:absolute; right:0px; top:0px; }  
