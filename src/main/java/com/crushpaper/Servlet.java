@@ -5702,13 +5702,16 @@ public class Servlet extends HttpServlet {
 			result.append("<div class=\"quotation\" title=\""
 					+ servletText.quotationInListTooltip() + "\">");
 			result.append(getQuotationMarkdown(entry));
-			result.append("</div><br>");
+			result.append("</div>");
 		}
 
-		result.append("<div class=\"note mousetrap\" title=\""
+		String noteMarkdown = getNoteMarkdown(entry, true, entry.hasQuotation());
+		if (!noteMarkdown.isEmpty()) {
+			result.append("<div class=\"note mousetrap\" title=\""
 				+ servletText.noteInListTooltip(entry.getType()) + "\">");
-		result.append(getNoteMarkdown(entry, true, entry.hasQuotation()));
-		result.append("</div>");
+			result.append(noteMarkdown);
+			result.append("</div>");
+		}
 
 		final StringBuilder atString = new StringBuilder();
 		atString.append("<div class=\"listModTime\" title=\""
@@ -5853,13 +5856,16 @@ public class Servlet extends HttpServlet {
 			if (entry.hasQuotation()) {
 				result.append("<div class=\"quotation\">");
 				result.append(getQuotationMarkdown(entry));
-				result.append("</div><br>");
+				result.append("</div>");
 			}
 
-			result.append("<div class=\"note mousetrap\">");
-			result.append(getNoteMarkdown(entry, false, entry.hasQuotation()));
-			result.append("</div>");
-
+			String noteMarkdown = getNoteMarkdown(entry, false, entry.hasQuotation());
+			if (!noteMarkdown.isEmpty()) {
+				result.append("<div class=\"note mousetrap\">");
+				result.append(noteMarkdown);
+				result.append("</div>");
+			}
+			
 			result.append("<span class=\"entryDaytime\">"
 					+ servletText.fragmentLastModified() + " "
 					+ "<span class=\"modTime\">"
@@ -6007,8 +6013,7 @@ public class Servlet extends HttpServlet {
 		final StringBuilder header = new StringBuilder();
 		final StringBuilder footer = new StringBuilder();
 		if (embedContext == SourceEmbedContext.InQuotation
-				|| embedContext == SourceEmbedContext.InQuotations
-				|| embedContext == SourceEmbedContext.InSourceQuotations) {
+				|| embedContext == SourceEmbedContext.InQuotations) {
 			header.append("<div class=\"listItemFooter\">");
 			footer.append("</div>");
 		} else if (embedContext == SourceEmbedContext.InSources) {
@@ -6044,6 +6049,10 @@ public class Servlet extends HttpServlet {
 		} catch (final URISyntaxException e) {
 		}
 
+		if (embedContext == SourceEmbedContext.InSources) {
+			result.append("<div class=\"sourceHeader\">");
+		}
+		
 		result.append("<div class=\"sourceTitle\">");
 		
 		if (domain != null && embedContext != SourceEmbedContext.InSources) {
@@ -6087,7 +6096,7 @@ public class Servlet extends HttpServlet {
 
 			result.append("</span>");
 		}
-
+		
 		if (embedContext == SourceEmbedContext.InQuotation
 				|| embedContext == SourceEmbedContext.InQuotations
 				|| embedContext == SourceEmbedContext.InSources) {
@@ -6102,9 +6111,15 @@ public class Servlet extends HttpServlet {
 			result.append("</a>");
 		}
 
+		if (embedContext == SourceEmbedContext.InSources) {
+			result.append("</div>");
+		}		
+
 		if (embedContext == SourceEmbedContext.InSource
 				|| embedContext == SourceEmbedContext.InSources) {
-			result.append("<br><div class=\"listItemFooter\">");
+			result.append("<div class=\"" + 
+				(embedContext == SourceEmbedContext.InSource ? "sourceFooter" : "listItemFooter")
+					+ "\">");
 			result.append(servletText.fragmentLastModified() + " <span>");
 			result.append(formatDateAndTime(source.getModTime())
 					+ "<span class=\"rawDateTime\">" + source.getModTime()

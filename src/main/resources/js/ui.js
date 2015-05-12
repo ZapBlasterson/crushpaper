@@ -3932,15 +3932,23 @@ function updateDisplayedEntryDetails(response) {
 	for (var i = 0; i < aloneEls.length; ++i) {
 		var aloneEl = aloneEls[i];
 
+		var quotation = null;
+		if (isAloneElAQuotation(aloneEl)) {
+			quotation = getQuotationElOfAloneEl(aloneEl);
+			quotation.innerHTML = response.quotationHtml;
+		}
+
 		var note = getNoteElOfAloneEl(aloneEl);
+		if (quotation && !note && response.noteHtml) {
+			note = document.createElement("DIV");
+			note.className = "note mousetrap";
+			quotation.parentNode.insertBefore(note, quotation.nextSibling);
+		}
+		
 		if(note) {
 			note.innerHTML = response.noteHtml;
 		}
-
-		if (isAloneElAQuotation(aloneEl)) {
-			getQuotationElOfAloneEl(aloneEl).innerHTML = response.quotationHtml;
-		}
-
+		
 		var modTimeEl = getModTimeElOfAloneEl(aloneEl);
 		if (modTimeEl) {
 			modTimeEl.innerHTML = uiText.formatDateTime(response.modTime);
