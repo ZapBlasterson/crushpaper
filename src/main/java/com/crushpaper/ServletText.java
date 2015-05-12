@@ -869,7 +869,7 @@ public class ServletText {
 		if(forTouch) {
 			result += "Press a note to edit it.";
 		} else {
-			result += "Double click a note to edit it.<br>Right click a note or press h to see all of the available commands.";
+			result += "Mouse over, right click or press h to see all of the available commands.";
 		}
 		
 		return result;

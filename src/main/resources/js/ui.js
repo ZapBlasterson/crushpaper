@@ -1897,11 +1897,7 @@ function getIndexOfChildById(children, dbId) {
 	return -1;
 }
 
-//Globals for double clicking.
-var lastClickAloneEl = null;
-var lastClickTimeMs = null;
-
-//Globals for entry drag and drop.
+// Globals for entry drag and drop.
 var aloneElBeingDragged = null;
 var draggedEntryClone = null;
 var draggedEntryMouseOffset = null;
@@ -2008,21 +2004,6 @@ function documentOnMouseDown(ev, fromTouch) {
 
 	var textIsSelectable = getElOrAncestor(eventEl, 'DIV', 'note', '.alone') ||
 	getElOrAncestor(eventEl, 'DIV', 'quotation', '.alone');
-
-	// Allow the user to double click to select a word.
-	if (!textIsSelectable && !fromTouch) {
-		// Support double click to edit.
-		var nowMs = new Date().getTime();
-		if (lastClickTimeMs && nowMs < lastClickTimeMs + 500 && lastClickAloneEl === clickedAloneEl) {
-			showPopupForEditEntry();
-			ev.preventDefault();
-			ev.stopPropagation();
-			return;
-		}
-
-		lastClickTimeMs = nowMs;
-		lastClickAloneEl = clickedAloneEl;
-	}
 
 	// Allow the user to select text.
 	if (textIsSelectable) {
