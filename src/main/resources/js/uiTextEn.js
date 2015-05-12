@@ -859,13 +859,14 @@ uiTextEn.helpHelpHelp = function() {
 };
 
 
-uiTextEn.dragHintWhatIsBeingDragged = function(entryType, number, justTheEntry) {
+uiTextEn.dragHintWhatIsBeingDragged = function(entryType, number, justTheEntry, hasChildren) {
 	return "You are dragging " + uiTextEn.termWithNumber(number, entryType) +
-		(justTheEntry ? "" : " with " + uiTextEn.theirOrIts(number) + " sub" + uiTextEn.getPlural(entryType)) + ".";
+		(hasChildren ? " " + (justTheEntry ? "without" : "with") + " " + uiTextEn.theirOrIts(number) + " sub" + uiTextEn.getPlural(entryType) : "") + ".";
 };
 
-uiTextEn.dragHintCanDropHere = function(entryType, number) {
-	return "You can drop the " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + " here.";
+uiTextEn.dragHintCanDropHere = function(entryType, number, justTheEntry, hasChildren) {
+	return "You can drop the " + uiTextEn.maybeGetPluralWithNumber(number, entryType) + 
+		(hasChildren ? " " + (justTheEntry ? "without" : "with") + " " + uiTextEn.theirOrIts(number) + " sub" + uiTextEn.getPlural(entryType) : "") + " here.";
 };
 
 uiTextEn.dragHintCanNotDropIntoSelected = function(entryType, number) {

@@ -2142,8 +2142,17 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	ev.stopPropagation();
 
 	Mousetrap.bind("esc", function() {
+		// Do not pass the event since it has no mouse position.
 		dragEntryOnMouseUp();
 	});
+
+	Mousetrap.bind("ctrl", dragEntryCtrlDown, 'keydown');
+	Mousetrap.bind("ctrl", dragEntryCtrlUp, 'keyup');
+	Mousetrap.bind("alt", dragEntryAltDown, 'keydown');
+	Mousetrap.bind("alt", dragEntryAltUp, 'keyup');
+
+	// So that the globals for ctrl, alt and position are initialized.
+	dragEntryOnMouseMove(ev);
 	
 	return true;
 }
@@ -2547,9 +2556,9 @@ function setTheRightChildIconsForAloneEl(aloneEl) {
 
 	if (!hasChildren) {
 		hidePlusIcon(aloneEl);
-	} else {
+	} else if (!hasChildrenDisplayed) {
 		showPlusIcon(aloneEl);
-	}
+	} 
 }
 
 /** If the dictionary contains an error than show it in the popup and return null, otherwise return it. */
@@ -2863,25 +2872,27 @@ function getDropTarget(mousePos) {
 }
 
 var dragEntryMousePos = null;
-var dragEntryJustTheEntry = null;
+var dragEntryCtrlKeyIsDown = false;
+var dragEntryAltKeyIsDown = false;
 
 /** Handles dragging of an entry. */
 function dragEntryOnMouseMove(ev) {
-    // In case the user ctrl clicked and unselected the last clicked entry
+    // In case the user ctrl clicked and unselected the last clicked entry.
 	unhoverAllEntries();
 	
 	if (ev) {
 		var mousePos = getMousePosition(ev);
-		if (!isNaN(mousePos.x) && !isNaN(mousePos.y)) {
-			dragEntryMousePos = mousePos;
-			dragEntryJustTheEntry = !ev.ctrlKey && !ev.altKey;
-		}
+		dragEntryMousePos = mousePos;
+		dragEntryAltKeyIsDown = ev.altKey;
+		dragEntryCtrlKeyIsDown = ev.ctrlKey;
 	}
+
+	var justTheEntry = !dragEntryCtrlKeyIsDown && !dragEntryAltKeyIsDown;
 	
 	if (draggedEntryClone) {
 		draggedEntryClone.style.top = (dragEntryMousePos.y - draggedEntryMouseOffset.y) + "px";
 		draggedEntryClone.style.left = (dragEntryMousePos.x - draggedEntryMouseOffset.x) + "px";
-		dragEntryOnMouseMoveHelper(dragEntryMousePos, dragEntryJustTheEntry);
+		dragEntryOnMouseMoveHelper(dragEntryMousePos, justTheEntry);
 
 		if (acceptabilityDescEl) {
 			acceptabilityDescEl.style.top = (dragEntryMousePos.y - 10) + "px";
@@ -2890,6 +2901,30 @@ function dragEntryOnMouseMove(ev) {
 
 		return false;
 	}
+}
+
+/** Hande the alt key being pressed during an entry drag. */
+function dragEntryAltDown() {
+	dragEntryAltKeyIsDown = true;
+	dragEntryOnMouseMove();
+}
+
+/** Hande the alt key being unpressed during an entry drag. */
+function dragEntryAltUp() {
+	dragEntryAltKeyIsDown = false;
+	dragEntryOnMouseMove();
+}
+
+/** Hande the ctrl key being pressed during an entry drag. */
+function dragEntryCtrlDown() {
+	dragEntryCtrlKeyIsDown = true;
+	dragEntryOnMouseMove();
+}
+
+/** Hande the ctrl key being unpressed during an entry drag. */
+function dragEntryCtrlUp() {
+	dragEntryCtrlKeyIsDown = false;
+	dragEntryOnMouseMove();
 }
 
 /** Scrolls the window to pad the dragged entry. */
@@ -2923,9 +2958,20 @@ function acceptabilityOfDropTarget(dropTarget, justTheEntry) {
 	var draggedEntryType = getEntryType(getDbIdFromEl(aloneElBeingDragged));
 	var selectedDbIds = getSelectedDbIds(true);
 	var numSelectedDbIds = selectedDbIds.length;
+	var selectedDbId = null;
+	var i;
+	
+	var atLeastOneHasChildren = false;
+	for (i = 0; i < numSelectedDbIds; ++i) {
+		selectedDbId = selectedDbIds[i];
+		atLeastOneHasChildren = getEntryHasChildren(selectedDbId);
+		if (atLeastOneHasChildren) {
+			break;
+		}
+	}
 
 	if (!dropTarget || dropTarget.el === aloneElBeingDragged) {
-		return [ "move", uiText.dragHintWhatIsBeingDragged(draggedEntryType, numSelectedDbIds, justTheEntry) ];
+		return [ "move", uiText.dragHintWhatIsBeingDragged(draggedEntryType, numSelectedDbIds, justTheEntry, atLeastOneHasChildren) ];
 	}
 
 	var paneEl = getContainingPaneEl(dropTarget.el);
@@ -2945,8 +2991,8 @@ function acceptabilityOfDropTarget(dropTarget, justTheEntry) {
 	var subtreeElDropTarget = getSubtreeElForAloneEl(dropTarget.el);
 	var targetEntryType = getEntryType(dropTargetId);
 
-	for (var i = 0; i < numSelectedDbIds; ++i) {
-		var selectedDbId = selectedDbIds[i];
+	for (i = 0; i < numSelectedDbIds; ++i) {
+		selectedDbId = selectedDbIds[i];
 		var error = acceptabilityOfDropTargetHelper(dropTarget.where, justTheEntry, subtreeElDropTarget,
 				selectedDbId, targetEntryType, draggedEntryType, numSelectedDbIds);
 		if (error) {
@@ -2959,7 +3005,7 @@ function acceptabilityOfDropTarget(dropTarget, justTheEntry) {
 		return [ "no-drop", uiText.dragHintCanNotDropIntoNonEditablePane(draggedEntryType, numSelectedDbIds) ];
 	}
 
-	return [ "pointer", uiText.dragHintCanDropHere(draggedEntryType, numSelectedDbIds) ];
+	return [ "pointer", uiText.dragHintCanDropHere(draggedEntryType, numSelectedDbIds, justTheEntry, atLeastOneHasChildren) ];
 }
 
 /** Helper for acceptabilityOfDropTarget(). */
@@ -3183,7 +3229,10 @@ function dragEntryOnMouseUp(ev) {
 	document.onmouseup = null;
 	updateAcceptabilityDescription(null, null);
 	
-	Mousetrap.unbind("esc");
+	Mousetrap.unbind("ctrl", 'keydown');
+	Mousetrap.unbind("ctrl", 'keyup');
+	Mousetrap.unbind("alt", 'keydown');
+	Mousetrap.unbind("alt", 'keyup');
 }
 
 /** Handles dropping on a drop target. */
@@ -3211,10 +3260,11 @@ function handleDrop(dropTarget, justTheEntry) {
 		if (dropTarget.where === "middle") {
 			var targetId = getDbIdFromEl(dropTarget.el);
 			ensureDirectChildrenAreVisible(targetId,
-					function() {
+				function() {
 				makeEntriesSiblingOrChild(dropTarget.el, sortedDroppedDbIds, justTheEntry, "/makeChildrenJson", uiText.popupTitleDragNodeToNewParent, null);
 			},
 			function() {
+				commandsAreNowAllowed(true);
 				showPopupForError(title, uiText.errorChildrenNeededToBeLoadedFirst(entryType));
 			});
 		} else {
@@ -3224,6 +3274,7 @@ function handleDrop(dropTarget, justTheEntry) {
 	};
 
 	var handleError = function() {
+		commandsAreNowAllowed(true);
 		showPopupForError(title, uiText.errorChildrenNeededToBeLoadedFirst(entryType));
 	};
 
@@ -3272,9 +3323,11 @@ function sortIdsByAscendingYPosition(dbIds) {
 function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri, popupTitleFunc, placement) {
 	var targetId = getDbIdFromEl(targetAloneEl);
 	var entryType = getEntryType(targetId);
+
 	var xhr = createJsonAsyncRequest("POST", uri + "?" + getAnUrlUniquer(), function() {
 		aRequestIsInProgress(false);
-
+		commandsAreNowAllowed(true);
+		
 		var errorTitle = popupTitleFunc(entryType, placement);
 
 		if (xhr.status === 200) {
@@ -3346,8 +3399,6 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 							addLastChildToSubtreeEl(targetSubtreeEl, movedSubtreeEl);
 						}
 					} else {
-						setEntryHasNoChildren(movedId);
-
 						// Remove the children of the entry being moved.
 						var childrenOfMoved = copyArray(getChildrenOfSubtreeEl(movedSubtreeEl));
 						for (var i = 0; i < childrenOfMoved.length; ++i) {
@@ -3390,6 +3441,8 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 							container.appendChild(subtreeToMakeRoot);
 						}
 
+						setEntryHasNoChildren(movedId);
+
 						if (movedHadChildren && oldParentOfMoved) {
 							setEntryHasChildren(getDbIdFromSubtreeEl(oldParentOfMoved));
 						}
@@ -3404,6 +3457,7 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 				// Update that the new parent has children.
 				if (placement === null) {
 					setEntryHasChildren(getDbIdFromSubtreeEl(targetSubtreeEl));
+					showOrHidePlusUpToRoot(targetSubtreeEl);
 				}
 				
 				updateEntryDetailsHasParent(movedId);
@@ -3412,8 +3466,6 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 			var errorText = getErrorTextNotFound(xhr, uiText.errorNotMoved(entryType));
 			showPopupForError(errorTitle, errorText);
 		}
-
-		commandsAreNowAllowed(true);
 	});
 
 	var message = {
@@ -3957,7 +4009,7 @@ function updateDisplayedEntryDetails(response) {
 	}
 }
 
-/** Updates all entry infos with for the dbId to indicate that they have a parent. */
+/** Updates all entry infos with the dbId to indicate that they have a parent. */
 function updateEntryDetailsHasParent(dbId) {
 	dbId = getTrueDbIdFromListDbId(dbId);
 	var aloneEls = document.getElementsByClassName(dbId);
@@ -4052,9 +4104,9 @@ function removeEntriesFromTree(noteop, idsValue, childrenToParent, removeCorresp
 		if (parentEl) {
 			if (!childrenWereMovedToParent && !doesSubtreeElHaveChildrenDisplayed(parentEl)) {
 				setEntryHasNoChildren(getDbIdFromSubtreeEl(parentEl));
-			} else {
-				showOrHidePlusUpToRoot(parentEl);
 			}
+			
+			showOrHidePlusUpToRoot(getParentOfSubtreeEl(parentEl));
 		}
 	}
 
@@ -4255,8 +4307,6 @@ function moveEntries(direction) {
 		orderedDbIds = [getSelectedDbId(false, true)];
 	}
 
-	commandsAreNowAllowed(false);
-
 	var firstMovedSubtreeEl = getSubtreeElByDbId(orderedDbIds[0]);
 
 	if (direction === 'before' && !doesSubtreeElHavePrevious(firstMovedSubtreeEl)) {
@@ -4302,11 +4352,21 @@ function moveEntries(direction) {
 							if (!doesSubtreeElHaveChildrenDisplayed(parent)) {
 								setEntryHasNoChildren(getDbIdFromSubtreeEl(parent));
 							}
+
+							if (isShowingPlus(getAloneElFromSubtreeEl(movedSubtreeEl))) {
+								showPlusUpToRoot(getParentOfSubtreeEl(movedSubtreeEl));
+							}
+
+							showOrHidePlusUpToRoot(parent);							
 						} else if (direction === 'right') {
 							before = getPreviousOfSubtreeEl(movedSubtreeEl);
 							removeSubtreeElFromParent(movedSubtreeEl);
 							addLastChildToSubtreeEl(before, movedSubtreeEl);
 							setEntryHasChildren(getDbIdFromSubtreeEl(before));
+							parent = getParentOfSubtreeEl(movedSubtreeEl);
+							if (isShowingPlus(getAloneElFromSubtreeEl(movedSubtreeEl))) {
+								showPlusIcon(getAloneElFromSubtreeEl(parent));
+							}
 						}
 					}
 
@@ -4334,6 +4394,7 @@ function moveEntries(direction) {
 
 			xhr.send(JSON.stringify(message));
 			aRequestIsInProgress(true);
+			commandsAreNowAllowed(false);
 		};
 
 		if (direction === 'right') {
@@ -4935,7 +4996,7 @@ function prepForDeleteAndSave() {
 			}
 
 			waitingForChildren = true;
-			ensureDirectChildrenAreVisible(id, saveButAlreadyStarted, handleError, true);
+			ensureDirectChildrenAreVisible(id, saveButAlreadyStarted, handleError);
 		}
 	}
 
@@ -6412,10 +6473,40 @@ function showOrHidePlusUpToRoot(subtreeEl) {
 		}
 
 		if (nextLevelToShow !== 0) {
+			if (isShowingPlus(aloneEl)) {
+				break;
+			}
+			
 			showPlusIcon(aloneEl);
 		} else {
+			if (!isShowingPlus(aloneEl)) {
+				break;
+			}
+			
 			hidePlusIcon(aloneEl);
 		}
+
+		if (!doesSubtreeElHaveParent(subtreeEl)) {
+			break;
+		}
+
+		subtreeEl = getParentOfSubtreeEl(subtreeEl);
+	}
+}
+
+/** Shows plus icons up to the root of the container. */
+function showPlusUpToRoot(subtreeEl) {
+	while (true) {
+		var aloneEl = getAloneElFromSubtreeEl(subtreeEl);
+		if (isElementOfClass(aloneEl, "fakealone")) {
+			break;
+		}
+
+		if (isShowingPlus(aloneEl)) {
+			break;
+		}
+		
+		showPlusIcon(aloneEl);
 
 		if (!doesSubtreeElHaveParent(subtreeEl)) {
 			break;
@@ -6448,17 +6539,12 @@ function expandToLevel(subtreeEl, levelsToShow, currentLevel) {
 
 var afterRequestChildrenSuccessCallback = null;
 var afterRequestChildrenFailureCallback = null;
-var afterRequestChildrenPreSuccessOnlyAsyncCallback = null;
 
 /** Ensures that direct children are visible and then calls the callback.
  * You can not call this in a loop unless the caller verified that every request has children that must be loaded.
  * The callback can be called too early. */
-function ensureDirectChildrenAreVisible(dbId, successCallback, failureCallback, skipShowOrHidePlusAndMinus) {
+function ensureDirectChildrenAreVisible(dbId, successCallback, failureCallback) {
 	var subtreeEl = getSubtreeElByDbId(dbId);
-	afterRequestChildrenPreSuccessOnlyAsyncCallback = skipShowOrHidePlusAndMinus ? null : function() {
-		showOrHidePlusUpToRoot(subtreeEl);
-		setTheRightChildIconsForAloneEl(getAloneElFromSubtreeEl(subtreeEl));
-	};
 	afterRequestChildrenSuccessCallback = successCallback;
 	afterRequestChildrenFailureCallback = failureCallback;
 	if (!expandToLevel(subtreeEl, 1, 0) && successCallback) {
@@ -6498,6 +6584,8 @@ function requestChildren(subtreeEl, levels) {
 
 				addToEntryInfoDict(response.entryInfoDict);
 				setTheRightChildIconsForAloneEl(getAloneElFromSubtreeEl(subtreeEl));
+				fixPlusIcons(subtreeEl);
+				showOrHidePlusUpToRoot(getParentOfSubtreeEl(subtreeEl));	
 				success = true;
 			}
 		} else {
@@ -6508,19 +6596,18 @@ function requestChildren(subtreeEl, levels) {
 		--numRequestsInFlight;
 		if (!numRequestsInFlight) {
 			aRequestIsInProgress(false);
-			if (success && afterRequestChildrenPreSuccessOnlyAsyncCallback) {
-				afterRequestChildrenPreSuccessOnlyAsyncCallback();
-				afterRequestChildrenPreSuccessOnlyAsyncCallback = null;
-			}
 
-			if (success && afterRequestChildrenSuccessCallback) {
-				afterRequestChildrenSuccessCallback();
-				afterRequestChildrenSuccessCallback = null;
+			var copyOfSuccessCallback = afterRequestChildrenSuccessCallback;
+			afterRequestChildrenSuccessCallback = null;
+			var copyOfFailureCallback = afterRequestChildrenFailureCallback;
+			afterRequestChildrenFailureCallback = null;
+			
+			if (success && copyOfSuccessCallback) {
+				copyOfSuccessCallback();
 			}
-
-			if (!success && afterRequestChildrenFailureCallback) {
-				afterRequestChildrenFailureCallback();
-				afterRequestChildrenFailureCallback = null;
+			
+			if (!success && copyOfFailureCallback) {
+				copyOfFailureCallback();
 			}
 		}
 	});
@@ -6568,11 +6655,12 @@ function showChildrenOfEntry(dbId) {
 		return;
 	}
 
-	afterRequestChildrenPreSuccessOnlyAsyncCallback = function() { showOrHidePlusUpToRoot(subtreeEl); };
 	afterRequestChildrenSuccessCallback = function () {
 		setTheRightChildIconsForAloneEl(getAloneElFromSubtreeEl(subtreeEl));
 	};
-
+	
+	afterRequestChildrenFailureCallback = null;
+	
 	expandToLevel(subtreeEl, levelsToShow, 0);
 
 	aRequestIsInProgress(true);
