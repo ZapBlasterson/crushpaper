@@ -2215,9 +2215,11 @@ function documentOnMouseOver(ev) {
 			aloneHoverMenuEl = document.createElement('DIV');
 			aloneHoverMenuEl.className = "hoverMenu";
 
-			aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event);\" title=\"" +
-			uiText.tooltipDrag(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
-
+			if (!isDisplaySmall()) {
+				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event);\" title=\"" +
+				uiText.tooltipDrag(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
+			}
+			
 			var isTree = isPaneATree(paneIndex);
 			if (isTree) {
 				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag\" onclick=\"onClickCreateSubnote(event);\" title=\"" +
@@ -4808,11 +4810,16 @@ function showPopupForDeleteEntry() {
 			selectedDbId = selectedDbIds[i];
 			
 			var uniqueDbId = getTrueDbIdFromListDbId(selectedDbId);
+			
 			if (uniqueDbId in uniqueDbIds) {
+				if (!isListDbId(selectedDbId)) {
+					uniqueDbIds[uniqueDbId] = selectedDbId;
+				}
+				
 				continue;
 			}
 			
-			uniqueDbIds[uniqueDbId] = 1;
+			uniqueDbIds[uniqueDbId] = selectedDbId;
 			
 			var subtreeEl = getSubtreeElByDbId(selectedDbId);
 
@@ -4849,7 +4856,21 @@ function showPopupForDeleteEntry() {
 			var popup = createPopupForDialog(true, [removeDeleteOptionsShortCuts]);
 			addDeleteOptionsShortCuts();
 
-			var sortedUniqueDbIds = sortIdsByAscendingYPosition(getObjectKeys(uniqueDbIds));
+			// Delete the ids from top to bottom so that the order of events is the same on the server and the GUI.
+			// But that only matters for tree deletes.
+			var dbIds = getObjectKeys(uniqueDbIds);
+			var treeDbIds = [];
+			var listDbIds = [];
+			for (var i = 0; i < dbIds.length; ++i) {
+				var dbId = uniqueDbIds[dbIds[i]];
+				if (isListDbId(dbId)) {
+					listDbIds.push(dbId);
+				} else {
+					treeDbIds.push(dbId);
+				}
+			}
+			
+			var sortedUniqueDbIds = copyArray(sortIdsByAscendingYPosition(treeDbIds), listDbIds);
 			var html = decoratePopupTitle(title);
 
 			if (sortedUniqueDbIds.length > 1 && notVisibleEntries) {
