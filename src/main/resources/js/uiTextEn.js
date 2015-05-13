@@ -924,6 +924,10 @@ uiTextEn.tooltipOpen = function(entryType) {
 	return "Click to view this " + uiTextEn.getOneEntryTerm(entryType) + ".";
 };
 
+uiTextEn.tooltipDrag = function(entryType) {
+	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + ".";
+};
+
 uiTextEn.editOrViewTooltip = function(isEditable) {
 	if (!isEditable) {
 		return " Click to view in another pane.";

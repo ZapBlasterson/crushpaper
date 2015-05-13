@@ -1900,6 +1900,7 @@ function getIndexOfChildById(children, dbId) {
 // Globals for entry drag and drop.
 var aloneElBeingDragged = null;
 var draggedEntryClone = null;
+var draggedEntryButtonEl = null;
 var draggedEntryMouseOffset = null;
 var lastEntryDropTarget = null;
 var lastEntryDropTargetAcceptabilityDesc = null;
@@ -1961,12 +1962,7 @@ function documentOnMouseDown(ev, fromTouch) {
 	
 	// Make sure the click handler for clickable things is called.
 	if (isElementOfClass(eventEl, "justDrag")) {
-		if (handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev)) {
-			return;
-		}
-		
-		startAloneElDrag(clickedAloneEl, ev);
-		
+		handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev);
 		return;
 	}
 
@@ -2010,9 +2006,7 @@ function documentOnMouseDown(ev, fromTouch) {
 		return;
 	}
 
-	if (!fromTouch) {
-		startAloneElDrag(clickedAloneEl, ev);
-	} else {
+	if (fromTouch) {
 		// Without this buttons on the hover menu may be pressed unintentionally.
 		ev.preventDefault();
 		ev.stopPropagation();
@@ -2072,8 +2066,17 @@ function aloneElOnShiftClick(clickedAloneEl, clickedDbId) {
 
 var padDraggedEntryInterval = null;
 
-/** Starts the drag of the alone e. */
-function startAloneElDrag(clickedAloneEl, ev) {
+/** Starts the drag of the alone el. */
+function startAloneDrag(ev) {
+	var eventEl = getEventEl(ev);
+
+	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
+	if (!clickedAloneEl) {
+		return;
+	}
+	
+	selectAloneEl(clickedAloneEl, false);
+
 	var draggedAloneEl = clickedAloneEl;
 	var clickedDbId = getDbIdFromEl(clickedAloneEl);
 	var clickedIsSelected = isDbIdSelected(clickedDbId);
@@ -2091,6 +2094,7 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	// Support dragging.
 	aloneElBeingDragged = draggedAloneEl;
 	draggedEntryClone = draggedAloneEl.cloneNode(true);
+	draggedEntryButtonEl = draggedEntryClone.getElementsByClassName("dragButton")[0];
 	var position = getPosition(clickedAloneEl);
 
 	document.onmouseup = dragEntryOnMouseUp;
@@ -2110,12 +2114,6 @@ function startAloneElDrag(clickedAloneEl, ev) {
 	draggedEntryClone.style.top = (getScrollTop() + position.y - 1) + "px";
 	draggedEntryClone.style.left = (getScrollLeft() + position.x - 1) + "px";
 	draggedEntryMouseOffset = getMouseOffset(draggedEntryClone, ev);
-
-	// Remove the hover menu so that the elements being being dragged over are more visible.
-	var hoverMenus = draggedEntryClone.getElementsByClassName("hoverMenu");
-	if (hoverMenus && hoverMenus.length > 0) {
-		hoverMenus[0].parentNode.removeChild(hoverMenus[0]);
-	}
 
 	// Required for FireFox, Opera, Safari and IE because they have default logic for dragging images.
 	// Also Firefox will think text that is dragged over should be selected.
@@ -2216,6 +2214,9 @@ function documentOnMouseOver(ev) {
 			var entryType = getEntryType(dbId);
 			aloneHoverMenuEl = document.createElement('DIV');
 			aloneHoverMenuEl.className = "hoverMenu";
+
+			aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event);\" title=\"" +
+			uiText.tooltipDrag(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
 
 			var isTree = isPaneATree(paneIndex);
 			if (isTree) {
@@ -3157,7 +3158,7 @@ function dragEntryOnMouseMoveHelper(mousePos, justTheEntry) {
 	var acceptability = acceptabilityInfo[0];
 	updateAcceptabilityDescription(acceptability, acceptabilityInfo[1]);
 
-	draggedEntryClone.style.cursor = acceptability;
+	draggedEntryButtonEl.style.cursor = acceptability;
 
 	if (acceptability !== "pointer") {
 		removeCueFromDropTarget();
@@ -3214,6 +3215,7 @@ function dragEntryOnMouseUp(ev) {
 	
 	aloneElBeingDragged = null;
 	draggedEntryClone = null;
+	draggedEntryButtonEl = null;
 	document.onmousemove = null;
 	document.onmouseup = null;
 	updateAcceptabilityDescription(null, null);
@@ -7957,6 +7959,7 @@ function markFunctionsAsUsed() {
 	panePencilOnMouseOut();
 	onClickOpen();
 	showOrHideMenu();
+	startAloneDrag();
 }
 
 markFunctionsAsUsed();
