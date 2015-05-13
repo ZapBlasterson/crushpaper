@@ -1928,11 +1928,11 @@ var isCommandKeyPressed = false;
 function documentOnTouchEnd(ev) {
 	unselectAllEntries();
 	documentOnMouseOver(ev);
-	documentOnMouseDown(ev, true);
+	documentOnMouseDown(ev);
 }
 
 /** Handles mousedown events for the container of entries and the whole page. */
-function documentOnMouseDown(ev, fromTouch) {
+function documentOnMouseDown(ev) {
 	stopScrollTransition();
 
 	if (!areCommandsAllowed) {
