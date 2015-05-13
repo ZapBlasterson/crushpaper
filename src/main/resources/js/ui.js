@@ -4288,6 +4288,8 @@ function moveEntries(direction) {
 				showPopupForError(title, uiText.errorSelectedMustHaveTheSameParent(entryType));
 				return;
 			}
+			
+			orderedDbIds.reverse();
 		} else {
 			orderedDbIds = getSelectedOrderedContiguousDbIds();
 			if (orderedDbIds === null) {
