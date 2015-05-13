@@ -2005,12 +2005,11 @@ function documentOnMouseDown(ev, fromTouch) {
 	if (textIsSelectable) {
 		return;
 	}
-
-	if (fromTouch) {
-		// Without this buttons on the hover menu may be pressed unintentionally.
-		ev.preventDefault();
-		ev.stopPropagation();
-	}
+	
+	// Without this buttons on the hover menu may be pressed unintentionally from touch.
+	// Also prevent clicking on the alone but not on text only selects the alone.
+	ev.preventDefault();
+	ev.stopPropagation();
 }
 
 /** Handles selections. Returns true if mousedown processing should be stopped. */
