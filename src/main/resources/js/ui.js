@@ -3615,7 +3615,7 @@ function deleteOnClick(ev) {
 		return;
 	}
 
-	selectAloneEl(aloneEl, true);
+	selectAloneEl(aloneEl, false);
 
 	showPopupForDeleteEntry();
 }
