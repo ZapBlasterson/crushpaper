@@ -3454,6 +3454,8 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 				if (placement === null) {
 					setEntryHasChildren(getDbIdFromSubtreeEl(targetSubtreeEl));
 					showOrHidePlusUpToRoot(targetSubtreeEl);
+				} else {
+					showOrHidePlusUpToRoot(getParentOfSubtreeEl(targetSubtreeEl));
 				}
 				
 				updateEntryDetailsHasParent(movedId);
