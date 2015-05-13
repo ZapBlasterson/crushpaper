@@ -1924,7 +1924,7 @@ function isListDbId(dbId) {
 
 var isCommandKeyPressed = false;
 
-/** Handles touch events	. */
+/** Handles touch events. */
 function documentOnTouchEnd(ev) {
 	unselectAllEntries();
 	documentOnMouseOver(ev);
