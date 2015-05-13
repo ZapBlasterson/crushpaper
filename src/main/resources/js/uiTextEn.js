@@ -925,7 +925,7 @@ uiTextEn.tooltipOpen = function(entryType) {
 };
 
 uiTextEn.tooltipDrag = function(entryType) {
-	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + ".";
+	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + ". Press Escape to stop dragging.";
 };
 
 uiTextEn.editOrViewTooltip = function(isEditable) {
