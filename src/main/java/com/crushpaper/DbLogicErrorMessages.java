@@ -595,4 +595,9 @@ public class DbLogicErrorMessages {
 	public String errorProblemReadingInput() {
 		return "Sorry, there was a problem reading the input.";
 	}
+
+	/** This is not an error message, so it does not really belong in an error messages class. */
+	public String textOfFirstNote() {
+		return "Click this text to edit your first note!";
+	}
 }

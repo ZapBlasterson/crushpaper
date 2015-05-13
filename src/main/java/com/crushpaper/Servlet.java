@@ -1238,9 +1238,10 @@ public class Servlet extends HttpServlet {
 				return;
 			}
 
+			boolean addSampleNote = !doesUserHaveAnyNotebooks(requestAndResponse);
 			final Entry entry = dbLogic.createEntryNoteBook(user, note, time,
 					null, null, false, false, isPublic,
-					isUserAnAdmin(requestAndResponse), errors);
+					isUserAnAdmin(requestAndResponse), addSampleNote, errors);
 			if (entry == null) {
 				requestAndResponse.response.sendRedirect("/couldNotCreateNote");
 				return;
@@ -2010,9 +2011,10 @@ public class Servlet extends HttpServlet {
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("newNotebook")) {
+					boolean addSampleNote = !doesUserHaveAnyNotebooks(requestAndResponse);
 					entry = dbLogic.createEntryNoteBook(user, note, time, null,
 							null, false, false, isPublic,
-							isUserAnAdmin(requestAndResponse), errors);
+							isUserAnAdmin(requestAndResponse), addSampleNote, errors);
 					includeNote = true;
 					success = entry != null;
 				} else if (noteop.equals("putBefore")) {

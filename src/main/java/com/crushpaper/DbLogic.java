@@ -124,11 +124,20 @@ public class DbLogic {
 	public Entry createEntryNoteBook(User user, String note, Long createTime,
 			String relatedId, TreeRelType relationship,
 			boolean insertAboveParentsChildren, boolean insertAsFirstChild,
-			boolean isPublic, boolean isAdmin, Errors errors) {
-		return createEntry(user, null, Constants.notebook, null, null, note,
+			boolean isPublic, boolean isAdmin, boolean addSampleNote, Errors errors) {
+		Entry notebook = createEntry(user, null, Constants.notebook, null, null, note,
 				createTime, createTime, relatedId, relationship,
 				insertAboveParentsChildren, insertAsFirstChild, isPublic,
 				false, false, isAdmin, errors);
+		
+		if (notebook != null && addSampleNote) {
+			createSimpleEntry(user, errorMessages.textOfFirstNote(), createTime,
+					notebook.getRootId(), TreeRelType.Parent,
+					false, false,
+					false, isAdmin, Constants.note, errors, null);
+		}
+		
+		return notebook;
 	}
 
 	/**
@@ -1520,7 +1529,7 @@ public class DbLogic {
 		try {
 			final long now = System.currentTimeMillis();
 			Entry notebook = createEntryNoteBook(user, "Imported Notebook", now,
-					null, null, false, false, false, isAdmin, errors);
+					null, null, false, false, false, isAdmin, false, errors);
 			if(notebook == null) {
 				return false;
 			}

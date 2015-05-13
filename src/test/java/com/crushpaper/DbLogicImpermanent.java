@@ -132,7 +132,7 @@ public class DbLogicImpermanent extends DbLogic {
 				entry = createEntryNoteBook(user,
 						testEntry.getValue(), entryCreateTime, parentId,
 						parentId == null ? null : TreeRelType.Parent, false, false,
-						false, false, errors);
+						false, false, false, errors);
 				if (entry != null) {
 					Entry root = getEntryById(entry.getRootId());
 					root.setNote(testEntry.getRootValue());
