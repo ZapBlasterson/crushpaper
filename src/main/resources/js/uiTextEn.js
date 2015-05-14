@@ -974,9 +974,28 @@ uiTextEn.tooltipPaneDelete = function(entryType) {
 	return "Click to delete this " + entryType + ".";
 };
 
+uiTextEn.sentenceHowSourceAndQuotationDeletesWork = function(numSourcesFromList, numQuotationsFromList) {
+	var result = "Please note that deleting ";
+	
+	if (numSourcesFromList) {
+		result += "sources";
+	}
+	
+	if (numSourcesFromList && numQuotationsFromList) {
+		result += " and ";
+	}
+
+	if (numQuotationsFromList) {
+		result += "quotations";
+	}
+	
+	result += " also removes them from any notebook they are in.";
+		
+	return result;
+};
 
 uiTextEn.labelOnlyUnlinkSourcesAndQuotations = function(numSourcesFromNotebook, numQuotationsFromNotebook) {
-	var result = "Only unlink the ";
+	var result = "Do not delete ";
 	
 	if (numSourcesFromNotebook) {
 		result += numSourcesFromNotebook + " " + uiTextEn.maybeGetPlural(numSourcesFromNotebook, "source");
@@ -990,7 +1009,7 @@ uiTextEn.labelOnlyUnlinkSourcesAndQuotations = function(numSourcesFromNotebook, 
 		result += numQuotationsFromNotebook + " " + uiTextEn.maybeGetPlural(numQuotationsFromNotebook, "quotation");
 	}
 	
-	result += " that " + uiTextEn.areOrIs(numSourcesFromNotebook + numQuotationsFromNotebook) + " part of a notebook.";
+	result += " that " + uiTextEn.areOrIs(numSourcesFromNotebook + numQuotationsFromNotebook) + " part of a notebook. Only remove it from the notebook.";
 		
 	return result;
 };

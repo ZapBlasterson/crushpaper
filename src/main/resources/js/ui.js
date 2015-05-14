@@ -4860,6 +4860,8 @@ function showPopupForDeleteEntry() {
 		var numHiddenChildren = 0;
 		var numSourcesFromNotebook = 0;
 		var numQuotationsFromNotebook = 0;
+		var numSourcesFromList = 0;
+		var numQuotationsFromList = 0;
 		var uniqueDbIds = {};
 		for (var i = 0; i < selectedDbIds.length; ++i) {
 			selectedDbId = selectedDbIds[i];
@@ -4896,13 +4898,19 @@ function showPopupForDeleteEntry() {
 			}
 
 			var isFromList = isListDbId(selectedDbId);
-			if(isEntryAQuotation(selectedDbId)) {
-				if (!isFromList || getEntryHasParent(selectedDbId)) {
-					++numQuotationsFromNotebook;
-				}
-			} else if(getEntryType(selectedDbId) === "source") {
-				if (!isFromList || getEntryHasParent(selectedDbId)) {
-					++numSourcesFromNotebook;
+			if (getEntryHasParent(selectedDbId)) {
+				if(isEntryAQuotation(selectedDbId)) {
+					if (!isFromList) {
+						++numQuotationsFromNotebook;
+					} else {
+						++numQuotationsFromList;
+					}
+				} else if(getEntryType(selectedDbId) === "source") {
+					if (!isFromList) {
+						++numSourcesFromNotebook;
+					} else {
+						++numSourcesFromList;
+					}
 				}
 			}
 		}
@@ -4968,6 +4976,10 @@ function showPopupForDeleteEntry() {
 			if (numSourcesFromNotebook || numQuotationsFromNotebook) {
 				html += "<input checked type=\"checkbox\" name=\"unlinkOnly\" id=\"unlinkOnly\"><label for=\"unlinkOnly\">" +
 				uiText.labelOnlyUnlinkSourcesAndQuotations(numSourcesFromNotebook, numQuotationsFromNotebook) + "</label><br>";
+			}
+			
+			if (numSourcesFromList || numQuotationsFromList) {
+				html += uiText.sentenceHowSourceAndQuotationDeletesWork(numSourcesFromList, numQuotationsFromList) + "<br>";
 			}
 			
 			html += endOfForm("prepForDeleteAndSave");
