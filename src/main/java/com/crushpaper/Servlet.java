@@ -791,6 +791,7 @@ public class Servlet extends HttpServlet {
 		addHelpLink(requestAndResponse, "Why I Created CrushPaper");
 		addHelpLink(requestAndResponse, "Why CrushPaper Is Free");
 		addHelpLink(requestAndResponse, "User Guide");
+		addHelpLink(requestAndResponse, "Account Information");
 		addHelpLink(requestAndResponse, "Search Help");
 		addHelpLink(requestAndResponse, "Privacy Policy");
 		addHelpLink(requestAndResponse, "Future Enhancements");
