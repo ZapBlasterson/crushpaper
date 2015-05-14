@@ -2135,7 +2135,7 @@ public class Servlet extends HttpServlet {
 					+ "\n");
 		} else {
 			final StringBuilder innerResult = new StringBuilder();
-			addEntryHtmlToTreeSimple(entry, innerResult, null, 0);
+			addEntryHtmlToTreeSimple(entry, innerResult, null, 0, !entry.isNotebook());
 			result.append(",\"subtreeHtml\":"
 					+ JsonBuilder.quote(innerResult.toString()) + "\n");
 		}
@@ -5701,7 +5701,9 @@ public class Servlet extends HttpServlet {
 		result.append(getItemMetaDataJsonHtml(entry.getType(), entry.getId()))
 				.toString();
 
-		result.append(resultNumber + ".</td><td class=\"listItem\">");
+		result.append(resultNumber + ".</td>");
+		result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox\" onclick=\"checkboxOnClick(event); return true;\"></td>");
+		result.append("<td class=\"listItem\">");
 
 		if (entry.hasQuotation()) {
 			result.append("<div class=\"quotation\" title=\""
@@ -5829,10 +5831,10 @@ public class Servlet extends HttpServlet {
 	 * onlyChildren to false and idOfEntryToSkip to null.
 	 */
 	private void addEntryHtmlToTreeSimple(Entry entry, StringBuilder result,
-			List<EntryInfo> entryInfoList, int levelsOfChildrenToInclude)
+			List<EntryInfo> entryInfoList, int levelsOfChildrenToInclude, boolean showCheckboxes)
 			throws IOException {
 		addEntryHtmlToTree(entry, result, entryInfoList,
-				levelsOfChildrenToInclude, false, null, true);
+				levelsOfChildrenToInclude, false, null, true, showCheckboxes);
 	}
 
 	/**
@@ -5841,7 +5843,7 @@ public class Servlet extends HttpServlet {
 	private int addEntryHtmlToTree(Entry entry, StringBuilder result,
 			List<EntryInfo> entryInfoList, int levelsOfChildrenToInclude,
 			boolean onlyChildren, String idOfEntryToSkip,
-			boolean includeRootInEntryInfoList) throws IOException {
+			boolean includeRootInEntryInfoList, boolean showCheckboxes) throws IOException {
 		if (!onlyChildren) {
 			result.append("<div class=\"subtree\">");
 
@@ -5856,7 +5858,13 @@ public class Servlet extends HttpServlet {
 					+ "<tr><td class=\"nowords\"><img onmouseover=\"minusOnMouseOver(event);\" onmouseout=\"minusOnMouseOut(event);\" alt=\"minus\" title=\""
 					+ servletText.minusTooltip()
 					+ "\" class=\"justDrag plusOrMinus\" onmousedown=\"minusOnMouseDown(event); return false;\" src=\"/images/minus.png\"></td></tr></table>"
-					+ "</td><td class=\"content\">");
+					+ "</td>");
+			
+			if (showCheckboxes) {
+				result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox\" onclick=\"checkboxOnClick(event); return true;\"></td>");
+			}
+			
+			result.append("<td class=\"content\">");
 
 			if (entry.hasQuotation()) {
 				result.append("<div class=\"quotation\">");
@@ -5931,7 +5939,7 @@ public class Servlet extends HttpServlet {
 						indexOfEntryToSkip = i;
 					} else {
 						addEntryHtmlToTree(child, result, entryInfoList,
-								levelsOfChildrenToInclude, false, null, true);
+								levelsOfChildrenToInclude, false, null, true, showCheckboxes);
 					}
 
 					if (!child.hasNextSiblingId()) {
@@ -5956,7 +5964,7 @@ public class Servlet extends HttpServlet {
 						indexOfEntryToSkip = i;
 					} else {
 						addEntryHtmlToTree(child, result, entryInfoList,
-								levelsOfChildrenToInclude, false, null, true);
+								levelsOfChildrenToInclude, false, null, true, showCheckboxes);
 					}
 
 					++i;
@@ -6026,7 +6034,9 @@ public class Servlet extends HttpServlet {
 			header.append("<table class=\"magic nopadding\"><tr><td class=\"resultNumber\">");
 			header.append(getItemMetaDataJsonHtml(source.getType(),
 					source.getId()).toString());
-			header.append(resultNumber + ".</td><td class=\"listItem\">");
+			header.append(resultNumber + ".</td>");
+			header.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox\" onclick=\"checkboxOnClick(event); return true;\"></td>");
+			header.append("<td class=\"listItem\">");
 			footer.append("</td></tr></table>");
 			finishItemListItem(footer);
 		} else {
@@ -6192,7 +6202,7 @@ public class Servlet extends HttpServlet {
 						final StringBuilder innerResult = new StringBuilder();
 						final int skippedIndex = addEntryHtmlToTree(
 								parentEntry, innerResult, entryInfoList,
-								defaultNoteDisplayDepth, false, id, true);
+								defaultNoteDisplayDepth, false, id, true, !entry.isNotebook());
 						result.append("{ \"subtreeHtml\": "
 								+ JsonBuilder.quote(innerResult.toString()));
 						result.append(",\n\"id\": \"" + parentEntry.getId()
@@ -6295,7 +6305,7 @@ public class Servlet extends HttpServlet {
 						final ArrayList<EntryInfo> entryInfoList = new ArrayList<EntryInfo>();
 						final StringBuilder innerResult = new StringBuilder();
 						addEntryHtmlToTreeSimple(entry, innerResult,
-								entryInfoList, defaultNoteDisplayDepth);
+								entryInfoList, defaultNoteDisplayDepth, !entry.isNotebook());
 						result.append("{ \"subtreeHtml\": "
 								+ JsonBuilder.quote(innerResult.toString())
 								+ "\n");
@@ -6380,7 +6390,7 @@ public class Servlet extends HttpServlet {
 				final StringBuilder innerResult = new StringBuilder();
 
 				addEntryHtmlToTree(entry, innerResult, entryInfoList,
-						numLevels, true, null, false);
+						numLevels, true, null, false, !entry.isNotebook());
 				result.append("{ \"childrenHtml\": "
 						+ JsonBuilder.quote(innerResult.toString()) + "\n");
 				result.append(", \"id\": " + JsonBuilder.quote(entry.getId())
@@ -6516,7 +6526,7 @@ public class Servlet extends HttpServlet {
 
 				final ArrayList<EntryInfo> entryInfoList = new ArrayList<EntryInfo>();
 				addEntryHtmlToTree(root, result, entryInfoList,
-						defaultNoteDisplayDepth, true, null, true);
+						defaultNoteDisplayDepth, true, null, true, !notEditable);
 
 				result.append("</div></div>");
 

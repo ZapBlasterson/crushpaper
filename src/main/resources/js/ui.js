@@ -1822,12 +1822,19 @@ function updateSelectionDisplayForAloneEl(aloneEl) {
 
 	var trueDbId = getTrueDbIdFromListDbId(dbId);
 
+	var selected = false;
 	if (dbId in window.allSelectedDbIds) {
 		aloneEl.className = "selected-alone alone " + trueDbId;
+		selected = true;
 	} else if (dbId in window.allHoveredDbIds) {
 		aloneEl.className = "hover-alone alone " + trueDbId;
 	} else {
 		aloneEl.className = "alone " + trueDbId;
+	}
+	
+	var checkboxes = aloneEl.getElementsByClassName("aloneCheckbox");
+	if (checkboxes.length > 0 && checkboxes[0].checked !== selected) {
+		checkboxes[0].checked = selected;
 	}
 }
 
@@ -2034,14 +2041,36 @@ function documentOnMouseDown(ev, fromTouch) {
 	}
 }
 
+/** Handles clicking the alone el checkboxes. */
+function checkboxOnClick(ev) {
+	var eventEl = getEventEl(ev);
+	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
+	if (!clickedAloneEl) {
+		return;
+	}
+	
+	if (eventEl.checked === true) {
+		selectAloneEl(clickedAloneEl, false, false);
+	} else {
+		selectAloneEl(clickedAloneEl, false, true);
+	}
+}
+
 /** Handles selections. Returns true if mousedown processing should be stopped. */
 function handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev) {
+	var eventEl = getEventEl(ev);
+	if (eventEl.nodeName === "INPUT") {
+		return true;
+	}
+	
 	if (ev.shiftKey) {
 		aloneElOnShiftClick(clickedAloneEl, clickedDbId);
 		return true;
 	}
 
-	selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.altKey, ev.ctrlKey || ev.altKey);
+	var unselectOthers = !ev.ctrlKey && !ev.altKey;
+	var toggleSelection = ev.ctrlKey || ev.altKey;
+	selectAloneEl(clickedAloneEl, unselectOthers, toggleSelection);
 
 	return false;
 }
@@ -2501,7 +2530,7 @@ function formatDateTimeIfNeeded(aloneEl) {
 function getChildNodeAtPath() {
 	var el = arguments[0];
 	for (var i = 1; i < arguments.length; ++i) {
-		if (el.childNodes.length === 0) {
+		if (!el || !el.childNodes || el.childNodes.length === 0) {
 			return null;
 		}
 
@@ -2510,7 +2539,8 @@ function getChildNodeAtPath() {
 
 	return el;
 }
-/** Returns the TD that contains the t for the alone el. */
+
+/** Returns the TD that contains the triangle for the alone el. */
 function getTriTdFromAloneEl(aloneEl) {
 	return getChildNodeAtPath(aloneEl, 0, 0, 0, 0);
 }
@@ -8006,6 +8036,7 @@ function markFunctionsAsUsed() {
 	onClickOpen();
 	showOrHideMenu();
 	startAloneDrag();
+	checkboxOnClick();
 }
 
 markFunctionsAsUsed();

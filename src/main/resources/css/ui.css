@@ -122,7 +122,7 @@ td.triTdDownTri:hover { background-image:url(/images/tri90border.png); backgroun
 td.triTdRightTri:hover { background-image:url(/images/righttriborder.png); background-position:center; background-repeat:no-repeat; }
 td.triTd > div, td.triTdDownTri > div, td.triTdRightTri > div { width:16px; }
 div.infotext { margin-left:12px; margin-bottom:10px; font-size:small; color:#AAA; display:block; }
-
+.aloneCheckbox { height:16px; width:16px; }
 span.popuptitle { font-weight:bold; padding-right:10px; display:table-cell; }
 
 div.dropHint { padding:2px 4px 2px 4px;
