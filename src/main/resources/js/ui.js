@@ -1928,11 +1928,11 @@ var isCommandKeyPressed = false;
 function documentOnTouchEnd(ev) {
 	unselectAllEntries();
 	documentOnMouseOver(ev);
-	documentOnMouseDown(ev);
+	documentOnMouseDown(ev, true);
 }
 
 /** Handles mousedown events for the container of entries and the whole page. */
-function documentOnMouseDown(ev) {
+function documentOnMouseDown(ev, fromTouch) {
 	stopScrollTransition();
 
 	if (!areCommandsAllowed) {
@@ -2006,10 +2006,11 @@ function documentOnMouseDown(ev) {
 		return;
 	}
 	
-	// Without this buttons on the hover menu may be pressed unintentionally from touch.
-	// Also prevent clicking on the alone but not on text only selects the alone.
-	ev.preventDefault();
-	ev.stopPropagation();
+	if (fromTouch) {
+		// Without this buttons on the hover menu may be pressed unintentionally from touch.
+		ev.preventDefault();
+		ev.stopPropagation();
+	}
 }
 
 /** Handles selections. Returns true if mousedown processing should be stopped. */
