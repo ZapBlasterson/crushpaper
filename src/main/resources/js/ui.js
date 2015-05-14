@@ -382,18 +382,17 @@ function getPosition(el) {
 }
 
 /** Returns the position of the mouse for an event. */
-function getMousePosition(eventEl) {
-	if (eventEl.pageX || eventEl.pageY) {
+function getMousePosition(ev) {
+	if (ev.pageX || ev.pageY) {
 		return {
-			x : eventEl.pageX,
-			y : eventEl.pageY
+			x : ev.pageX,
+			y : ev.pageY
 		};
 	}
 
 	return {
-		x : eventEl.clientX + document.body.scrollLeft -
-		document.body.clientLeft,
-		y : eventEl.clientY + document.body.scrollTop - document.body.clientTop
+		x : ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+		y : ev.clientY + document.body.scrollTop - document.body.clientTop
 	};
 }
 
@@ -1442,13 +1441,24 @@ function splitUris(uri) {
 // Globals for pane dragging.
 var draggedPaneLastMousePos = null;
 var draggedPane = null;
+var dragPaneEw = false;
+var dragPaneNs = false;
 
 /** Handles dragging for a pane. */
 function paneOnMouseMoveDown(ev) {
 	if (draggedPane) {
 		var mousePos = getMousePosition(ev);
-		var paneWidth = parseInt(draggedPane.parentNode.offsetWidth);
-		draggedPane.parentNode.style.width = paneWidth - (draggedPaneLastMousePos.x - mousePos.x) + "px";
+		
+		if (dragPaneEw) {
+			var paneWidth = parseInt(draggedPane.parentNode.offsetWidth);
+			draggedPane.parentNode.style.width = paneWidth - (draggedPaneLastMousePos.x - mousePos.x) + "px";
+		}
+		
+		if (dragPaneNs) {
+			var paneHeight = parseInt(draggedPane.offsetHeight);
+			draggedPane.style.height = paneHeight - (draggedPaneLastMousePos.y - mousePos.y) - 20 + "px";
+		}
+		
 		draggedPaneLastMousePos = mousePos;
 		return false;
 	}
@@ -1473,6 +1483,17 @@ function resetDraggedPane() {
 /** Handles mousedown for a pane. */
 function paneOnMouseDown(ev) {
 	var eventEl = getEventEl(ev);
+	if (isElementOfClass(eventEl, "dragEwPane")) {
+		dragPaneEw = true;
+		dragPaneNs = false;
+	} else if (isElementOfClass(eventEl, "dragDiagPane")) {
+		dragPaneEw = true;
+		dragPaneNs = true;
+	} else if (isElementOfClass(eventEl, "dragNsPane")) {
+		dragPaneEw = false;
+		dragPaneNs = true;
+	}
+	
 	draggedPane = getElOrAncestor(eventEl, 'DIV', 'paneSection');
 	document.onmouseup = paneOnMouseUp;
 	draggedPaneLastMousePos = getMousePosition(ev);

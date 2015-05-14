@@ -43,7 +43,7 @@ div.paneButtons > * { vertical-align:middle; margin-left:5px; }
 iframe { border:0px; width:270px; height:115px; }
 .withTopMargin { margin-top:10px; }
 div.paneSection > h3:first-child { margin-top:0px; }
-div.paneSection { border-bottom:1px solid #DDD; padding:10px; position:relative; }
+div.paneSection { border-bottom:1px solid #DDD; padding:10px; position:relative; overflow:hidden; }
 div.headerpane { position:relative; overflow:hidden; padding-right:0px; padding-top:0px; padding-bottom:0px;}
 a.listItem { text-decoration:none; margin-top:10px; padding-bottom:10px; display:block; border-bottom:1px solid #e8e8e8; }
 a { color:#333; }
@@ -111,7 +111,9 @@ div.refreshIcon:hover { background-image:url(/images/refreshdark.png); }
 div.paneCloseIcon { cursor:pointer; background-image:url(/images/x.png); background-position:center; background-repeat:no-repeat; width:14px; height:16px; display:inline-block; } 
 div.paneCloseIcon:hover { background-image:url(/images/xdark.png); }
 .justDrag { cursor:pointer; }
-div.dragPane { width:10px; position:absolute; top:0; right:0; bottom:0; cursor:ew-resize; }
+div.dragEwPane { width:10px; position:absolute; top:0; right:0; bottom:0; cursor:ew-resize; }
+div.dragNsPane { height:10px; position:absolute; left:0; right:0; bottom:0; cursor:ns-resize; }
+div.dragDiagPane { width:10px; height:10px; position:absolute; bottom:0; cursor:nwse-resize; }
 td.triTd { background-image:url(/images/righttri.png); background-position:center; background-repeat:no-repeat; }
 td.triTdDownTri { background-image:url(/images/tri90.png); background-position:center; background-repeat:no-repeat; }
 td.triTdRightTri { background-image:url(/images/righttri.png); background-position:center; background-repeat:no-repeat; }

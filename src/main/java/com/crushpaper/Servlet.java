@@ -782,7 +782,7 @@ public class Servlet extends HttpServlet {
 				title, false).setPaneId("help");
 
 		pageWrapper.addHeader();
-
+		
 		// Prevent the last link from floating off.
 		requestAndResponse.print("<table><tr><td>");
 
@@ -3006,7 +3006,9 @@ public class Servlet extends HttpServlet {
 			requestAndResponse.print("\n}\n</script>\n");
 
 			requestAndResponse
-					.print("<div class=\"dragPane\" onmousedown=\"paneOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"></div></div></div></div></div>");
+					.print("<div class=\"dragNsPane\" onmousedown=\"paneOnMouseDown(event);\"></div>" +
+							"<div class=\"dragEwPane\" onmousedown=\"paneOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>" + 
+							"</div></div></div></div>");
 
 			final boolean onlyContent = getNoHeader();
 			if (!onlyContent) {
