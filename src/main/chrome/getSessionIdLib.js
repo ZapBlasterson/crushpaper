@@ -15,6 +15,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* global chrome */
+
 /** Calls a callback with the value of the first matching cookie.
  * If not found, the callback is called with null as the value. */
 function getCookie(domain, name, callback) {
@@ -119,7 +122,6 @@ function confirmSessionAndSignedIn(service, closeEvenIfSignedIn, completionCallb
 								signedIn = true;
 							}
 						} catch(e) {
-							alert(e);
 						}
 					}
 
@@ -139,3 +141,15 @@ function confirmSessionAndSignedIn(service, closeEvenIfSignedIn, completionCallb
 		}
 	});
 }
+
+/** JSHint does not provide a method for annotating externally used function as used
+ * so this function is a way of hiding those errors.
+ */
+function markFunctionsAsUsed() {
+	if (true) { return; }
+
+	// JSHint's dead code detection doesn't detect that the following code is dead:
+	confirmSessionAndSignedIn();
+}
+
+markFunctionsAsUsed();

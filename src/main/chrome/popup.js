@@ -15,6 +15,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* global chrome, Mousetrap, showTab, confirmSessionAndSignedIn, getAnUrlUniquer */
+
 chrome.tabs.executeScript(null, {
 	file : "getSelectedText.js"
 	});
@@ -51,8 +54,11 @@ function getEventEl(ev) {
     return eventEl;
 }
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-	document.getElementById("quotation").innerHTML = message.quotation;
+chrome.runtime.onMessage.addListener(function(message, sender) {
+	if (message.quotation) {
+		document.getElementById("quotation").innerHTML = message.quotation;
+	}
+	
 	document.getElementById("url").value = ("url" in message) ? message.url : sender.tab.url;
 	document.getElementById("title").value = ("title" in message) ? message.title : sender.tab.title;
 });

@@ -15,6 +15,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* global chrome */
+
 function openPopUp(info, tabWithSelection) {
     chrome.tabs.create({
         url: chrome.extension.getURL('popup.html'),
@@ -33,19 +36,18 @@ function openPopUp(info, tabWithSelection) {
 		        chrome.extension.sendMessage( { "quotation": info.selectionText,
 		        	"url": tabWithSelection.url.toString(),
 		        	"title": tabWithSelection.title.toString() } );
-		        	
 		        });
 	    });
 }
 
 /* This seems to be a method that prevents the context menu
 from being added twice and lets behavior change on refresh. */
-var context = "selection";
+var contexts = [ "selection", "page", "frame", "link", "editable", "image", "video" ];
 var title = "Save selected text to CrushPaper";
 var id = "CrushPaperQuotation";
 chrome.contextMenus.create({id:id,
-	"title": title, "contexts":[context],
+	"title": title, "contexts":contexts,
     "onclick": openPopUp});
 chrome.contextMenus.update(id, 
-	{"title": title, "contexts":[context],
+	{"title": title, "contexts":contexts,
     "onclick": openPopUp});

@@ -15,6 +15,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* global chrome, Mousetrap, confirmSessionAndSignedIn */
+
 var storage = chrome.storage.local;
 
 var saveButton = document.getElementById('save');
