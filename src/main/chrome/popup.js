@@ -228,7 +228,8 @@ function save() {
 							if (xhr.readyState === 4) {
 								if (xhr.status === 200) {
 									document.getElementById("response").innerHTML = "<span class=\"successMessage\">" + sentenceSuccessfullySaved() + "</span>";
-									setTimeout(function() { window.close(); }, 500);
+									document.getElementById("successOverlay").style.display = "block"; 
+									setTimeout(function() { window.close(); }, 3000);
 								} else {
 									var errorText = getErrorText(xhr.responseText, errorNotSaved(), errorProbablyNotSaved());
 									setError(errorText);

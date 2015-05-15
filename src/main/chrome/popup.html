@@ -30,7 +30,7 @@ textarea {
 	-moz-box-sizing:border-box;
 	box-sizing:border-box;
 	margin-bottom:10px;
-	height:100px
+	height:100px;
 }
 
 input[type="text"] {
@@ -45,7 +45,24 @@ table.titleAndUrl > tbody > tr > td:first-child { padding-right:3px; color:#AAA;
 table.titleAndUrl { margin-top:10px; }
 table.responseAndSave { border-spacing:0px; width:100%; }
 table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
-
+#successOverlay { 
+    position:fixed; 
+    top:0px; 
+    left:0px; 
+    width:100%; 
+    height:100%; 
+    background:#FFF; 
+    z-index:5;
+    display:none;
+    color:green;
+    font-size:large;
+    font-weight:bold;
+}
+#successOverlay > div {
+    position:fixed;
+    top:180px;
+    left:45px;
+}
 	</style>
 	<script src="/mousetrap.min.js"></script>
   </head>
@@ -72,7 +89,8 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
   </tr></table>
 
   <script src="getSessionIdLib.js"></script>
-  <script src="popup.js"></script>  
+  <script src="popup.js"></script>
+  <div id="successOverlay"><div><center>The quotation was saved.<br>Click on "Quotations" in CrushPaper to see it.</center></div></div>  
   </body>
 </html>
 
