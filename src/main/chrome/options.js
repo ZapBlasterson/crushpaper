@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* global chrome, Mousetrap, confirmSessionAndSignedIn */
+/* global chrome, Mousetrap, confirmSessionAndSignedIn, getServiceOrDefault */
 
 var storage = chrome.storage.local;
 
@@ -77,7 +77,7 @@ function saveOptions() {
 		'service' : serviceValue
 	}, function() {
 		updateMessage('<span class=\"successMessage\">Your changes have been saved.</span>');
-		confirmSessionAndSignedIn(serviceValue, true);
+		confirmSessionAndSignedIn(getServiceOrDefault({"service": serviceValue}), true);
 	});
 }
 

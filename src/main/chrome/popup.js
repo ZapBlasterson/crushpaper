@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* global chrome, Mousetrap, showTab, confirmSessionAndSignedIn, getAnUrlUniquer */
+/* global chrome, Mousetrap, showTab, confirmSessionAndSignedIn, getAnUrlUniquer, getServiceOrDefault */
 
 chrome.tabs.executeScript(null, {
 	file : "getSelectedText.js"
@@ -179,11 +179,7 @@ function setSessionIdCallback(sessionId) {
 function checkIfNeedsConfigurationAndSignIn() {
 	var storage = chrome.storage.local;
 	storage.get('service', function(items) {
-		if (!items.service || items.service === "") {
-			indicateNeedsConfiguration();
-		} else {
-			confirmSessionAndSignedIn(items.service, false, setSessionIdCallback);
-		}
+		confirmSessionAndSignedIn(getServiceOrDefault(items), false, setSessionIdCallback);
 	});
 }
 
@@ -223,7 +219,7 @@ function save() {
 					function(items) {
 						var xhr = new XMLHttpRequest();
 
-						xhr.open("POST", items.service + "/createQuotationJson?" + getAnUrlUniquer(), true);
+						xhr.open("POST", getServiceOrDefault(items) + "/createQuotationJson?" + getAnUrlUniquer(), true);
 
 						xhr.setRequestHeader("Content-Type",
 								"application/json; charset=utf-8");

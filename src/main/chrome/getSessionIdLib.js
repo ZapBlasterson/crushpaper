@@ -67,7 +67,7 @@ function getServiceSessionCookie(service, callback) {
 /** Shows a tab. */
 function showTab(url) {
 	chrome.tabs.query({ url: url }, function(tabs) {
-	    if (tabs.length) {
+	    if (tabs && tabs.length) {
 	        chrome.tabs.update(tabs[0].id, {active: true});
 	    } else {
 	        chrome.tabs.create({url: url});
@@ -100,6 +100,15 @@ function showSignedInAndClose() {
 /** Returns a string to append to an URL so that a request for the URL can not be get cached by the browser. */
 function getAnUrlUniquer() {
     return "time=" + new Date().getTime();
+}
+
+/** Returns the service from the dictionary or the default. */
+function getServiceOrDefault(dict) {
+	if (!("service" in dict) || !dict.service) {
+		return "https://crushpaper.com";
+	} 
+	
+	return dict.service;
 }
 
 /** Confirm that the browser has a session and is signed in. */
@@ -150,6 +159,7 @@ function markFunctionsAsUsed() {
 
 	// JSHint's dead code detection doesn't detect that the following code is dead:
 	confirmSessionAndSignedIn();
+	getServiceOrDefault();
 }
 
 markFunctionsAsUsed();
