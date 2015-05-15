@@ -921,16 +921,17 @@ public class ServletText {
 	}
 
 	private String sentenceQuotationClickDesc(boolean forTouch, boolean forShowSource) {
-		if(forShowSource) {
-			return "";
+		String result = "<br>&bull; Hold down the quotation's drag icon to move it into one of your notebooks.";
+		if (forShowSource) {
+			return result;
 		}
 		
-		String result = "<br>&bull; ";
+		result += "<br>&bull; ";
 		
 		if (forTouch) {
 			result += "Press ";
 		} else {
-			result += "Click the quotation to drag it into one of your notebooks, or click ";
+			result += "Click ";
 		}
 		
 		result += "\"More quotations from this source\" to view them.";
