@@ -2054,6 +2054,8 @@ function checkboxOnClick(ev) {
 	} else {
 		selectAloneEl(clickedAloneEl, false, true);
 	}
+	
+	eventEl.blur();
 }
 
 /** Handles selections. Returns true if mousedown processing should be stopped. */

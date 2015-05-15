@@ -5702,7 +5702,7 @@ public class Servlet extends HttpServlet {
 				.toString();
 
 		result.append(resultNumber + ".</td>");
-		result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox\" onclick=\"checkboxOnClick(event); return true;\"></td>");
+		result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox mousetrap\" onclick=\"checkboxOnClick(event); return true;\"></td>");
 		result.append("<td class=\"listItem\">");
 
 		if (entry.hasQuotation()) {
@@ -5861,7 +5861,7 @@ public class Servlet extends HttpServlet {
 					+ "</td>");
 			
 			if (showCheckboxes) {
-				result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox\" onclick=\"checkboxOnClick(event); return true;\"></td>");
+				result.append("<td><input type=\"checkbox\" class=\"justDrag aloneCheckbox mousetrap\" onclick=\"checkboxOnClick(event); return true;\"></td>");
 			}
 			
 			result.append("<td class=\"content\">");
