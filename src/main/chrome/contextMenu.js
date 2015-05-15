@@ -31,11 +31,19 @@ function openPopUp(info, tabWithSelection) {
 	            height: 465,
 	            width: 495
 	        }, function() {
+	        	// PDFs have URLs in a different place than HTML.
+	        	var url = tabWithSelection.url.toString();
+	        	var title = tabWithSelection.title.toString();
+	        	if ("srcUrl" in info) {
+	        		url = info.srcUrl.toString();
+	        		// PDFs seem to have their names URL encoded. And use the URL instead.
+	        		title = decodeURIComponent(url);
+	        	}
+
 	        	// Do this in a callback so that the popup window is already listening for the message.
-	        	
 		        chrome.extension.sendMessage( { "quotation": info.selectionText,
-		        	"url": tabWithSelection.url.toString(),
-		        	"title": tabWithSelection.title.toString() } );
+		        	"url": url,
+		        	"title": title } );
 		        });
 	    });
 }
