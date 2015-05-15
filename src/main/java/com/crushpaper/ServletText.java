@@ -375,7 +375,7 @@ public class ServletText {
 	}
 
 	public String showExternalSourceLinkTooltip() {
-		return "Proceed to the external source.";
+		return "View the external web page for the source.";
 	}
 
 	public String dragEntryAlt() {
@@ -1219,7 +1219,7 @@ public class ServletText {
 	}
 
 	public String fragmentVisitExternalSource() {
-		return "View the source at";
+		return "View the external web page at";
 	}
 
 	public String labelSearchNotebooks() {
