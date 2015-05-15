@@ -187,7 +187,7 @@ span.closebutton:hover { cursor:pointer; color:black; }
 span.refreshPane { font-size:medium; font-weight:bold; color:#777; }
 span.refreshPane:hover { cursor:pointer; color:black; }
 
-div.quotation > p::before { 
+div.quotation > div::before { 
   content:"\201C";
   font-family:Georgia,serif;
   font-size:20px;
@@ -202,7 +202,7 @@ div.quotation {
   position:relative;
 }
 
-div.quotation > p {
+div.quotation > div {
  margin-left:25px;
 }
 

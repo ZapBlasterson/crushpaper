@@ -3660,7 +3660,7 @@ public class Servlet extends HttpServlet {
 					+ servletText.fragmentBlankQuotation() + "</span>";
 		}
 
-		return textToPreishHtml(value);
+		return "<div>" + textToPreishHtml(value) + "</div>";
 	}
 
 	/** Returns the destination directory for a new backup. */
