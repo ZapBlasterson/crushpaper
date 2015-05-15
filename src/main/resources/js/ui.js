@@ -3409,6 +3409,10 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 				var movedId = movedDbIds[j];
 				var isFromList = isListDbId(movedId);
 				if (isFromList) {
+					unselectEntry(movedId);
+					var movedAloneEl = getAloneElByDbId(movedId);
+					updateSelectionDisplayForAloneEl(movedAloneEl);
+
 					var aloneDbId = getTrueDbIdFromListDbId(movedId);
 					var aloneEl = getAloneElByDbId(aloneDbId);
 					if (aloneEl) {
