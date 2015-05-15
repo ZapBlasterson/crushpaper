@@ -5709,7 +5709,7 @@ public class Servlet extends HttpServlet {
 			result.append("<div class=\"quotation\" title=\""
 					+ servletText.quotationInListTooltip() + "\">");
 			result.append(getQuotationMarkdown(entry));
-			result.append("</div>");
+			result.append("</div><br>");
 		}
 
 		String noteMarkdown = getNoteMarkdown(entry, true, entry.hasQuotation());
@@ -5869,7 +5869,7 @@ public class Servlet extends HttpServlet {
 			if (entry.hasQuotation()) {
 				result.append("<div class=\"quotation\">");
 				result.append(getQuotationMarkdown(entry));
-				result.append("</div>");
+				result.append("</div><br>");
 			}
 
 			String noteMarkdown = getNoteMarkdown(entry, false, entry.hasQuotation());

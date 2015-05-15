@@ -33,7 +33,7 @@ div.helpListHeader { font-weight:bold; font-size:medium; }
 div.helpListItem { margin-top:10px; }
 td.resultNumber { padding-right:5px !important; padding-left:5px !important; vertical-align:middle; }
 
-#allPanes {  z-index:5; position:relative; }
+#allPanes { z-index:5; position:relative; }
 hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
 div.paneTitle { display:inline-block; position:absolute; white-space:nowrap; padding-top:10px; }
 div.welcomePaneTitle { position:static; padding-bottom:10px; padding-right:10px; }
@@ -44,7 +44,7 @@ iframe { border:0px; width:270px; height:115px; }
 .withTopMargin { margin-top:10px; }
 div.paneSection > h3:first-child { margin-top:0px; }
 div.paneSection { border-bottom:1px solid #DDD; padding:10px; position:relative; overflow:hidden; }
-div.headerpane { position:relative; overflow:hidden; padding-right:0px; padding-top:0px; padding-bottom:0px;}
+div.headerpane { position:relative; overflow:hidden; padding-right:0px; padding-top:0px; padding-bottom:0px; }
 a.listItem { text-decoration:none; margin-top:10px; padding-bottom:10px; display:block; border-bottom:1px solid #e8e8e8; }
 a { color:#333; }
 a.previousLink { margin-top:10px; display:inline-block; margin-right:20px; }
@@ -74,17 +74,14 @@ span.entryDomain { color:#999; }
 span.placeholder { font-style:italic; }
 div.note, div.quotation, div.sourceTitle { 
 cursor:text;
-/* old ie */
--ms-word-break: break-all;
-word-break: break-all;
+-ms-word-break:break-all;
+word-break:break-all;
+word-break:break-word;
 
-/* webkit */
-word-break: break-word;
-
--webkit-hyphens: auto;
--moz-hyphens: auto;
--ms-hyphens: auto;
-hyphens: auto;
+-webkit-hyphens:auto;
+-moz-hyphens:auto;
+-ms-hyphens:auto;
+hyphens:auto;
 }
 
 div.sourceTitle { margin-top:2px; margin-bottom:2px; display:inline; }
@@ -162,11 +159,11 @@ div.hoverMenu > button {
     box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 1px 1px rgba(100,100,100,0.3);
     border-radius:4px;
     font-size:0px;
-    width: auto;
+    width:auto;
 }
 div.hoverMenu > button::-moz-focus-inner {
     padding:0px 1px 0px 1px;
-    border: 0;
+    border:0;
 }
 div.hoverMenu > button:hover {
     background:#006DFD;
@@ -295,4 +292,4 @@ input[type="text"], input[type="password"], input[type="email"] {
 input[type="text"], div.account > input[type="text"], div.account > input[type="password"], div.account > input[type="email"] {
  margin-bottom:10px; margin-top:0px; width:100%; font-size:large; }
 div.centered > button { margin-top:10px; }
-div.centered { margin:0 auto; display:block; display: table;}
+div.centered { margin:0 auto; display:block; display:table; }

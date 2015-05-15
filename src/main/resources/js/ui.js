@@ -4069,7 +4069,7 @@ function updateDisplayedEntryDetails(response) {
 		if (quotation && !note && response.noteHtml) {
 			note = document.createElement("DIV");
 			note.className = "note mousetrap";
-			quotation.parentNode.insertBefore(note, quotation.nextSibling);
+			quotation.parentNode.insertBefore(note, quotation.nextSibling.nextSibling);
 		}
 		
 		if(note) {
