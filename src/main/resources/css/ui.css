@@ -169,6 +169,14 @@ div.hoverMenu > button:hover {
     background:#006DFD;
 }
 
+div.hoverMenu > button.redButton {
+    background-color:red;
+    border:1px solid darkred;
+}
+div.hoverMenu > button.redButton:hover {
+    background:rgb(181,6,6);
+}
+
 span.helpheader { font-weight:bold; }
 span.menubuttonheader { font-weight:bold; font-size:small; }
 span.successMessage { color:green; padding-bottom:10px; display:block; }

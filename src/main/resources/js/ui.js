@@ -2284,7 +2284,7 @@ function documentOnMouseOver(ev) {
 
 			aloneHoverMenuEl.innerHTML += "<button class=\"noDrag\" onclick=\"editOnClick(event);\" title=\"" +
 			uiText.tooltipEdit(entryType) + "\"><img class=\"noDrag\" src=\"/images/pencilwhite.png\"></button>" +
-			"<button class=\"noDrag\" onclick=\"deleteOnClick(event);\" title=\"" +
+			"<button class=\"noDrag redButton\" onclick=\"deleteOnClick(event);\" title=\"" +
 			uiText.tooltipDelete(entryType) + "\"><img class=\"noDrag\" src=\"/images/trashwhite.png\"></button>";
 
 			aloneEl.appendChild(aloneHoverMenuEl);
