@@ -864,7 +864,7 @@ public class ServletText {
 	}
 
 	public String introTextShowNotebook(boolean forTouch) {
-		String result = "This is a notebook. It is a hierarchy of your notes.<br>";
+		String result = "&bull; This is a notebook. It is a hierarchy of your notes.<br>&bull; ";
 		
 		if(forTouch) {
 			result += "Press a note to edit it.";
@@ -876,22 +876,22 @@ public class ServletText {
 	}
 
 	public String introTextShowSources(boolean forTouch) {
-		return "This is the list of all the sources from which you have saved quotations.<br>"
+		return "&bull; This is the list of all the sources from which you have saved quotations.<br>"
 				+ sentenceWhatIsAQuotation() + sentenceQuotationClickDesc(forTouch, false);
 	}
 
 	private String sentenceWhatIsAQuotation() {
-		return "A quotation is a snippet of text from another web site that you selected and saved to CrushPaper.";
+		return "&bull; A quotation is a snippet of text from another web site that you selected and saved to CrushPaper.";
 	}
 
 	public String introTextShowNotebooks(boolean forTouch) {
-		return "This is the hierarchy of all the notebooks you have created.<br>Each notebook contains a hierarchy of notes and quotations.<br>"
+		return "&bull; This is the hierarchy of all the notebooks you have created.<br>&bull; Each notebook contains a hierarchy of notes and quotations.<br>"
 				+ sentenceWhatIsAQuotation() +
-					"<br>" + clickOrTouchCapFirst(forTouch) + " a notebook to view or " + clickOrTouch(forTouch) + " the pencil icon above to edit this hierarchy.";
+					"<br>&bull; " + clickOrTouchCapFirst(forTouch) + " a notebook to view or " + clickOrTouch(forTouch) + " the pencil icon above to edit this hierarchy.";
 	}
 
 	public String introTextSearchQuotations(boolean forTouch) {
-		return "You have just searched the quotations you have saved.<br>"
+		return "&bull; You have just searched the quotations you have saved.<br>"
 				+ sentenceWhatIsAQuotation() + sentenceQuotationClickDesc(forTouch, false)
 				+ sentenceNotebookIconClickDesc(forTouch);
 	}
@@ -904,11 +904,11 @@ public class ServletText {
 	}
 
 	public String introTextSearchNotebooks(boolean forTouch) {
-		return "You have just searched the titles of all your notebooks.<br>" + clickOrTouchCapFirst(forTouch) + " the book icon to view a notebook.";
+		return "&bull; You have just searched the titles of all your notebooks.<br>" + clickOrTouchCapFirst(forTouch) + " the book icon to view a notebook.";
 	}
 
 	public String introTextSearchSources(boolean forTouch) {
-		return "You have just searched the titles and web addresses of all the sources from which you have saved quotations.<br>"
+		return "&bull; You have just searched the titles and web addresses of all the sources from which you have saved quotations.<br>"
 				+ sentenceWhatIsAQuotation() + sentenceQuotationClickDesc(forTouch, false);
 	}
 
@@ -925,7 +925,7 @@ public class ServletText {
 			return "";
 		}
 		
-		String result = "<br>";
+		String result = "<br>&bull; ";
 		
 		if (forTouch) {
 			result += "Press ";
@@ -939,33 +939,33 @@ public class ServletText {
 	}
 
 	private String sentenceNotebookIconClickDesc(boolean forTouch) {
-		return "<br>" + clickOrTouchCapFirst(forTouch) + " the book icon to view it in the context of its notebook if it is in one.";
+		return "<br>&bull; " + clickOrTouchCapFirst(forTouch) + " the book icon to view it in the context of its notebook if it is in one.";
 	}
 
 	public String introTextSearchUsers() {
-		return "You have just searched the usernames of all accounts on this server.";
+		return "&bull; You have just searched the usernames of all accounts on this server.";
 	}
 
 	public String introTextShowQuotations(boolean forTouch) {
-		return "This is the list of all the quotations you have saved.<br>"
+		return "&bull; This is the list of all the quotations you have saved.<br>"
 				+ sentenceWhatIsAQuotation() + sentenceQuotationClickDesc(forTouch, false);
 	}
 
 	public String introTextShowSource(boolean forTouch) {
-		return "This is a source from which you have saved quotations.<br>" + clickOrTouchCapFirst(forTouch) + " the title of the source to go that web site."
+		return "&bull; This is a source from which you have saved quotations.<br>&bull; " + clickOrTouchCapFirst(forTouch) + " the title of the source to go that web site."
 				+ sentenceQuotationClickDesc(forTouch, true);
 	}
 
 	public String introTextSearchAccounts() {
-		return "You have just searched the usernames of all the accounts on this server.";
+		return "&bull; You have just searched the usernames of all the accounts on this server.";
 	}
 
 	public String introTextShowAccounts(boolean forTouch) {
-		return "This is the list of all the accounts on this server.<br>" + clickOrTouchCapFirst(forTouch) + " to view or edit.<br>";
+		return "&bull; This is the list of all the accounts on this server.<br>&bull; " + clickOrTouchCapFirst(forTouch) + " to view or edit.<br>";
 	}
 
 	public String introTextShowNotes() {
-		return "This is the list of all the notes you have you have created that do not contain quotations.<br>"
+		return "&bull; This is the list of all the notes you have you have created that do not contain quotations.<br>"
 				+ sentenceWhatIsAQuotation();
 	}
 
