@@ -1934,6 +1934,7 @@ var lastEntryDropTarget = null;
 var lastEntryDropTargetAcceptabilityDesc = null;
 var acceptabilityDescEl = null;
 var entryDropSiblingDividerEl = null;
+var entryDropBorderEl = null;
 
 /** Returns the true dbid, the parts after the ":". */
 function getTrueDbIdFromListDbId(listDbId) {
@@ -2985,8 +2986,8 @@ function scrollToPadDraggedEntry() {
 /** Unselects the last item which was the drop target. */
 function removeCueFromDropTarget() {
 	if (lastEntryDropTarget) {
-		if (lastEntryDropTarget.where === "middle" && !isElementOfClass(lastEntryDropTarget.el, "fakealone")) {
-			lastEntryDropTarget.el.style.border = "";
+		if (lastEntryDropTarget.where === "middle" && !isElementOfClass(lastEntryDropTarget.el, "fakealone") && entryDropBorderEl) {
+			entryDropBorderEl.style.display = "none";
 		} else if (entryDropSiblingDividerEl) {
 			entryDropSiblingDividerEl.style.display = "none";
 		}
@@ -3165,7 +3166,19 @@ function dropTargetsAreEqual(left, right) {
 /** Adds a dashed border to a drop target. */
 function addDashedBorder(dropTarget, color) {
 	if (dropTarget.where === "middle" && !isElementOfClass(dropTarget.el, "fakealone")) {
-		dropTarget.el.style.border = "dashed 1px " + color;
+		if (!entryDropBorderEl) {
+			entryDropBorderEl = document.createElement('DIV');
+			entryDropBorderEl.className = "dropBorder";
+			document.body.appendChild(entryDropBorderEl);
+		}
+
+		entryDropBorderEl.style.border = "dashed 3px " + color;
+		entryDropBorderEl.style.width = dropTarget.el.offsetWidth + "px";
+		entryDropBorderEl.style.height = dropTarget.el.offsetHeight + "px";
+		entryDropBorderEl.style.top = getScrollTop() + dropTarget.pos.y - 3 + "px";
+		entryDropBorderEl.style.left = getScrollLeft() + dropTarget.pos.x - 3 + "px";
+
+		entryDropBorderEl.style.display = "block";
 	} else {
 		if (!entryDropSiblingDividerEl) {
 			entryDropSiblingDividerEl = document.createElement('DIV');
@@ -3173,11 +3186,11 @@ function addDashedBorder(dropTarget, color) {
 			document.body.appendChild(entryDropSiblingDividerEl);
 		}
 
-		entryDropSiblingDividerEl.style["border-top"] = "dashed 1px " + color;
+		entryDropSiblingDividerEl.style["border-top"] = "dashed 3px " + color;
 		entryDropSiblingDividerEl.style.width = dropTarget.el.offsetWidth + "px";
 		entryDropSiblingDividerEl.style.top = getScrollTop() + dropTarget.pos.y +
-		(dropTarget.where === "bottom" ? dropTarget.el.offsetHeight + 1
-				: -2) + "px";
+		(dropTarget.where === "bottom" ? dropTarget.el.offsetHeight
+				: -3) + "px";
 		entryDropSiblingDividerEl.style.left = getScrollLeft() + dropTarget.pos.x + "px";
 
 		entryDropSiblingDividerEl.style.display = "";

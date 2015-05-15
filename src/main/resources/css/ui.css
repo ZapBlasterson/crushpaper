@@ -130,6 +130,7 @@ div.dropHint { padding:2px 4px 2px 4px;
     position:absolute;
     box-shadow:0px 3px 13px rgba(0,0,0,0.55);
     border-radius:2px;
+    font-size:medium;
 }
 
 div.dropHintpointer { background:rgb(215, 253, 215); border:1px solid rgb(138, 215, 138); }
@@ -149,7 +150,8 @@ div.popup { z-index:100; position:absolute; overflow:hidden; background:white; d
    div.popup { min-width:300px; }
 }
 
-div.divider { height:0px; z-index:6; display:block; position:absolute; border-top:dashed 1px red; }
+div.divider { height:0px; z-index:6; display:block; position:absolute; }
+div.dropBorder { z-index:6; display:block; position:absolute; border-radius:4px; }
 
 div.hoverMenu { z-index:6; position:absolute; right:0px; top:0px; font-size:0px; }  
 div.hoverMenu > button {
