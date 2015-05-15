@@ -2813,6 +2813,13 @@ function fixDivTitlesInSubtreeAndChildren(newSubtreeEl, entryType) {
 			aloneEls[i].setAttribute("title", uiText.aloneElTooltip(entryType, !isOnlyViewable));
 		}
 	}
+
+	var checkboxEls = newSubtreeEl.getElementsByClassName("aloneCheckbox");
+	if (checkboxEls) {
+		for (i = 0; i < checkboxEls.length; ++i) {
+			checkboxEls[i].setAttribute("title", uiText.checkboxTooltip(entryType));
+		}
+	}
 }
 
 /** Fixes the plus icons for this subtree. Has to be done after the entryInfo is set. */

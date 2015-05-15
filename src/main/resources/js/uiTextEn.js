@@ -945,6 +945,11 @@ uiTextEn.aloneElTooltip = function(entryType, isEditable) {
 	return "This is " + uiTextEn.aOrAn(type) + " " + type + "." + uiTextEn.editOrViewTooltip(isEditable);
 };
 
+uiTextEn.checkboxTooltip = function(entryType) {
+	var type = uiTextEn.getOneEntryTerm(entryType);
+	return "If this checkbox is checked, this " + type + " will be dragged or deleted if you click a blue button to the right.";
+};
+
 uiTextEn.noteTooltip = function(entryType, isEditable) {
 	var type = uiTextEn.getOneEntryTerm(entryType);
 	return "This is the text of the " + type + (type === "notebook" ? " title" : "") + "." + uiTextEn.editOrViewTooltip(isEditable);
