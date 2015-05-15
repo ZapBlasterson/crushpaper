@@ -828,7 +828,7 @@ public class ServletText {
 	}
 
 	public String errorParentMustBeMovedBeforeChild() {
-		return "Sorry, parents must be moved before subnotes are moved. This is a bug in the UI.";
+		return "Sorry, parents must be moved before subnotes are moved. This is a bug in the user interface.";
 	}
 
 	public String errorTargetIdInvalidFormat() {
@@ -844,15 +844,15 @@ public class ServletText {
 	}
 
 	public String errorDuplicateEntry() {
-		return "Sorry, there was a duplicate note in the list. This is a bug in the UI.";
+		return "Sorry, there was a duplicate note in the list. This is a bug in the user interface.";
 	}
 
 	public String errorTargetAndObjectCanNotBeTheSame() {
-		return "Sorry, the target and object cannot be the same. This is a bug in the UI.";
+		return "Sorry, the target and object cannot be the same. This is a bug in the user interface.";
 	}
 
 	public String errorLevelsIsInvalid() {
-		return "Sorry, the levels parameter is invalid. This is a bug in the UI.";
+		return "Sorry, the levels parameter is invalid. This is a bug in the user interface.";
 	}
 
 	public String errorMayNotSeeList() {
@@ -1215,7 +1215,7 @@ public class ServletText {
 	}
 
 	public String errorEntryCanNotBeDeleted() {
-		return "Sorry, this the entry cannot be deleted this way. This is a bug in the UI.";
+		return "Sorry, this the entry cannot be deleted this way. This is a bug in the user interface.";
 	}
 
 	public String fragmentVisitExternalSource() {

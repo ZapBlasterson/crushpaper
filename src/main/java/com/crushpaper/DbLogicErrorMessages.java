@@ -504,7 +504,7 @@ public class DbLogicErrorMessages {
 	}
 
 	public String errorCanNotCreateParentlessNote() {
-		return "Sorry, you cannot create a non root note. This is a bug in the UI.";
+		return "Sorry, you cannot create a non root note. This is a bug in the user interface.";
 	}
 
 	public String errorInvalidRelatedType(String childType, String parentType,
@@ -512,7 +512,7 @@ public class DbLogicErrorMessages {
 		return "Sorry, you cannot create a child entry "
 				+ stringWithQuotes(childId)
 				+ "with a parent relationship from a \"" + childType
-				+ "\" to \"" + parentType + "\". This is a bug in the UI.";
+				+ "\" to \"" + parentType + "\". This is a bug in the user interface.";
 	}
 
 	public String errorRootIdWasNotFound(final String clientRootId) {
@@ -546,7 +546,7 @@ public class DbLogicErrorMessages {
 
 	public String errorRootsAndTableOfContentsCanNotBeCreatedWithARelationship(
 			String id) {
-		return "Sorry, roots and table of contents cannot be created with a relationship. This is a bug in the UI.";
+		return "Sorry, roots and table of contents cannot be created with a relationship. This is a bug in the user interface.";
 	}
 
 	public String errorOnlyQuotationsMayHaveAQuotation(String id) {
