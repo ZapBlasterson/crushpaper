@@ -6444,18 +6444,18 @@ function startFastScrollTransition(dbId, callback) {
 /** Scrolls the window to pad the mouse. */
 function scrollToPadMouse(mousePos) {
 	var newScrollLeft = getScrollLeft();
-
+    var scrollAmount = 20;
 	if (mousePos.x - newScrollLeft <= 0) {
-		newScrollLeft += mousePos.x - newScrollLeft - 10;
+		newScrollLeft += mousePos.x - newScrollLeft - scrollAmount;
 	} else if (getWindowInnerWidth() - (mousePos.x - newScrollLeft) <= 40) {
-		newScrollLeft += 10;
+		newScrollLeft += scrollAmount;
 	}
 
 	var newScrollTop = getScrollTop();
 	if (mousePos.y - newScrollTop <= 0) {
-		newScrollTop += mousePos.y - newScrollTop - 10;
+		newScrollTop += mousePos.y - newScrollTop - scrollAmount;
 	} else if (getWindowInnerHeight() - (mousePos.y - newScrollTop) <= 40) {
-		newScrollTop += 10;
+		newScrollTop += scrollAmount;
 	}
 
 	if (newScrollLeft < 0) {
