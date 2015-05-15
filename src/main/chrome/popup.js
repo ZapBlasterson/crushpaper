@@ -141,7 +141,7 @@ function errorBlankTitle() {
 }
 
 function errorBlankUrl() {
-	return "Sorry, the URL must not be blank.";
+	return "Sorry, the web address must not be blank.";
 }
 
 function errorBlankNoteAndQuotation() {

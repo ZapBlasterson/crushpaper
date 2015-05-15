@@ -796,7 +796,7 @@ public class ServletText {
 	}
 
 	public String errorUrlIsInvalid() {
-		return "Sorry, the URL is too long.";
+		return "Sorry, the web address is too long.";
 	}
 
 	public String errorTitleIsInvalid() {
@@ -908,7 +908,7 @@ public class ServletText {
 	}
 
 	public String introTextSearchSources(boolean forTouch) {
-		return "You have just searched the titles and URLs of all the sources from which you have saved quotations.<br>"
+		return "You have just searched the titles and web addresses of all the sources from which you have saved quotations.<br>"
 				+ sentenceWhatIsAQuotation() + sentenceQuotationClickDesc(forTouch, false);
 	}
 
@@ -1171,7 +1171,7 @@ public class ServletText {
 	}
 
 	public String errorInvalidUrl() {
-		return "Sorry, the URL was invalid.";
+		return "Sorry, the web address was invalid.";
 	}
 
 	public String labelSearchAccounts() {

@@ -401,11 +401,11 @@ public class DbLogicErrorMessages {
 	}
 
 	public String errorUrlIsEmpty() {
-		return "Sorry, the URL is empty.";
+		return "Sorry, the web address is empty.";
 	}
 
 	public String errorUrlIsNull() {
-		return "Sorry, the URL is null.";
+		return "Sorry, the web address is null.";
 	}
 
 	public String errorUserIsNotEntitledToDelete() {
@@ -482,7 +482,7 @@ public class DbLogicErrorMessages {
 	}
 
 	public String errorUrlIsInvalid(String id) {
-		return "Sorry, the URL " + stringWithQuotes(id) + "is too long.";
+		return "Sorry, the web address " + stringWithQuotes(id) + "is too long.";
 	}
 
 	public String errorTitleIsInvalid(String id) {
@@ -561,7 +561,7 @@ public class DbLogicErrorMessages {
 
 	public String errorOnlySourcesMayHaveAUrl(String id) {
 		return "Sorry, the entry " + stringWithQuotes(id)
-				+ "is not a source so it may not have a url.";
+				+ "is not a source so it may not have an url.";
 	}
 
 	public String errorOnlyRootsAndNotebooksCanBeCreatedWithOutAParent(String id) {
