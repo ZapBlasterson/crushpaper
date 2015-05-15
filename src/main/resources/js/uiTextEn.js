@@ -430,15 +430,15 @@ uiTextEn.tooltipTriHideChildren = function(entryType) {
 };
 
 uiTextEn.tooltipNewSubnote = function(entryType) {
-	return "Create a sub" + uiTextEn.getOneEntryTerm(entryType) + " of this " + uiTextEn.getOneEntryTerm(entryType) + ". Shortcut key is c.";
+	return "Click to create a sub" + uiTextEn.getOneEntryTerm(entryType) + " of this " + uiTextEn.getOneEntryTerm(entryType) + ". Shortcut key is c.";
 };
 
 uiTextEn.tooltipEdit = function(entryType) {
-	return "Edit this " + uiTextEn.getOneEntryTerm(entryType) + ". Shortcut key is F2.";
+	return "Click to edit this " + uiTextEn.getOneEntryTerm(entryType) + ". Shortcut key is F2.";
 };
 
 uiTextEn.tooltipDelete = function(entryType) {
-	return "Delete this " + uiTextEn.getOneEntryTerm(entryType) + ". Shortcut key is Delete";
+	return "Click to delete this " + uiTextEn.getOneEntryTerm(entryType) + " and any other selected " + uiTextEn.getOneEntryTermPlural(entryType) + ". Shortcut key is Delete";
 };
 
 uiTextEn.errorCouldNotGetPage = function() {
