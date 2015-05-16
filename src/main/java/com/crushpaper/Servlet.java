@@ -3005,10 +3005,13 @@ public class Servlet extends HttpServlet {
 			requestAndResponse.print(result.toString());
 			requestAndResponse.print("\n}\n</script>\n");
 
-			requestAndResponse
+			if(!getNoTitle()) {
+				requestAndResponse
 					.print("<div class=\"dragNsPane\" onmousedown=\"paneOnMouseDown(event);\"></div>" +
-							"<div class=\"dragEwPane\" onmousedown=\"paneOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>" + 
-							"</div></div></div></div>");
+							"<div class=\"dragEwPane\" onmousedown=\"paneOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>");
+			}
+			
+			requestAndResponse.print("</div></div></div></div>");
 
 			final boolean onlyContent = getNoHeader();
 			if (!onlyContent) {
