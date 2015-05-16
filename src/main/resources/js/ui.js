@@ -2328,6 +2328,19 @@ function removeTheHoverMenu() {
 	}
 }
 
+/** Returns any selected text in the window. */
+function getSelectedText() {
+    var text = "";
+    
+    if (typeof window.getSelection !== "undefined") {
+        text = window.getSelection().toString();
+    } else if (typeof document.selection !== "undefined" && document.selection.type === "Text") {
+        text = document.selection.createRange().text;
+    }
+    
+    return text;
+}
+
 /** Adds a context menu/right click menu. */
 function onContextMenu(ev) {
 	var eventEl = getEventEl(ev);
@@ -2336,7 +2349,12 @@ function onContextMenu(ev) {
 	if (eventEl.nodeName === "A") {
 		return;
 	}
-
+	
+	// Ensure that the browser's default context menu shows up for selected text.
+	if (getSelectedText())  {
+		return;
+	}
+	
 	var aloneEl = getCorrespondingAloneEl(eventEl);
 	if (aloneEl && areCommandsAllowed) {
 		var paneEl = getContainingPaneEl(aloneEl);
@@ -7682,9 +7700,11 @@ function noteOnFocus(ev) {
  *  or programmatically.
  */
 function noteOnBlur() {
+	if (noteIsFocused) {
+		deselectAllSelections();
+	}
+
 	noteIsFocused = false;
-	deselectAllSelections();
-	
 	if (!editedNoteDbId) {
 		return;
 	}
