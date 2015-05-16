@@ -1354,6 +1354,40 @@ function setPaneIsEditable(index, value) {
 	editablePanes[index] = value;
 }
 
+/** Move the pane from the old index to the new index. */
+function movePaneFromIndexToIndex(oldIndex, newIndex) {
+	initializeInfoForPanes();
+
+	var url = urls[oldIndex];
+	var title = titles[oldIndex];
+	var paneType = paneTypes[oldIndex];
+	var editablePane = editablePanes[oldIndex];
+	var treePane = treePanes[oldIndex];
+	var paneTouchInfoText = paneTouchInfoTexts[oldIndex];
+		
+	urls.splice(oldIndex, 1);
+	titles.splice(oldIndex, 1);
+	paneTypes.splice(oldIndex, 1);
+	editablePanes.splice(oldIndex, 1);
+	treePanes.splice(oldIndex, 1);
+	paneTouchInfoTexts.splice(oldIndex, 1);
+
+	urls.splice(newIndex, 0, url);
+	titles.splice(newIndex, 0, title);
+	paneTypes.splice(newIndex, 0, paneType);
+	editablePanes.splice(newIndex, 0, editablePane);
+	treePanes.splice(newIndex, 0, treePane);
+	paneTouchInfoTexts.splice(newIndex, 0, paneTouchInfoText);
+
+	var allPanes = getAllPanesEl();
+	var insertAfter = allPanes.childNodes[newIndex + 1];
+	var removedPaneContainer = allPanes.removeChild(allPanes.childNodes[oldIndex + 1]);
+	allPanes.insertBefore(removedPaneContainer, insertAfter);
+		
+	updateCurrentLocation();
+	updateCurrentTitle();
+}
+
 /** Removes a pane from the URL and title arrays. */
 function removePaneInfo(paneEl) {
 	initializeInfoForPanes();
@@ -1438,66 +1472,198 @@ function splitUris(uri) {
 	return uris;
 }
 
-// Globals for pane dragging.
-var draggedPaneLastMousePos = null;
-var draggedPane = null;
-var dragPaneEw = false;
-var dragPaneNs = false;
+// Globals for pane resizing.
+var resizedPaneLastMousePos = null;
+var resizedPaneSection = null;
+var resizedPaneEw = false;
+var resizedPaneNs = false;
 
-/** Handles dragging for a pane. */
-function paneOnMouseMoveDown(ev) {
-	if (draggedPane) {
+/** Handles resizing a pane. */
+function paneResizeOnMouseMove(ev) {
+	if (resizedPaneSection) {
 		var mousePos = getMousePosition(ev);
 		
-		if (dragPaneEw) {
-			var paneWidth = parseInt(draggedPane.parentNode.offsetWidth);
-			draggedPane.parentNode.style.width = paneWidth - (draggedPaneLastMousePos.x - mousePos.x) + "px";
+		if (resizedPaneEw) {
+			var paneWidth = parseInt(resizedPaneSection.parentNode.offsetWidth);
+			resizedPaneSection.parentNode.style.width = paneWidth - (resizedPaneLastMousePos.x - mousePos.x) + "px";
 		}
 		
-		if (dragPaneNs) {
-			var paneHeight = parseInt(draggedPane.offsetHeight);
-			draggedPane.style.height = paneHeight - (draggedPaneLastMousePos.y - mousePos.y) - 20 + "px";
+		if (resizedPaneNs) {
+			var paneHeight = parseInt(resizedPaneSection.offsetHeight);
+			resizedPaneSection.style.height = paneHeight - (resizedPaneLastMousePos.y - mousePos.y) - 20 + "px";
 		}
 		
-		draggedPaneLastMousePos = mousePos;
+		resizedPaneLastMousePos = mousePos;
 		return false;
 	}
 }
 
 /** Handles mouseup for a pane. */
-function paneOnMouseUp() {
-	if (!draggedPane) {
+function paneResizeOnMouseUp() {
+	if (!resizedPaneSection) {
 		return;
 	}
 
-	resetDraggedPane();
+	finishResizingPane();
 }
 
-/** Helper function for finishing a pane drag. */
-function resetDraggedPane() {
+/** Helper function for finishing a pane resize. */
+function finishResizingPane() {
 	document.onmouseup = null;
-	draggedPane = null;
+	resizedPaneSection = null;
 	document.onmousemove = null;
 }
 
-/** Handles mousedown for a pane. */
-function paneOnMouseDown(ev) {
+/** Handles mousedown for resizing a pane. */
+function paneResizeOnMouseDown(ev) {
 	var eventEl = getEventEl(ev);
 	if (isElementOfClass(eventEl, "dragEwPane")) {
-		dragPaneEw = true;
-		dragPaneNs = false;
+		resizedPaneEw = true;
+		resizedPaneNs = false;
 	} else if (isElementOfClass(eventEl, "dragDiagPane")) {
-		dragPaneEw = true;
-		dragPaneNs = true;
+		resizedPaneEw = true;
+		resizedPaneNs = true;
 	} else if (isElementOfClass(eventEl, "dragNsPane")) {
-		dragPaneEw = false;
-		dragPaneNs = true;
+		resizedPaneEw = false;
+		resizedPaneNs = true;
 	}
 	
-	draggedPane = getElOrAncestor(eventEl, 'DIV', 'paneSection');
-	document.onmouseup = paneOnMouseUp;
-	draggedPaneLastMousePos = getMousePosition(ev);
-	document.onmousemove = paneOnMouseMoveDown;
+	resizedPaneSection = getElOrAncestor(eventEl, 'DIV', 'paneSection');
+	document.onmouseup = paneResizeOnMouseUp;
+	resizedPaneLastMousePos = getMousePosition(ev);
+	document.onmousemove = paneResizeOnMouseMove;
+	ev.preventDefault();
+	ev.stopPropagation();
+	return false;
+}
+
+// Globals for pane moving.
+var movedPaneMouseOffset = null;
+var movedPane = null;
+var movedPaneClone = null;
+var movedPaneMouseOffset = null;
+var movedPaneDivider = null;
+var dropPaneBeforeIndex = -1;
+
+/** Handles moving a pane. */
+function paneMoveOnMouseMove(ev) {
+	if (movedPane) {
+		var mousePos = getMousePosition(ev);
+		movedPaneClone.style.top = (mousePos.y - movedPaneMouseOffset.y) + "px";
+		movedPaneClone.style.left = (mousePos.x - movedPaneMouseOffset.x) + "px";
+		
+		var allPanes = getAllPanesEl();
+		var previousPaneRightX = -100;
+		var paneBelongsBeforeIndex = -1;
+		var placementX = -1;
+		for (var i = 1; i < allPanes.childNodes.length; ++i) {
+			var paneContainer = allPanes.childNodes[i].childNodes[0];
+			var paneEl = getPaneElFromPaneContainer(paneContainer);
+			var panePosition = getPosition(paneEl);
+			var paneWidth = parseInt(paneEl.offsetWidth);
+			if (mousePos.x >= previousPaneRightX && mousePos.x <= panePosition.x) {
+				paneBelongsBeforeIndex = i - 1;
+				placementX = panePosition.x - 11;
+				break;
+			}
+			
+			previousPaneRightX = panePosition.x + paneWidth;
+		}
+		
+		if (paneBelongsBeforeIndex === -1) {
+			if (mousePos.x >= previousPaneRightX) {
+				paneBelongsBeforeIndex = allPanes.childNodes.length - 1;
+				placementX = previousPaneRightX + 3;
+			}
+		}
+		
+		dropPaneBeforeIndex = -1;
+	    if (paneBelongsBeforeIndex === -1) {
+	    	if(movedPaneDivider) {
+	    		movedPaneDivider.style.display = "none";
+	    	}
+	    } else {
+			if (!movedPaneDivider) {
+				movedPaneDivider = document.createElement('DIV');
+				movedPaneDivider.className = "movePaneDivider";
+				document.body.appendChild(movedPaneDivider);
+			}
+			
+			var paneIndex = getIndexOfPaneEl(movedPane);
+			var color = "red";
+			if (paneBelongsBeforeIndex !== paneIndex &&
+					paneBelongsBeforeIndex !== paneIndex + 1) {
+				color = "green";
+				dropPaneBeforeIndex = paneBelongsBeforeIndex; 
+			}
+
+			movedPaneDivider.style["border-left"] = "dashed 3px " + color;
+			movedPaneDivider.style.top = "0px";
+			movedPaneDivider.style.left = placementX + "px";
+			movedPaneDivider.style.height = getWindowInnerHeight() + "px";
+			movedPaneDivider.style.display = "";
+	    }
+	    
+		return false;
+	}
+}
+
+/** Handles mouseup for a pane. */
+function paneMoveOnMouseUp() {
+	if (!movedPane) {
+		return;
+	}
+
+	finishMovingPane();
+}
+
+/** Helper function for finishing a pane move. */
+function finishMovingPane() {
+	if (dropPaneBeforeIndex !== -1) {
+		var paneIndex = getIndexOfPaneEl(movedPane);
+		movePaneFromIndexToIndex(paneIndex, dropPaneBeforeIndex);
+	}
+	
+	document.onmouseup = null;
+	movedPane = null;
+	if (movedPaneClone) {
+		movedPaneClone.parentNode.removeChild(movedPaneClone);
+		movedPaneClone = null;
+	}
+	document.onmousemove = null;
+    if (movedPaneDivider) {
+    	movedPaneDivider.style.display = "none";
+    }
+}
+
+/** Handles mousedown for moving a pane. */
+function paneMoveOnMouseDown(ev) {
+	var eventEl = getEventEl(ev);
+	if ((!isElementOfClass(eventEl, "headerpane") && !isElementOfClass(eventEl, "paneButtons")) ||
+			(("id" in eventEl.parentNode) && eventEl.parentNode.id === "welcome")) {
+		return true;
+	}
+	
+	movedPane = getElOrAncestor(eventEl, 'DIV', 'pane');
+	document.onmouseup = paneMoveOnMouseUp;
+	document.onmousemove = paneMoveOnMouseMove;
+	var position = getPosition(movedPane);
+	
+	movedPaneClone = document.createElement("DIV");
+	movedPaneClone.style.opacity = 0.7;
+	movedPaneClone.style.filter = "alpha(opacity=70)"; // For IE.
+	movedPaneClone.style["z-index"] = "100";
+	movedPaneClone.style.position = "absolute";
+	movedPaneClone.className = "pane paneContainer";
+	document.body.appendChild(movedPaneClone);
+
+	// This would work without the pixel adjustments here if padding was 0px.
+	movedPaneClone.style.width = (movedPane.clientWidth) + "px";
+	movedPaneClone.style.height = movedPane.clientHeight + "px";
+	movedPaneClone.style.top = (getScrollTop() + position.y) + "px";
+	movedPaneClone.style.left = (getScrollLeft() + position.x) + "px";
+	movedPaneMouseOffset = getMouseOffset(movedPaneClone, ev);
+	
 	ev.preventDefault();
 	ev.stopPropagation();
 	return false;
@@ -2952,8 +3118,7 @@ function dragEntryOnMouseMove(ev) {
 	unhoverAllEntries();
 	
 	if (ev) {
-		var mousePos = getMousePosition(ev);
-		dragEntryMousePos = mousePos;
+		dragEntryMousePos = getMousePosition(ev);
 		dragEntryAltKeyIsDown = ev.altKey;
 		dragEntryCtrlKeyIsDown = ev.ctrlKey;
 	}
@@ -3207,7 +3372,7 @@ function addDashedBorder(dropTarget, color) {
 	} else {
 		if (!entryDropSiblingDividerEl) {
 			entryDropSiblingDividerEl = document.createElement('DIV');
-			entryDropSiblingDividerEl.className = "divider";
+			entryDropSiblingDividerEl.className = "dropDivider";
 			document.body.appendChild(entryDropSiblingDividerEl);
 		}
 
@@ -3426,9 +3591,10 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 			for (var j = 0; j < movedDbIds.length; ++j) {
 				var movedId = movedDbIds[j];
 				var isFromList = isListDbId(movedId);
+				var movedAloneEl;
 				if (isFromList) {
 					unselectEntry(movedId);
-					var movedAloneEl = getAloneElByDbId(movedId);
+					movedAloneEl = getAloneElByDbId(movedId);
 					updateSelectionDisplayForAloneEl(movedAloneEl);
 
 					var aloneDbId = getTrueDbIdFromListDbId(movedId);
@@ -3464,7 +3630,7 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 					setEntryInfo(entryDetails.id, entryDetails.note, entryDetails.quotation, entryDetails.isPublic, entryDetails.type);
 					++indexFromList;
 				} else {
-					var movedAloneEl = getAloneElByDbId(movedId);
+					movedAloneEl = getAloneElByDbId(movedId);
 					var movedSubtreeEl = getSubtreeElForAloneEl(movedAloneEl);
 
 					// Save this for later so that hasChildren of this parent can be updated.
@@ -3820,10 +3986,12 @@ function save(alreadyStartedSave) {
 				notebooksPaneEl = document.getElementById("notebooks");
 				if (notebooksPaneEl) {
 					var container = getContainerFromPaneEl(notebooksPaneEl);
-					createEntryEl(response, container, "addChildLast", response.type);
-
-					setEntryInfo(response.id, response.note, response.quotation, response.isPublic, response.type);
-					setEntryHasChildren(parentId);
+					if (container) {
+						createEntryEl(response, container, "addChildLast", response.type);
+	
+						setEntryInfo(response.id, response.note, response.quotation, response.isPublic, response.type);
+						setEntryHasChildren(parentId);
+					}
 				}
 			}
 
@@ -8077,7 +8245,7 @@ function markFunctionsAsUsed() {
 	deleteOnClick();
 	editOnClick();
 	onClickCreateSubnote();
-	paneOnMouseDown();
+	paneResizeOnMouseDown();
 	closeAllPanes();
 	closePane();
 	showPopupWithPage();
@@ -8102,6 +8270,7 @@ function markFunctionsAsUsed() {
 	showOrHideMenu();
 	startAloneDrag();
 	checkboxOnClick();
+	paneMoveOnMouseDown();
 }
 
 markFunctionsAsUsed();

@@ -2930,7 +2930,7 @@ public class Servlet extends HttpServlet {
 
 			if (!getNoTitle()) {
 				requestAndResponse
-						.print("<div class=\"headerpane paneSection\">"
+						.print("<div class=\"headerpane paneSection\" onmousedown=\"paneMoveOnMouseDown(event);\">"
 								+ "<div class=\""
 								+ (isWelcomePane ? "welcomePaneTitle " : "")
 								+ " paneTitle\">"
@@ -3007,8 +3007,8 @@ public class Servlet extends HttpServlet {
 
 			if(!getNoTitle()) {
 				requestAndResponse
-					.print("<div class=\"dragNsPane\" onmousedown=\"paneOnMouseDown(event);\"></div>" +
-							"<div class=\"dragEwPane\" onmousedown=\"paneOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>");
+					.print("<div class=\"dragNsPane\" onmousedown=\"paneResizeOnMouseDown(event);\"></div>" +
+							"<div class=\"dragEwPane\" onmousedown=\"paneResizeOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>");
 			}
 			
 			requestAndResponse.print("</div></div></div></div>");

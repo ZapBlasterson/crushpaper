@@ -17,10 +17,10 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 --->
 
 ### Additional Browser Extensions
-1. Create an IE quoting extension.
-1. Create an Opera quoting extension.
-1. Create a Safari quoting extension.
-1. Create a Firefox quoting extension.
+1. Create an IE save quotation extension.
+1. Create an Opera save quotation extension.
+1. Create a Safari save quotation extension.
+1. Create a Firefox save quotation extension.
 
 ### User Visible Features
 1. Make much more mobile friendly. 
@@ -34,9 +34,8 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. Support extraction of trees of notes for publication as a document.
 1. Support styling notes with additional data and actions for chapters, questions, answers, feedback and todos.
 1. Enable commenting and voting on notes.
-1. Support notification to other users with embedded @ in note.
+1. Support notification to other users with embedded @ in notes.
 1. Support categorization with embedded @#tags in notes.
-1. Support creating quotations from PDFs.
 1. Add the capability to favorite notes.
 1. Support quoting on web sites that disable copy and paste.
 1. Add the concept of domains of research.
@@ -60,20 +59,22 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. Support copying, cutting and pasting of entries.
 1. Support icons and shortcuts for making text bold or italic.
 1. Search underneath any notebook or note.
-1. Add the capability to specify the parent of quotations through the chrome extension.
+1. Add the capability to specify the parent of a quotation through the Chrome extension.
 1. Add the capability to create sources rather than just through the Chrome extension.
+1. Create a join siblings command merges adjoining notes into a single note.
 1. Create a split siblings command that adds a new parent that is the next sibling of the parent.
-1. Create a split siblings command that makes all next siblings children of the note
-1. Create a command that moves a note to be be first or last child of its parent.
+1. Create a split siblings command that makes all next siblings children of the note.
+1. Create a command that moves a note to be the first or last child of its parent.
 1. Support searching for a parent note of a new note in the create a new note popup.
 1. Support moving notes to be children of a parent by searching for the parent.
 1. Prevent creating quotations of the CrushPaper web site. These links and titles can be very confusing.
 1. Support Ctrl+arrow moving of non contiguous notes.
 1. Support SEO friendly URLs and HTML titles for notes.
-1. Support cloning of public notebooks. If a visitor sees one they like they should be able to clone or fork it. 
+1. Support cloning of public and private notebooks. If a visitor sees one they like they should be able to clone or fork it. 
 1. When public notebooks are requested by web crawlers the full depth should be returned.
 1. Web crawlers should be blocked from requesting individual notes rather than notebooks. 
 1. Support viewing and editing different sections of a notebook in different panes at the same time.
+1. URLs in notes and quotations should automatically become links.
 
 ### Increased reliability
 1. Persist failed requests locally in the web browser's storage for later retry.

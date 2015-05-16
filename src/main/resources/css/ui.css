@@ -35,8 +35,9 @@ td.resultNumber { padding-right:5px !important; padding-left:5px !important; ver
 
 #allPanes { z-index:5; position:relative; }
 hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
-div.paneTitle { display:inline-block; position:absolute; white-space:nowrap; padding-top:10px; }
+div.paneTitle { display:inline-block; position:absolute; white-space:nowrap; margin-top:10px; }
 div.welcomePaneTitle { position:static; padding-bottom:10px; padding-right:10px; }
+#welcome > .headerpane { cursor:default; }
 div.paneButtons { padding-right:10px; padding-bottom:13px; padding-top:10px; }
 div.paneButtonsBg { display:inline-block; position:relative; background-color:white; float:right; white-space:nowrap; border-radius:3px }
 div.paneButtons > * { vertical-align:middle; margin-left:5px; }
@@ -44,7 +45,7 @@ iframe { border:0px; width:270px; height:115px; }
 .withTopMargin { margin-top:10px; }
 div.paneSection > h3:first-child { margin-top:0px; }
 div.paneSection { border-bottom:1px solid #DDD; padding:10px; position:relative; overflow:hidden; }
-div.headerpane { position:relative; overflow:hidden; padding-right:0px; padding-top:0px; padding-bottom:0px; }
+div.headerpane { position:relative; overflow:hidden; padding-right:0px; padding-top:0px; padding-bottom:0px; cursor:move; }
 a.listItem { text-decoration:none; margin-top:10px; padding-bottom:10px; display:block; border-bottom:1px solid #e8e8e8; }
 a { color:#333; }
 a.previousLink { margin-top:10px; display:inline-block; margin-right:20px; }
@@ -57,7 +58,7 @@ a.cursorIsPointer { cursor:pointer; }
 a.externalsite { text-transform:lowercase !important; }
 span.versionNumber { font-size:xx-small; margin-top:10px; display:block; }
 #menu > div > a:hover, a.nextLink:hover, a:hover, a.previousLink:hover { color:#61CDF5; text-decoration:underline; }
-#appName, div.paneTitle { font-weight:bold !important; font-size:large; margin-bottom:0px; color:#555; }
+#appName, div.paneTitle { font-weight:bold !important; font-size:large; margin-bottom:0px; color:#555; cursor:text; }
 img.plusOrMinus { visibility:hidden; }
 h3 { font-size:medium; }
 #appName { font-weight:bold; color:#555; text-decoration:none; }
@@ -148,8 +149,9 @@ div.popup { z-index:100; position:absolute; overflow:hidden; background:white; d
    div.popup { min-width:300px; }
 }
 
-div.divider { height:0px; z-index:6; display:block; position:absolute; }
+div.dropDivider { height:0px; z-index:6; display:block; position:absolute; }
 div.dropBorder { z-index:6; display:block; position:absolute; border-radius:4px; }
+div.movePaneDivider { width:0px; z-index:6; display:block; position:absolute; }
 
 div.hoverMenu { z-index:6; position:absolute; right:0px; top:0px; font-size:0px; }  
 div.hoverMenu > button {
