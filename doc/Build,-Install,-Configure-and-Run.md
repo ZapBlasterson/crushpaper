@@ -84,7 +84,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 ### Configuration File Properties
 #### Mandatory Properties
 1. **database.directory = &lt;path/to/database/directory&gt;** - This is the path to the directory where the H2 database is stored.
-1. **temporary.directory = &lt;path/to/temporary/directory&gt;** - This is the path to the directory where temporary files are stored. These temporary files are JSON files that are in the process of being imported.
+1. **temporary.directory = &lt;path/to/temporary/directory&gt;** - This is the path to the directory where temporary files are stored. These temporary files are user backup files that are in the process of being restored.
 1. **logs.directory = &lt;path/to/logs/directory&gt;** - This is the path to the directory where the server's HTTP request logs are stored.
  
 #### Recommended Properties

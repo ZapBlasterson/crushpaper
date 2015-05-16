@@ -43,15 +43,15 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 1. See more on search <a onclick="newPaneForLink(event, 'Search Help', 'help'); return false;" href="/help/Search-Help">here</a>.
 
-### Exporting Notes, Quotations and Sources
+### Backing up Notes, Quotations and Sources
 
-1. You can export all of your notes, quotations and sources in a JSON file.
+1. You can backup all of your notes, quotations and sources in a JSON file. (JSON is a popular text format for data.)
 1. You may do this if you want to move your information from one CrushPaper server to another.
 1. You may also want to create backups of your information. 
 
-### Importing Notes, Quotations and Sources
+### Restoring Notes, Quotations and Sources
 
-1. You can import notes, quotations and sources by uploading a JSON file to the server. (JSON is a text format that is easy to manipulate.)
+1. You can restore backups of notes, quotations and sources by uploading a JSON file to the server.
 1. If you select "Reuse note IDs if possible" then the CrushPaper server will try to recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.
 1. If you select "The file is in MS Word List Format" then the CrushPaper server will treat the file as if it contains a single notebook in this format:
 <pre>

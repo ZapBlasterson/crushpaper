@@ -7468,7 +7468,7 @@ function onFinishPageReload() {
 }
 
 /** This is an unreliable indicator of whether the device has a touch screen.
- * Don't use it for anything veryimportant.
+ * Don't use it for anything very important.
  */
 function mightHaveTouch() {
 	return 'ontouchstart' in window;

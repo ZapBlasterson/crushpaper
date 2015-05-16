@@ -26,8 +26,8 @@ package com.crushpaper;
  * be portions of sentences and should generally not have periods.
  */
 public class ServletText {
-	public String buttonImport() {
-		return "Import";
+	public String buttonRestore() {
+		return "Restore";
 	}
 
 	public String buttonSave() {
@@ -131,7 +131,7 @@ public class ServletText {
 	}
 
 	public String errorNoFileUploaded() {
-		return "Sorry, no file was uploaded so it cannot be imported.";
+		return "Sorry, no file was uploaded so it cannot be restored.";
 	}
 
 	public String errorNoteNotCreated() {
@@ -142,8 +142,8 @@ public class ServletText {
 		return "Sorry, the page you were looking for doesn't exist.";
 	}
 
-	public String errorImportFailed() {
-		return "Sorry, your import failed.";
+	public String errorRestoreFailed() {
+		return "Sorry, the restore failed.";
 	}
 
 	public String fragmentBlankTitle() {
@@ -158,7 +158,7 @@ public class ServletText {
 		return "Blank quotation";
 	}
 
-	public String sentenceCmdForRestore() {
+	public String sentenceCmdForDbRestore() {
 		return "To restore the backup first shutdown the server and then run these commands:";
 	}
 
@@ -202,19 +202,19 @@ public class ServletText {
 		return "Sources";
 	}
 
-	public String pageTitleExport() {
-		return "Export";
+	public String pageTitleUserBackup() {
+		return "Backup";
 	}
 
 	public String pageTitleQuotations() {
 		return "Quotations";
 	}
 
-	public String pageTitleImport() {
-		return "Import";
+	public String pageTitleUserRestore() {
+		return "Restore";
 	}
 
-	public String pageTitleShowBackups() {
+	public String pageTitleShowDbBackups() {
 		return "Backups";
 	}
 
@@ -234,8 +234,8 @@ public class ServletText {
 		return "Check Errors";
 	}
 
-	public String sentenceImported() {
-		return "Your file has been successfully imported.";
+	public String sentenceRestored() {
+		return "Your backup file has been successfully restored.";
 	}
 
 	public String sentenceNoSourcesExist() {
@@ -286,7 +286,7 @@ public class ServletText {
 		return "There were no matches.";
 	}
 
-	public String textNoBackupsHaveBeenCreated() {
+	public String textNoDbBackupsHaveBeenCreated() {
 		return "No backups have been created.";
 	}
 
@@ -330,12 +330,12 @@ public class ServletText {
 		return "View all your sources.";
 	}
 
-	public String pageTitleExportTooltip() {
-		return "Export all your notebooks as a JSON file.";
+	public String pageTitleUserBackupTooltip() {
+		return "Backup all your notebooks as a JSON file.";
 	}
 
-	public String pageTitleImportTooltip() {
-		return "Import notebooks from a JSON file.";
+	public String pageTitleUserRestoreTooltip() {
+		return "Restore notebooks from a JSON file.";
 	}
 
 	public String pageTitleOfflineBackupDbTooltip() {
@@ -350,7 +350,7 @@ public class ServletText {
 		return "Check the database for integrity errors.";
 	}
 
-	public String pageTitleShowBackupsTooltip() {
+	public String pageTitleShowDbBackupsTooltip() {
 		return "Show all available backup copies.";
 	}
 
@@ -461,28 +461,28 @@ public class ServletText {
 		return "Checking the database for errors is time consuming.<br><br>It may lock the database for a long time.";
 	}
 
-	public String exportAreYouSure() {
-		return "Exporting your notebooks is time consuming.<br><br>It may lock the database for a long time.";
+	public String userBackupAreYouSure() {
+		return "Backing up your notebooks is time consuming.<br><br>It may lock the database for a long time.";
 	}
 
-	public String sentenceOfflineBackupWasSuccessful() {
+	public String sentenceOfflineDbBackupWasSuccessful() {
 		return "The offline backup was successful.";
 	}
 
-	public String sentenceOfflineBackupWasNotSuccessful() {
+	public String sentenceOfflineDbBackupWasNotSuccessful() {
 		return "<span class=\"errorMessage\">The offline backup was not successful.</span>";
 	}
 
-	public String sentenceOnlineBackupWasSuccessful(int numRowsExtracted) {
+	public String sentenceOnlineDbBackupWasSuccessful(int numRowsExtracted) {
 		return "The online backup was successful.<br><br>" + numRowsExtracted
 				+ " rows were backed up.";
 	}
 
-	public String sentenceOnlineBackupWasNotSuccessful() {
+	public String sentenceOnlineDbBackupWasNotSuccessful() {
 		return "<span class=\"errorMessage\">The online backup was not successful.</span>";
 	}
 
-	public String linkShowRestoreBackupCmdTooltip() {
+	public String linkShowRestoreDbBackupCmdTooltip() {
 		return "Click to show the command that will restore this backup.";
 	}
 
@@ -494,7 +494,7 @@ public class ServletText {
 		return "Command to Restore a Backup";
 	}
 
-	public String sentenceToRestoreCommand() {
+	public String sentenceToRestoreDbCommand() {
 		return "Click one of the links below to view the command that will restore that backup.";
 	}
 
@@ -502,8 +502,8 @@ public class ServletText {
 		return "Entire Database Cleared";
 	}
 
-	public String pageTitleImported() {
-		return "Notes Imported";
+	public String pageTitleRestored() {
+		return "Notes Restored";
 	}
 
 	public String linkNext() {
@@ -1107,9 +1107,9 @@ public class ServletText {
 		return "Click to show one less level.";
 	}
 
-	public String introTextImport() {
-		return "You can import notes, quotations and sources by uploading a JSON file to the server using this page.<br><br>"
-				+ "If you select \"Reuse note IDs if possible\" then the CrushPaper server will try recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.<br><br>"
+	public String introTextRestore() {
+		return "You can restore backups of notes, quotations and sources by uploading a JSON file to the server using this page.<br><br>"
+				+ "If you select \"Reuse note IDs if possible\" then the CrushPaper server will try to recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.<br><br>"
 				+ "If you select \"The file is in MS Word List Format\" then the CrushPaper server will treat the file as if it contains a single notebook in this format:" +
 				"<pre>" +
 				"*\tNote at level 1<br>" +

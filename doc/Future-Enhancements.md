@@ -73,7 +73,6 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 1. Support cloning of public notebooks. If a visitor sees one they like they should be able to clone or fork it. 
 1. When public notebooks are requested by web crawlers the full depth should be returned.
 1. Web crawlers should be blocked from requesting individual notes rather than notebooks. 
-1. Validate all information and relations in an import before making any database changes.
 1. Support viewing and editing different sections of a notebook in different panes at the same time.
 
 ### Increased reliability

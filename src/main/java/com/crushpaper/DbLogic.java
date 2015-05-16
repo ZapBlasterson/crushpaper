@@ -170,7 +170,7 @@ public class DbLogic {
 
 	/**
 	 * API method. A simplified interface for creating a note or quotation
-	 * entry. This is for importing from JSON.
+	 * entry. This is for restoring from JSON.
 	 */
 	public Entry createRawEntry(User user, Entry source, String type,
 			String id, String quotation, String note, Long modTime,
@@ -1435,17 +1435,17 @@ public class DbLogic {
 		return true;
 	}
 
-	/** Stores temporary information about a parent's children during importing. */
+	/** Stores temporary information about a parent's children during user backup restoration. */
 	static class ChildrenInfo {
-		HashMap<String, String> importedNextToRealPreviousIds = new HashMap<String, String>();
+		HashMap<String, String> restoredNextToRealPreviousIds = new HashMap<String, String>();
 		String lastRealId = null;
 		int count = 0;
 	}
 
-	/** Helper method. Returns the children of an imported entry in order. */
-	private LinkedList<String> getRealChildIdsInOrderForImport(
+	/** Helper method. Returns the children of a restored entry in order. */
+	private LinkedList<String> getRealChildIdsInOrderForUserRestore(
 			ChildrenInfo childrenInfo,
-			HashMap<String, String> realEntryIdToImportedEntryId, Errors errors) {
+			HashMap<String, String> realEntryIdToRestoredEntryId, Errors errors) {
 		LinkedList<String> realChildIdsInOrder = new LinkedList<String>();
 		String realCurrentId = childrenInfo.lastRealId;
 
@@ -1454,31 +1454,31 @@ public class DbLogic {
 			return null;
 		}
 
-		childrenInfo.importedNextToRealPreviousIds.remove(null);
+		childrenInfo.restoredNextToRealPreviousIds.remove(null);
 		realChildIdsInOrder.addFirst(realCurrentId);
 
-		int i = 0, numChildren = childrenInfo.importedNextToRealPreviousIds
+		int i = 0, numChildren = childrenInfo.restoredNextToRealPreviousIds
 				.entrySet().size();
 		for (; i < numChildren; ++i) {
-			String importedCurrentId = realEntryIdToImportedEntryId
+			String restoredCurrentId = realEntryIdToRestoredEntryId
 					.get(realCurrentId);
-			if (importedCurrentId == null) {
+			if (restoredCurrentId == null) {
 				Errors.add(errors,
-						errorMessages.errorImportedIdWasNotFound(realCurrentId));
+						errorMessages.errorRestoredIdWasNotFound(realCurrentId));
 				return null;
 			}
 
-			realCurrentId = childrenInfo.importedNextToRealPreviousIds
-					.get(importedCurrentId);
+			realCurrentId = childrenInfo.restoredNextToRealPreviousIds
+					.get(restoredCurrentId);
 			if (realCurrentId == null) {
 				Errors.add(errors,
-						errorMessages.errorRealIdWasNotFound(importedCurrentId));
+						errorMessages.errorRealIdWasNotFound(restoredCurrentId));
 				return null;
 			}
 
 			// Eliminate the potential for duplicates.
-			childrenInfo.importedNextToRealPreviousIds
-					.remove(importedCurrentId);
+			childrenInfo.restoredNextToRealPreviousIds
+					.remove(restoredCurrentId);
 
 			realChildIdsInOrder.addFirst(realCurrentId);
 		}
@@ -1487,13 +1487,13 @@ public class DbLogic {
 	}
 
 	/**
-	 * API method. This method starts its own transactions. Imports a file of notes
+	 * API method. This method starts its own transactions. Restores a file of notes
 	 * and creates a notebook for those notes.
 	 */
-	public boolean importMsWordListFormatForUser(String userId,
+	public boolean restoreMsWordListFormatForUser(String userId,
 			InputStreamReader streamReader, boolean isAdmin,
 			Errors errors) {
-		boolean result = reallyImportMsWordListFormatForUser(userId, streamReader, isAdmin, errors);
+		boolean result = reallyRestoreMsWordListFormatForUser(userId, streamReader, isAdmin, errors);
 		if (!result) {
 			rollback();
 		} else {
@@ -1503,8 +1503,8 @@ public class DbLogic {
 		return result;
 	}
 	
-	/** Helper method. Does all the real work for importMsWordListFormatForUser(). */
-	public boolean reallyImportMsWordListFormatForUser(String userId,
+	/** Helper method. Does all the real work for restoreMsWordListFormatForUser(). */
+	public boolean reallyRestoreMsWordListFormatForUser(String userId,
 			InputStreamReader streamReader, boolean isAdmin,
 			Errors errors) {
 
@@ -1528,7 +1528,7 @@ public class DbLogic {
 		boolean createdAnyChildren = false;
 		try {
 			final long now = System.currentTimeMillis();
-			Entry notebook = createEntryNoteBook(user, "Imported Notebook", now,
+			Entry notebook = createEntryNoteBook(user, "Restored Notebook", now,
 					null, null, false, false, false, isAdmin, false, errors);
 			if(notebook == null) {
 				return false;
@@ -1600,13 +1600,13 @@ public class DbLogic {
 	}
 	
 	/**
-	 * API method. This method starts its own transactions. Imports JSON for a
+	 * API method. This method starts its own transactions. Restores a JSON stream of a
 	 * user's entries and sources.
 	 */
-	public boolean importJsonForUser(String userId,
+	public boolean restoreJsonForUser(String userId,
 			InputStreamReader streamReader, boolean reuseIds, boolean isAdmin,
 			Errors errors) {
-		boolean result = reallyImportJsonForUser(userId, streamReader,
+		boolean result = reallyRestoreJsonForUser(userId, streamReader,
 				reuseIds, isAdmin, errors);
 		if (!result) {
 			rollback();
@@ -1617,8 +1617,8 @@ public class DbLogic {
 		return result;
 	}
 
-	/** Helper method. Does all the real work for importJsonForUser(). */
-	public boolean reallyImportJsonForUser(String userId,
+	/** Helper method. Does all the real work for restoreJsonForUser(). */
+	public boolean reallyRestoreJsonForUser(String userId,
 			InputStreamReader streamReader, boolean reuseIds, boolean isAdmin,
 			Errors errors) {
 
@@ -1637,14 +1637,14 @@ public class DbLogic {
 			JsonNodeHelper json = new JsonNodeHelper(
 					mapper.readTree(streamReader));
 
-			// Save the imported IDs for later.
-			final HashMap<String, String> importedEntryIdToRealEntryId = new HashMap<String, String>();
-			final HashMap<String, String> realEntryIdToImportedEntryId = new HashMap<String, String>();
-			final HashMap<String, String> entryIdToParentImportedEntryId = new HashMap<String, String>();
-			final HashMap<String, String> entryIdToSourceImportedEntryId = new HashMap<String, String>();
-			final HashMap<String, String> entryIdToRootImportedEntryId = new HashMap<String, String>();
-			final HashMap<String, ChildrenInfo> importedEntryIdToChildren = new HashMap<String, ChildrenInfo>();
-			final HashSet<String> rootImportedEntryIds = new HashSet<String>();
+			// Save the restored IDs for later.
+			final HashMap<String, String> restoredEntryIdToRealEntryId = new HashMap<String, String>();
+			final HashMap<String, String> realEntryIdToRestoredEntryId = new HashMap<String, String>();
+			final HashMap<String, String> entryIdToParentRestoredEntryId = new HashMap<String, String>();
+			final HashMap<String, String> entryIdToSourceRestoredEntryId = new HashMap<String, String>();
+			final HashMap<String, String> entryIdToRootRestoredEntryId = new HashMap<String, String>();
+			final HashMap<String, ChildrenInfo> restoredEntryIdToChildren = new HashMap<String, ChildrenInfo>();
+			final HashSet<String> rootRestoredEntryIds = new HashSet<String>();
 
 			JsonNodeHelper[] entries = json.getJsonArray("entries");
 			if (entries != null) {
@@ -1682,8 +1682,6 @@ public class DbLogic {
 							.getBoolean(DbLogic.Constants.isPublic);
 					final String url = jsonEntry
 							.getString(DbLogic.Constants.url);
-					final String title = jsonEntry
-							.getString(DbLogic.Constants.title);
 					final String rootId = jsonEntry
 							.getString(DbLogic.Constants.rootId);
 
@@ -1717,7 +1715,9 @@ public class DbLogic {
 						return false;
 					}
 
-					if (!EntryAttributeValidator.isSourceTitleValid(title)) {
+					if (type.equals(Constants.source)
+							&& !EntryAttributeValidator
+									.isSourceTitleValid(note)) {
 						Errors.add(errors,
 								errorMessages.errorTitleIsInvalid(id));
 						return false;
@@ -1732,12 +1732,6 @@ public class DbLogic {
 					if (!type.equals(Constants.quotation) && quotation != null) {
 						Errors.add(errors, errorMessages
 								.errorOnlyQuotationsMayHaveAQuotation(id));
-						return false;
-					}
-
-					if (!type.equals(Constants.source) && title != null) {
-						Errors.add(errors,
-								errorMessages.errorOnlySourcesMayHaveATitle(id));
 						return false;
 					}
 
@@ -1761,7 +1755,7 @@ public class DbLogic {
 
 					if (type.equals(Constants.tableofcontents)) {
 						Errors.add(errors, errorMessages
-								.errorTableOfContentsMayNotBeImported(id));
+								.errorTableOfContentsMayNotBeRestored(id));
 						return false;
 					}
 
@@ -1776,11 +1770,13 @@ public class DbLogic {
 					}
 
 					if (!(type.equals(Constants.root) || type
-							.equals(Constants.notebook)) && parentId == null) {
+							.equals(Constants.notebook) || type
+							.equals(Constants.source) || type
+							.equals(Constants.quotation)) && parentId == null) {
 						Errors.add(
 								errors,
 								errorMessages
-										.errorOnlyRootsAndNotebooksCanBeCreatedWithOutAParent(id));
+										.errorOnlyRootsNotebooksSourcesAndQuotationsCanBeCreatedWithOutAParent(id));
 						return false;
 					}
 
@@ -1791,10 +1787,10 @@ public class DbLogic {
 					}
 
 					Entry entry = null;
-					if (type.equals(Constants.sourceId)) {
+					if (type.equals(Constants.source)) {
 						// Create the entry.
 						entry = updateOrCreateSource(user, newRealId, url,
-								title, modTime, createTime, isAdmin, errors);
+								note, modTime, createTime, isAdmin, errors);
 						if (entry == null) {
 							return false;
 						}
@@ -1808,40 +1804,40 @@ public class DbLogic {
 						}
 
 						if (sourceId != null) {
-							entryIdToSourceImportedEntryId.put(entry.getId(),
+							entryIdToSourceRestoredEntryId.put(entry.getId(),
 									sourceId);
 						}
 					}
 
 					if (type.equals(Constants.root)) {
-						rootImportedEntryIds.add(id);
+						rootRestoredEntryIds.add(id);
 					}
 
-					// Save the imported entry IDs for later.
+					// Save the restored entry IDs for later.
 					if (id != null) {
-						if (importedEntryIdToRealEntryId.containsKey(id)) {
+						if (restoredEntryIdToRealEntryId.containsKey(id)) {
 							Errors.add(errors,
 									errorMessages.errorDuplicateId(id));
 							return false;
 						}
 
-						importedEntryIdToRealEntryId.put(id, entry.getId());
-						realEntryIdToImportedEntryId.put(entry.getId(), id);
+						restoredEntryIdToRealEntryId.put(id, entry.getId());
+						realEntryIdToRestoredEntryId.put(entry.getId(), id);
 					}
 
 					if (parentId != null) {
-						entryIdToParentImportedEntryId.put(entry.getId(),
+						entryIdToParentRestoredEntryId.put(entry.getId(),
 								parentId);
 
-						ChildrenInfo parentsChildren = importedEntryIdToChildren
+						ChildrenInfo parentsChildren = restoredEntryIdToChildren
 								.get(parentId);
 						if (parentsChildren == null) {
 							parentsChildren = new ChildrenInfo();
-							importedEntryIdToChildren.put(parentId,
+							restoredEntryIdToChildren.put(parentId,
 									parentsChildren);
 						}
 
-						parentsChildren.importedNextToRealPreviousIds.put(
+						parentsChildren.restoredNextToRealPreviousIds.put(
 								nextSiblingId, entry.getId());
 						++parentsChildren.count;
 
@@ -1850,13 +1846,13 @@ public class DbLogic {
 					}
 
 					if (rootId != null) {
-						entryIdToRootImportedEntryId.put(entry.getId(), rootId);
+						entryIdToRootRestoredEntryId.put(entry.getId(), rootId);
 					}
 				}
 			}
 
 			// Now create the parent relationships.
-			for (final Map.Entry<String, String> entry : entryIdToParentImportedEntryId
+			for (final Map.Entry<String, String> entry : entryIdToParentRestoredEntryId
 					.entrySet()) {
 				final User user = getUserById(userId);
 				if (user == null) {
@@ -1864,12 +1860,12 @@ public class DbLogic {
 				}
 
 				final String childId = entry.getKey();
-				final String importedParentId = entry.getValue();
-				final String parentId = importedEntryIdToRealEntryId
-						.get(importedParentId);
+				final String restoredParentId = entry.getValue();
+				final String parentId = restoredEntryIdToRealEntryId
+						.get(restoredParentId);
 				if (parentId == null) {
 					Errors.add(errors, errorMessages
-							.errorParentIdWasNotFound(importedParentId));
+							.errorParentIdWasNotFound(restoredParentId));
 					return false;
 				}
 
@@ -1877,7 +1873,7 @@ public class DbLogic {
 				final Entry parent = getEntryById(parentId);
 				if (!verifyTypesForParentChildRelationship(child.getType(),
 						parent.getType(),
-						realEntryIdToImportedEntryId.get(childId), errors)) {
+						realEntryIdToRestoredEntryId.get(childId), errors)) {
 					return false;
 				}
 
@@ -1888,7 +1884,7 @@ public class DbLogic {
 			}
 
 			// Now create the source relationships.
-			for (final Map.Entry<String, String> mapEntry : entryIdToSourceImportedEntryId
+			for (final Map.Entry<String, String> mapEntry : entryIdToSourceRestoredEntryId
 					.entrySet()) {
 				final User user = getUserById(userId);
 				if (user == null) {
@@ -1896,19 +1892,19 @@ public class DbLogic {
 				}
 
 				final String entryId = mapEntry.getKey();
-				final String importedSourceId = mapEntry.getValue();
-				final String sourceId = importedEntryIdToRealEntryId
-						.get(importedSourceId);
+				final String restoredSourceId = mapEntry.getValue();
+				final String sourceId = restoredEntryIdToRealEntryId
+						.get(restoredSourceId);
 				if (sourceId == null) {
 					Errors.add(errors, errorMessages
-							.errorSourceIdWasNotFound(importedSourceId));
+							.errorSourceIdWasNotFound(restoredSourceId));
 					return false;
 				}
 
 				final Entry source = getEntryById(sourceId);
 				if (!source.isSource()) {
 					Errors.add(errors, errorMessages
-							.errorSourceIdWasNotASource(importedSourceId));
+							.errorSourceIdWasNotASource(restoredSourceId));
 					return false;
 				}
 
@@ -1917,13 +1913,13 @@ public class DbLogic {
 			}
 
 			// Now create the sibling relationships.
-			for (final Map.Entry<String, ChildrenInfo> mapEntry : importedEntryIdToChildren
+			for (final Map.Entry<String, ChildrenInfo> mapEntry : restoredEntryIdToChildren
 					.entrySet()) {
 				final ChildrenInfo childrenInfo = mapEntry.getValue();
-				if (childrenInfo.count == childrenInfo.importedNextToRealPreviousIds
+				if (childrenInfo.count == childrenInfo.restoredNextToRealPreviousIds
 						.size()) {
-					LinkedList<String> sortedRealChildIds = getRealChildIdsInOrderForImport(
-							childrenInfo, realEntryIdToImportedEntryId, errors);
+					LinkedList<String> sortedRealChildIds = getRealChildIdsInOrderForUserRestore(
+							childrenInfo, realEntryIdToRestoredEntryId, errors);
 					if (sortedRealChildIds == null) {
 						return false;
 					}
@@ -1943,7 +1939,7 @@ public class DbLogic {
 			}
 
 			// Now create the root relationships.
-			for (final Map.Entry<String, String> mapEntry : entryIdToRootImportedEntryId
+			for (final Map.Entry<String, String> mapEntry : entryIdToRootRestoredEntryId
 					.entrySet()) {
 				final User user = getUserById(userId);
 				if (user == null) {
@@ -1951,12 +1947,12 @@ public class DbLogic {
 				}
 
 				final String notebookId = mapEntry.getKey();
-				final String importedRootId = mapEntry.getValue();
-				final String rootId = importedEntryIdToRealEntryId
-						.get(importedRootId);
+				final String restoredRootId = mapEntry.getValue();
+				final String rootId = restoredEntryIdToRealEntryId
+						.get(restoredRootId);
 				if (rootId == null) {
 					Errors.add(errors, errorMessages
-							.errorRootIdWasNotFound(importedRootId));
+							.errorRootIdWasNotFound(restoredRootId));
 					return false;
 				}
 
@@ -1964,16 +1960,16 @@ public class DbLogic {
 				final Entry root = getEntryById(rootId);
 				if (!root.getType().equals(Constants.root)) {
 					Errors.add(errors, errorMessages
-							.errorRootIdWasNotARoot(importedRootId));
+							.errorRootIdWasNotARoot(restoredRootId));
 					return false;
 				}
 
-				rootImportedEntryIds.remove(importedRootId);
+				rootRestoredEntryIds.remove(restoredRootId);
 				notebook.setRootId(rootId);
 				root.setNotebookId(notebookId);
 			}
 
-			if (!rootImportedEntryIds.isEmpty()) {
+			if (!rootRestoredEntryIds.isEmpty()) {
 				Errors.add(errors, errorMessages.errorNotAllRootsHadNotebooks());
 				return false;
 			}
@@ -1986,9 +1982,9 @@ public class DbLogic {
 	}
 
 	/**
-	 * API method. Imports JSON for a user's entries and sources.
+	 * API method. Creates a backup in JSON for a user's entries and sources.
 	 */
-	public void exportJsonForUser(User user, StringBuilder result)
+	public void backupJsonForUser(User user, StringBuilder result)
 			throws IOException {
 		result.append("{\n");
 		result.append("\"entries\": [");
@@ -2001,8 +1997,8 @@ public class DbLogic {
 			for (Object entryUncasted : entries) {
 				Entry entry = (Entry) entryUncasted;
 
-				// Do not export the table of contents since when this file is
-				// imported
+				// Do not backup the table of contents since when this file is
+				// restored
 				// there will already be a TOC.
 				if (entry.getType().equals(DbLogic.Constants.tableofcontents)) {
 					continue;
@@ -2017,9 +2013,9 @@ public class DbLogic {
 				result.append("\n{\n");
 				boolean addedAnyYet = false;
 
-				// Do not export parent or next IDs for direct children of the
+				// Do not backup parent or next IDs for direct children of the
 				// table of contents, since the TOC
-				// is not exported.
+				// is not backed up.
 				String parentId = entry.getParentId();
 				if (parentId != null
 						&& !parentId.equals(user.getTableOfContentsId())) {
@@ -2052,6 +2048,9 @@ public class DbLogic {
 				addedAnyYet = JsonBuilder.addPropertyToJsonString(result,
 						entry.getSourceId(), addedAnyYet,
 						DbLogic.Constants.sourceId);
+				addedAnyYet = JsonBuilder.addPropertyToJsonString(result,
+						entry.getSourceUrl(), addedAnyYet,
+						DbLogic.Constants.url);
 				addedAnyYet = JsonBuilder.addPropertyToJsonString(result,
 						entry.getRootId(), addedAnyYet,
 						DbLogic.Constants.rootId);
@@ -2888,7 +2887,7 @@ public class DbLogic {
 	 * Backs up the contents of the database with CVS extract of each table.
 	 * Returns the number of rows extracted or -1 if there was an error.
 	 */
-	public int doCsvBackup(String destination) {
+	public int doCsvDbBackup(String destination) {
 		return db.doCsvBackup(destination);
 	}
 }

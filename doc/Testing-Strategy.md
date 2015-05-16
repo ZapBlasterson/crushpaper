@@ -190,14 +190,14 @@ When the user interface stops changes rapidly the bulk of these tests will be au
             1. Verify all quotations are displayed.
         1. Documents
             1. Verify all documents are displayed.
-	    1. Export Notes
+	    1. Backup
 	        1. Verify a verification popup is displayed.
 	        1. Verify clicking cancel dismisses the popup and nothing happens.
 	        1. Verify clicking OK results in a file download with a pretty filename.
-	    1. Import Notes
+	    1. Restore
 	        1. Verify the error message if no file is specified. 
-	        1. Verify import of a file works with preserve IDs checked.
-	        1. Verify import of a file works with preserve IDs not checked.
+	        1. Verify restoration of a file works with preserve IDs checked.
+	        1. Verify restoration of a file works with preserve IDs not checked.
         1. Documentation
             1. Verify the list of documentation is displayed.
             1. Click on one and verify it looks marked down.

@@ -26,8 +26,8 @@ import java.io.InputStreamReader;
 
 import org.junit.Test;
 
-/** Tests importing MS Word Lists into the DB. */
-public class DbImportMsWordListFormatTest extends DbLogicTestBase {
+/** Tests restoring MS Word Lists into the DB. */
+public class DbRestoreMsWordListFormatForUserTest extends DbLogicTestBase {
 	
 	private InputStreamReader getJsonStreamReader(String json) {
 		return new InputStreamReader(new ByteArrayInputStream(json.getBytes()));
@@ -50,7 +50,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -75,7 +75,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -102,7 +102,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -133,7 +133,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -168,7 +168,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -199,7 +199,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -231,7 +231,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -259,7 +259,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -291,7 +291,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);
@@ -332,7 +332,7 @@ public class DbImportMsWordListFormatTest extends DbLogicTestBase {
 			assertTrue(dbLogic.addEntries(before, user, createTime,
 					errors));
 			dbLogic.commit();
-			assertTrue(dbLogic.importMsWordListFormatForUser(user.getId(),
+			assertTrue(dbLogic.restoreMsWordListFormatForUser(user.getId(),
 					getJsonStreamReader(json), false, errors));
 			assertFalse(errors.hasErrors());
 			finalAssertions(user, expectedAfter);

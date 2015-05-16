@@ -43,13 +43,13 @@ public class DbLogicErrorMessages {
 		return "Sorry, the JSON could not be parsed.";
 	}
 
-	public String errorImportedIdWasNotFound(final String id) {
-		return "Sorry, the imported ID corresponding to this real ID " + id
+	public String errorRestoredIdWasNotFound(final String id) {
+		return "Sorry, the restored ID corresponding to this real ID " + stringWithQuotes(id)
 				+ " could not be found in the uploaded JSON.";
 	}
 
 	public String errorRealIdWasNotFound(final String id) {
-		return "Sorry, the real ID corresponding to this imported ID " + id
+		return "Sorry, the real ID corresponding to this restored ID " + stringWithQuotes(id)
 				+ " could not be found in the uploaded JSON.";
 	}
 
@@ -172,7 +172,7 @@ public class DbLogicErrorMessages {
 	public String errorDbTheEntryAParentIdButNoParentRelationship(
 			final String parentId, final String id) {
 		return "The entry " + stringWithQuotes(id) + "has the parentId "
-				+ parentId + " but no parent relationship.";
+				+ stringWithQuotes(parentId) + " but no parent relationship.";
 	}
 
 	public String errorTheEntryCouldNotBeFound() {
@@ -216,21 +216,21 @@ public class DbLogicErrorMessages {
 	public String errorDbTheEntryHasAChildWhosePreviousDoesNotMatch(
 			final String id, String previousSiblingId, final String previousId) {
 		return "The entry " + stringWithQuotes(id)
-				+ "has a child whose previous id " + previousSiblingId
-				+ " does not match " + previousId + ".";
+				+ "has a child whose previous id " + stringWithQuotes(previousSiblingId)
+				+ " does not match " + stringWithQuotes(previousId) + ".";
 	}
 
 	public String errorDbTheEntryHasAChildWithASiblingThatIsNotRelated(
 			final String id, final String nextId) {
 		return "The entry " + stringWithQuotes(id)
-				+ "has a child with a sibling with id " + nextId
+				+ "has a child with a sibling with id " + stringWithQuotes(nextId)
 				+ " that is not related.";
 	}
 
 	public String errorDbTheEntryHasAChildWithoutANextSiblingIdThatIsNotItsLastChild(
 			final String id, String lastChildId) {
 		return "The entry " + stringWithQuotes(id) + "has a child "
-				+ lastChildId
+				+ stringWithQuotes(lastChildId)
 				+ " without a nextSiblingId that is not its lastChild.";
 	}
 
@@ -249,13 +249,13 @@ public class DbLogicErrorMessages {
 	public String errorDbTheEntryHasAFirstChildIdButNoLastChildId(
 			final String firstChildId, final String id) {
 		return "The entry " + stringWithQuotes(id) + "has a first child id"
-				+ firstChildId + " but no last child id.";
+				+ stringWithQuotes(firstChildId) + " but no last child id.";
 	}
 
 	public String errorDbTheEntryHasALastChildIdButNoFirstChildId(
 			final String lastChildId, final String id) {
 		return "The entry " + stringWithQuotes(id) + "has a last child id"
-				+ lastChildId + " but no first child id.";
+				+ stringWithQuotes(lastChildId) + " but no first child id.";
 	}
 
 	public String errorDbTheEntryHasAParentAndIsAlsoIndexedAsARootNote(
@@ -291,7 +291,7 @@ public class DbLogicErrorMessages {
 	public String errorDbTheEntryHasTheWrongParentId(String entryParentId,
 			final String id, String parentNodeId) {
 		return "The entry " + stringWithQuotes(id) + "has the wrong parentId "
-				+ parentNodeId + " and " + entryParentId + ".";
+				+ stringWithQuotes(parentNodeId) + " and " + stringWithQuotes(entryParentId) + ".";
 	}
 
 	public String errorDbTheEntryIsAQuotationButIsNotInTheQuotationsIndex(
@@ -323,8 +323,8 @@ public class DbLogicErrorMessages {
 	public String errorDbTheEntryIsRelatedToMoreThanOneParent(final String id,
 			String parentNodeId, String newParentNodeId) {
 		return "The entry " + stringWithQuotes(id)
-				+ "is related to more than one parent " + parentNodeId
-				+ " and " + newParentNodeId + ".";
+				+ "is related to more than one parent " + stringWithQuotes(parentNodeId)
+				+ " and " + stringWithQuotes(newParentNodeId) + ".";
 	}
 
 	public String errorDbTheEntryIsTheParentsFirstChildButHasAPreviousSibling(
@@ -377,7 +377,7 @@ public class DbLogicErrorMessages {
 
 	public String errorTheTypeOfTheEntryIsNotAllowed(String id) {
 		return "Sorry, the type of the note " + stringWithQuotes(id)
-				+ "is not an allowed value.";
+				+ " is not an allowed value.";
 	}
 
 	public String errorTheUserIsNotEntitledToModifyTheChildEntry() {
@@ -474,7 +474,7 @@ public class DbLogicErrorMessages {
 			return "\"" + id + "\" ";
 		}
 
-		return "";
+		return "\"\"";
 	}
 
 	public String errorQuotationIsInvalid(String id) {
@@ -530,13 +530,13 @@ public class DbLogicErrorMessages {
 				+ "is not a notebook so it may not have a root.";
 	}
 
-	public String errorSourceIdWasNotASource(String importedSourceId) {
-		return "Sorry, the entry " + stringWithQuotes(importedSourceId)
+	public String errorSourceIdWasNotASource(String restoredSourceId) {
+		return "Sorry, the entry " + stringWithQuotes(restoredSourceId)
 				+ "was treated as a source but is not a source.";
 	}
 
-	public String errorRootIdWasNotARoot(String importedRootId) {
-		return "Sorry, the entry " + stringWithQuotes(importedRootId)
+	public String errorRootIdWasNotARoot(String restoredRootId) {
+		return "Sorry, the entry " + stringWithQuotes(restoredRootId)
 				+ "was treated as a root but is not a root.";
 	}
 
@@ -564,18 +564,18 @@ public class DbLogicErrorMessages {
 				+ "is not a source so it may not have an url.";
 	}
 
-	public String errorOnlyRootsAndNotebooksCanBeCreatedWithOutAParent(String id) {
+	public String errorOnlyRootsNotebooksSourcesAndQuotationsCanBeCreatedWithOutAParent(String id) {
 		return "Sorry, the entry " + stringWithQuotes(id)
-				+ "is not a root or a notebook so it needs a parent.";
+				+ "is not a root, notebook, source or quotation so it needs a parent.";
 	}
 
 	public String errorNotAllRootsHadNotebooks() {
 		return "Sorry, not every root had a notebook.";
 	}
 
-	public String errorTableOfContentsMayNotBeImported(String id) {
+	public String errorTableOfContentsMayNotBeRestored(String id) {
 		return "Sorry, a table of contents " + stringWithQuotes(id)
-				+ " may not be imported.";
+				+ " may not be restored.";
 	}
 
 	public String errorNotebooksMustHaveARootId(String id) {

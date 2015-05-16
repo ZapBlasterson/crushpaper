@@ -521,10 +521,10 @@ public class Servlet extends HttpServlet {
 			handleHtmlAdvancedHelp(requestAndResponse);
 		} else if (uri.startsWith("/help/")) {
 			handleHtmlHelp(requestAndResponse);
-		} else if (uri.equals("/export/")) {
-			handleHtmlExportForm(requestAndResponse);
-		} else if (uri.equals("/import/")) {
-			handleHtmlImportForm(requestAndResponse);
+		} else if (uri.equals("/backup/")) {
+			handleHtmlUserBackupForm(requestAndResponse);
+		} else if (uri.equals("/restore/")) {
+			handleHtmlUserRestoreForm(requestAndResponse);
 			// ///////////
 		} else if (uri.startsWith("/account/")) {
 			handleHtmlShowAccount(requestAndResponse);
@@ -541,7 +541,7 @@ public class Servlet extends HttpServlet {
 		} else if (uri.equals("/backups/")) {
 			handleHtmlShowDBBackups(requestAndResponse);
 		} else if (uri.equals("/offlineBackup/")) {
-			handleHtmlOfflineBackupForm(requestAndResponse);
+			handleHtmlOfflineDbBackupForm(requestAndResponse);
 			// ///////////
 		} else if (uri.equals("/noteJson/")) {
 			handleJsonShowEntry(requestAndResponse);
@@ -559,7 +559,7 @@ public class Servlet extends HttpServlet {
 		} else if (uri.equals("/couldNotCreateNote/")) {
 			handleHtmlCouldNotCreateNote(requestAndResponse);
 		} else if (uri.equals("/restoreBackupCommand/")) {
-			handleHtmlShowRestoreBackupCommand(requestAndResponse);
+			handleHtmlShowRestoreDbBackupCommand(requestAndResponse);
 		} else if (uri.equals("/signedOut/")) {
 			handleHtmlShowSignedOut(requestAndResponse);
 		} else if (uri.startsWith("/changePassword/")) {
@@ -570,8 +570,8 @@ public class Servlet extends HttpServlet {
 			handleHtmlCloseAccount(requestAndResponse);
 		} else if (uri.equals("/isSignedIn/")) {
 			handleJsonIsSignedIn(requestAndResponse);
-		} else if (uri.equals("/importFrame/")) {
-			handleHtmlImportFrame(requestAndResponse);
+		} else if (uri.equals("/restoreFrame/")) {
+			handleHtmlUserRestoreFrame(requestAndResponse);
 		} else {
 			returnHtml404(requestAndResponse);
 		}
@@ -625,16 +625,16 @@ public class Servlet extends HttpServlet {
 			handleJsonSignOut(requestAndResponse);
 		} else if (uri.equals("/createAccount")) {
 			handleJsonCreateAccount(requestAndResponse);
-		} else if (uri.startsWith("/doImport/")) {
-			handleHtmlDoImport(requestAndResponse);
+		} else if (uri.startsWith("/doRestore/")) {
+			handleHtmlDoUserRestore(requestAndResponse);
 		} else if (uri.startsWith("/doOfflineBackup/")) {
-			handleHtmlDoOfflineBackup(requestAndResponse);
+			handleHtmlDoOfflineDbBackup(requestAndResponse);
 		} else if (uri.startsWith("/doOnlineBackup/")) {
-			handleHtmlDoOnlineBackup(requestAndResponse);
+			handleHtmlDoOnlineDbBackup(requestAndResponse);
 		} else if (uri.startsWith("/doClear/")) {
 			handleHtmlDoClear(requestAndResponse);
-		} else if (uri.startsWith("/doExport/")) {
-			handleHtmlDoExport(requestAndResponse);
+		} else if (uri.startsWith("/doBackup/")) {
+			handleHtmlDoUserBackup(requestAndResponse);
 		} else if (uri.startsWith("/doShutdown/")) {
 			handleHtmlDoShutdown(requestAndResponse);
 		} else if (uri.startsWith("/doCheckForErrors/")) {
@@ -2784,20 +2784,20 @@ public class Servlet extends HttpServlet {
 
 						requestAndResponse
 								.print("<a onclick=\"newPaneForLink(event, '"
-										+ servletText.pageTitleExport()
-										+ "', 'export'); return false;\" title=\""
-										+ servletText.pageTitleImportTooltip()
-										+ "\" href=\"/export/\">"
-										+ servletText.pageTitleExport()
+										+ servletText.pageTitleUserBackup()
+										+ "', 'backup'); return false;\" title=\""
+										+ servletText.pageTitleUserBackupTooltip()
+										+ "\" href=\"/backup/\">"
+										+ servletText.pageTitleUserBackup()
 										+ "</a>\n");
 
 						requestAndResponse
 								.print("<a onclick=\"newPaneForLink(event, '"
-										+ servletText.pageTitleImport()
-										+ "', 'import'); return false;\" title=\""
-										+ servletText.pageTitleImportTooltip()
-										+ "\" href=\"/import/\">"
-										+ servletText.pageTitleImport()
+										+ servletText.pageTitleUserRestore()
+										+ "', 'restore'); return false;\" title=\""
+										+ servletText.pageTitleUserRestoreTooltip()
+										+ "\" href=\"/restore/\">"
+										+ servletText.pageTitleUserRestore()
 										+ "</a>\n");
 
 						requestAndResponse.print("</div>\n");
@@ -2862,12 +2862,12 @@ public class Servlet extends HttpServlet {
 
 						requestAndResponse
 								.print("<a onclick=\"newPaneForLink(event, '"
-										+ servletText.pageTitleShowBackups()
+										+ servletText.pageTitleShowDbBackups()
 										+ "', 'backups'); return false;\" title=\""
 										+ servletText
-												.pageTitleShowBackupsTooltip()
+												.pageTitleShowDbBackupsTooltip()
 										+ "\" href=\"/backups/\">"
-										+ servletText.pageTitleShowBackups()
+										+ servletText.pageTitleShowDbBackups()
 										+ "</a>\n");
 
 						requestAndResponse
@@ -3664,7 +3664,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	/** Returns the destination directory for a new backup. */
-	private File getBackupDestination() {
+	private File getDbBackupDestination() {
 		final SimpleDateFormat dayFormat = new SimpleDateFormat(
 				"yyyy-MM-dd-HH-mm-ss");
 
@@ -3675,7 +3675,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	/** Part of the HTML API. Performs an offline backup of the database. */
-	private void handleHtmlDoOfflineBackup(RequestAndResponse requestAndResponse)
+	private void handleHtmlDoOfflineDbBackup(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
 		final String csrft = requestAndResponse.getParameter("csrft");
 
@@ -3689,7 +3689,7 @@ public class Servlet extends HttpServlet {
 			requestAndResponse.print(servletText.errorPageNotAllowed());
 		} else {
 			final String source = dbLogic.getDbDirectory().getAbsolutePath();
-			final String destination = getBackupDestination().getAbsolutePath();
+			final String destination = getDbBackupDestination().getAbsolutePath();
 
 			// This would be simpler but it throws exceptions on some files:
 			// FileUtils.copyRecursively();
@@ -3701,10 +3701,10 @@ public class Servlet extends HttpServlet {
 
 			if (result == 0) {
 				requestAndResponse.print(servletText
-						.sentenceOfflineBackupWasSuccessful());
+						.sentenceOfflineDbBackupWasSuccessful());
 			} else {
 				requestAndResponse.print(servletText
-						.sentenceOfflineBackupWasNotSuccessful());
+						.sentenceOfflineDbBackupWasNotSuccessful());
 			}
 		}
 
@@ -3712,7 +3712,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	/** Part of the HTML API. Performs an online backup of the database. */
-	private void handleHtmlDoOnlineBackup(RequestAndResponse requestAndResponse)
+	private void handleHtmlDoOnlineDbBackup(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
 		final String csrft = requestAndResponse.getParameter("csrft");
 		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
@@ -3725,23 +3725,23 @@ public class Servlet extends HttpServlet {
 		} else if (!isUserAnAdmin(requestAndResponse)) {
 			requestAndResponse.print(servletText.errorPageNotAllowed());
 		} else {
-			final String destination = getBackupDestination().getPath();
+			final String destination = getDbBackupDestination().getPath();
 
-			final int numRowsExtracted = dbLogic.doCsvBackup(destination);
+			final int numRowsExtracted = dbLogic.doCsvDbBackup(destination);
 			if (numRowsExtracted != -1) {
 				requestAndResponse.print(servletText
-						.sentenceOnlineBackupWasSuccessful(numRowsExtracted));
+						.sentenceOnlineDbBackupWasSuccessful(numRowsExtracted));
 			} else {
 				requestAndResponse.print(servletText
-						.sentenceOnlineBackupWasNotSuccessful());
+						.sentenceOnlineDbBackupWasNotSuccessful());
 			}
 		}
 
 		pageWrapper.addFooter();
 	}
 
-	/** Part of the HTML API. Show the offline backup form. */
-	private void handleHtmlOfflineBackupForm(
+	/** Part of the HTML API. Show the offline DB backup form. */
+	private void handleHtmlOfflineDbBackupForm(
 			RequestAndResponse requestAndResponse) throws IOException,
 			ServletException {
 		final String title = servletText.pageTitleOfflineBackupDb();
@@ -3781,7 +3781,7 @@ public class Servlet extends HttpServlet {
 		pageWrapper.addFooter();
 	}
 
-	/** Part of the HTML API. Show the online backup form. */
+	/** Part of the HTML API. Show the online DB backup form. */
 	private void handleHtmlOnlineBackupForm(
 			RequestAndResponse requestAndResponse) throws IOException,
 			ServletException {
@@ -3955,8 +3955,8 @@ public class Servlet extends HttpServlet {
 		pageWrapper.addFooter();
 	}
 
-	/** Part of the HTML API. Restores a backup. */
-	private void handleHtmlShowRestoreBackupCommand(
+	/** Part of the HTML API. Restores a db backup. */
+	private void handleHtmlShowRestoreDbBackupCommand(
 			RequestAndResponse requestAndResponse) throws IOException,
 			ServletException {
 		final String title = servletText.pageTitleRestoreBackupCommandDb();
@@ -4019,7 +4019,7 @@ public class Servlet extends HttpServlet {
 
 				String htmlCmd = StringEscapeUtils.escapeHtml4(cmd);
 				htmlCmd = htmlCmd.replace("\n", "<br><br>");
-				requestAndResponse.print(servletText.sentenceCmdForRestore()
+				requestAndResponse.print(servletText.sentenceCmdForDbRestore()
 						+ "<br><br>" + htmlCmd);
 			}
 		}
@@ -4091,10 +4091,10 @@ public class Servlet extends HttpServlet {
 		pageWrapper.addFooter();
 	}
 
-	/** Part of the HTML API. Show the list of backups. */
+	/** Part of the HTML API. Show the list of DB backups. */
 	private void handleHtmlShowDBBackups(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
-		final String title = servletText.pageTitleShowBackups();
+		final String title = servletText.pageTitleShowDbBackups();
 		if (addTitle(requestAndResponse, title)) {
 			return;
 		}
@@ -4123,7 +4123,7 @@ public class Servlet extends HttpServlet {
 					result.append(" <a onclick=\"showPopupWithPage(event, '"
 							+ servletText.pageTitleRestoreBackupCommandDb()
 							+ "'); return false;\" class=\"cursorIsPointer\" title=\""
-							+ servletText.linkShowRestoreBackupCmdTooltip()
+							+ servletText.linkShowRestoreDbBackupCmdTooltip()
 							+ "\" href=\"/restoreBackupCommand/?name="
 							+ file.getName() + "\">");
 
@@ -4138,9 +4138,9 @@ public class Servlet extends HttpServlet {
 
 			if (!anyBackups) {
 				requestAndResponse.print(servletText
-						.textNoBackupsHaveBeenCreated());
+						.textNoDbBackupsHaveBeenCreated());
 			} else {
-				requestAndResponse.print(servletText.sentenceToRestoreCommand()
+				requestAndResponse.print(servletText.sentenceToRestoreDbCommand()
 						+ "<br>");
 				requestAndResponse.print(result.toString());
 			}
@@ -4155,16 +4155,16 @@ public class Servlet extends HttpServlet {
 		requestAndResponse.print(servletText.sentenceNothingHere());
 	}
 
-	/** Part of the HTML API. Show the import form. */
-	private void handleHtmlImportForm(RequestAndResponse requestAndResponse)
+	/** Part of the HTML API. Show the restore form. */
+	private void handleHtmlUserRestoreForm(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
-		final String title = servletText.pageTitleImport();
+		final String title = servletText.pageTitleUserRestore();
 		if (addTitle(requestAndResponse, title)) {
 			return;
 		}
 
 		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
-				title, false).setPaneId("import");
+				title, false).setPaneId("restore");
 		pageWrapper.addHeader();
 
 		if (!isUserSignedIn(requestAndResponse)) {
@@ -4173,17 +4173,17 @@ public class Servlet extends HttpServlet {
 		} else if (isUsersAccountClosed(requestAndResponse)) {
 			requestAndResponse.print(servletText.errorAccountIsClosed());
 		} else {
-			pageWrapper.addPageIntroText(servletText.introTextImport(), null);
+			pageWrapper.addPageIntroText(servletText.introTextRestore(), null);
 
 			requestAndResponse
-					.print("<iframe src=\"/importFrame/\" allowtransparency=\"true\"></iframe>");
+					.print("<iframe src=\"/restoreFrame/\" allowtransparency=\"true\"></iframe>");
 		}
 
 		pageWrapper.addFooter();
 	}
 
-	/** Part of the HTML API. Show the import frame. */
-	private void handleHtmlImportFrame(RequestAndResponse requestAndResponse)
+	/** Part of the HTML API. Show the restore frame. */
+	private void handleHtmlUserRestoreFrame(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
 		addIFrameHeader(requestAndResponse);
 
@@ -4194,7 +4194,7 @@ public class Servlet extends HttpServlet {
 			requestAndResponse.print(servletText.errorAccountIsClosed());
 		} else {
 			requestAndResponse
-					.print("<form action=\"/doImport/\" method=\"POST\" enctype=\"multipart/form-data\">"
+					.print("<form action=\"/doRestore/\" method=\"POST\" enctype=\"multipart/form-data\">"
 							+ "<input type=\"hidden\" name=\"csrft\" value=\""
 							+ getCsrft(requestAndResponse)
 							+ "\">"
@@ -4213,7 +4213,7 @@ public class Servlet extends HttpServlet {
 							+ "</td></tr>"
 							+ "<tr><td>"
 							+ "<button class=\"specialbutton withTopMargin\">"
-							+ servletText.buttonImport()
+							+ servletText.buttonRestore()
 							+ "</button>"
 							+ "</td></tr></table>" + "</form>");
 		}
@@ -5124,8 +5124,8 @@ public class Servlet extends HttpServlet {
 				&& editedUser.getPassword() != null;
 	}
 
-	/** Part of the HTML API. Handle an import. */
-	private void handleHtmlDoImport(RequestAndResponse requestAndResponse)
+	/** Part of the HTML API. Handle a restore. */
+	private void handleHtmlDoUserRestore(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
 		final Errors errors = new Errors();
 		final Part part = requestAndResponse.request.getPart("file");
@@ -5152,17 +5152,17 @@ public class Servlet extends HttpServlet {
 
 			boolean result = false;
 			if (msWordListFormat) {
-				result = dbLogic.importMsWordListFormatForUser(
+				result = dbLogic.restoreMsWordListFormatForUser(
 					getEffectiveUserId(requestAndResponse), streamReader, isUserAnAdmin(requestAndResponse),
 					errors);
 			} else {
-				result = dbLogic.importJsonForUser(
+				result = dbLogic.restoreJsonForUser(
 						getEffectiveUserId(requestAndResponse), streamReader,
 						reuseIds, isUserAnAdmin(requestAndResponse), errors);
 			}
 			
 			if (!result) {
-				requestAndResponse.print(servletText.errorImportFailed()
+				requestAndResponse.print(servletText.errorRestoreFailed()
 						+ "<br>");
 
 				for (final String text : errors.getTexts()) {
@@ -5170,13 +5170,13 @@ public class Servlet extends HttpServlet {
 					requestAndResponse.print("<br>");
 				}
 			} else {
-				requestAndResponse.print(servletText.sentenceImported());
+				requestAndResponse.print(servletText.sentenceRestored());
 			}
 
 			// This is so that if this gets reloaded a page can actually be
 			// loaded.
 			requestAndResponse.print("<script type=\"text/javascript\">\n"
-					+ "history.replaceState(null, null, '/importFrame/');\n"
+					+ "history.replaceState(null, null, '/restoreFrame/');\n"
 					+ "</script>");
 
 		}
@@ -5207,13 +5207,13 @@ public class Servlet extends HttpServlet {
 		requestAndResponse.print("</body><html>");
 	}
 
-	/** Part of the HTML API. Handle an export. */
-	private void handleHtmlDoExport(RequestAndResponse requestAndResponse)
+	/** Part of the HTML API. Handle a user backup. */
+	private void handleHtmlDoUserBackup(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
-		final String pageTitle = servletText.pageTitleExport();
+		final String pageTitle = servletText.pageTitleUserBackup();
 		final String csrft = requestAndResponse.getParameter("csrft");
 		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
-				pageTitle, false).setPaneId("export");
+				pageTitle, false).setPaneId("backup");
 
 		if (isTheCsrftWrong(requestAndResponse, csrft)) {
 			pageWrapper.addHeader();
@@ -5238,13 +5238,13 @@ public class Servlet extends HttpServlet {
 				if (user != null) {
 					requestAndResponse.response.setHeader(
 							"Content-Disposition",
-							"attachment; filename=crushpaper-export-"
+							"attachment; filename=crushpaper-backup-"
 									+ user.getUserName()
 									+ "-"
 									+ formatDateTimeForFileName(System
 											.currentTimeMillis()) + ".json");
 
-					dbLogic.exportJsonForUser(user, result);
+					dbLogic.backupJsonForUser(user, result);
 				}
 
 				dbLogic.commit();
@@ -5255,16 +5255,16 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	/** Part of the HTML API. Show the export form. */
-	private void handleHtmlExportForm(RequestAndResponse requestAndResponse)
+	/** Part of the HTML API. Show the user backup form. */
+	private void handleHtmlUserBackupForm(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {
-		final String title = servletText.pageTitleExport();
+		final String title = servletText.pageTitleUserBackup();
 		if (addTitle(requestAndResponse, title)) {
 			return;
 		}
 
 		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
-				title, false).setPaneId("export");
+				title, false).setPaneId("backup");
 
 		pageWrapper.addHeader();
 
@@ -5275,15 +5275,15 @@ public class Servlet extends HttpServlet {
 			requestAndResponse.print(servletText.errorAccountIsClosed());
 		} else {
 			requestAndResponse.print("<table class=\"nopadding\"><tr><td>");
-			requestAndResponse.print(servletText.exportAreYouSure());
+			requestAndResponse.print(servletText.userBackupAreYouSure());
 			requestAndResponse.print("</td></tr><tr><td>");
 
-			requestAndResponse.print("<form action=\"/doExport/"
+			requestAndResponse.print("<form action=\"/doBackup/"
 					+ "\" method=\"POST\">"
 					+ "<input type=\"hidden\" name=\"csrft\" value=\""
 					+ getCsrft(requestAndResponse) + "\">"
 					+ "<button class=\"specialbutton withTopMargin\">"
-					+ servletText.pageTitleExport() + "</button></form>");
+					+ servletText.pageTitleUserBackup() + "</button></form>");
 			requestAndResponse.print("</td></tr></table>");
 		}
 
