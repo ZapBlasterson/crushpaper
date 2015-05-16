@@ -462,7 +462,7 @@ public class ServletText {
 	}
 
 	public String userBackupAreYouSure() {
-		return "Backing up your notebooks is time consuming.<br><br>It may lock the database for a long time.";
+		return "This creates a JSON text file that is a backup of all of your notebooks, sources and quotations.<br><br>You can save it to your computer and restore it later to CrushPaper.<br><br>This can be time consuming.<br><br>It may lock the database for a long time.";
 	}
 
 	public String sentenceOfflineDbBackupWasSuccessful() {
@@ -1109,6 +1109,7 @@ public class ServletText {
 
 	public String introTextRestore() {
 		return "You can restore backups of notes, quotations and sources by uploading a JSON file to the server using this page.<br><br>"
+				+ "Restoring a backup does not delete any notes, quotations and sources that you currently have.<br><br>"
 				+ "If you select \"Reuse note IDs if possible\" then the CrushPaper server will try to recreate your notes, quotations and sources with the same IDs as in the file. This is useful if you want to be able to retain the same URLs. If another item already has the ID then the CrushPaper server will assign a new ID.<br><br>"
 				+ "If you select \"The file is in MS Word List Format\" then the CrushPaper server will treat the file as if it contains a single notebook in this format:" +
 				"<pre>" +
