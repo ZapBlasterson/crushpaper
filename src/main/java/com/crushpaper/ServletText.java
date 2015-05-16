@@ -555,7 +555,7 @@ public class ServletText {
 	}
 
 	public String errorUsernameMustNotBeBlank() {
-		return "Sorry, the username must not be blank.";
+		return "Sorry, the user name must not be blank.";
 	}
 
 	public String errorPasswordMustNotBeBlank() {
@@ -567,7 +567,7 @@ public class ServletText {
 	}
 
 	public String errorUserNameIsNotValid() {
-		return "Sorry, the username is not valid. It must be between 3 and 20 letters long and only contain the characters a-z and 0-9.";
+		return "Sorry, the user name is not valid. It must be between 3 and 20 letters long and only contain the characters a-z and 0-9.";
 	}
 
 	public String errorPasswordIsNotValid() {
@@ -575,7 +575,7 @@ public class ServletText {
 	}
 
 	public String errorUserNameIsAlreadyTaken() {
-		return "Sorry, the username is already taken.";
+		return "Sorry, the user name is already taken.";
 	}
 
 	public String errorCouldNotCreateAccount() {
@@ -591,7 +591,7 @@ public class ServletText {
 
 		if (allowSaveIfNotSignedIn)
 			result += "<br><br>However, if you create a new notebook then an account will automatically be created for you.<br><br>"
-					+ "You can change your username and password later.";
+					+ "You can change your user name and password later.";
 
 		return result;
 	}
@@ -633,7 +633,7 @@ public class ServletText {
 	}
 
 	public String sentenceChooseAUserName() {
-		return "Choose a username (at least 3 characters from a-z and 0-9)";
+		return "Choose a user name (at least 3 characters from a-z and 0-9)";
 	}
 
 	public String sentenceNewPassword() {
@@ -705,7 +705,7 @@ public class ServletText {
 	}
 
 	public String sentenceAllowSaveIfNotSignedIn() {
-		return "Creating this notebook will automatically create an account for you and sign you in.<br><br>You can change your username and password later.<br><br>";
+		return "Creating this notebook will automatically create an account for you and sign you in.<br><br>You can change your user name and password later.<br><br>";
 	}
 
 	public String sentenceYouHaveBeenSignedOut() {
@@ -944,7 +944,7 @@ public class ServletText {
 	}
 
 	public String introTextSearchUsers() {
-		return "&bull; You have just searched the usernames of all accounts on this server.";
+		return "&bull; You have just searched the user names of all accounts on this server.";
 	}
 
 	public String introTextShowQuotations(boolean forTouch) {
@@ -958,7 +958,7 @@ public class ServletText {
 	}
 
 	public String introTextSearchAccounts() {
-		return "&bull; You have just searched the usernames of all the accounts on this server.";
+		return "&bull; You have just searched the user names of all the accounts on this server.";
 	}
 
 	public String introTextShowAccounts(boolean forTouch) {
@@ -1071,7 +1071,7 @@ public class ServletText {
 	}
 
 	public String errorUsernameMayNotBeChanged() {
-		return "Username may not be changed";
+		return "User name may not be changed";
 	}
 
 	public String sentencePleaseChangeNameFromGenerated(
@@ -1079,6 +1079,13 @@ public class ServletText {
 		return "Please change "
 				+ (currentIsEditedUser ? "your" : username + "'s")
 				+ " user name:";
+	}
+
+	public String sentencePleaseSetAPassword(
+			boolean currentIsEditedUser, String username) {
+		return "Please change "
+				+ (currentIsEditedUser ? "your" : username + "'s")
+				+ " password:";
 	}
 
 	public String errorFirstPasswordMustBeSet(boolean currentIsEditedUser,

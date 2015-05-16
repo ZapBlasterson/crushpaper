@@ -4447,7 +4447,23 @@ public class Servlet extends HttpServlet {
 								needsForm = false;
 							}
 
-							// Validate new username.
+							// Validate the new password.
+							String changedPassword = null;
+							if (doesUserNotHavePasswordAndNeedsIt(editedUser)) {
+								final String newPassword = requestAndResponse.request
+										.getParameter("newpassword");
+								final String newPassword2 = requestAndResponse.request
+										.getParameter("newpassword2");
+								hasErrors = validateNewPassword(requestAndResponse,
+										editedUser, currentIsEditedUser, 
+										newPassword, newPassword2);
+								if (!hasErrors) {
+									changedPassword = newPassword;
+									needsChange = true;
+								}
+							}
+							
+							// Validate the new username.
 							String changedUserName = null;
 							String newUserName = requestAndResponse.request
 									.getParameter("username");
@@ -4558,6 +4574,11 @@ public class Servlet extends HttpServlet {
 										System.currentTimeMillis());
 								editedUser.setModTime(time);
 
+								if (changedPassword != null) {
+									editedUser.setPassword(DigestUtils
+											.sha1Hex(changedPassword));
+								}
+								
 								if (changedUserName != null) {
 									editedUser.setUserName(changedUserName);
 									editedUser.setIsAnon(false);
@@ -4623,6 +4644,12 @@ public class Servlet extends HttpServlet {
 												+ "\" maxlength=\"20\"><br>");
 							}
 
+							// Validate new passwords.
+							if (doesUserNotHavePasswordAndNeedsIt(editedUser)) {
+								addNewPasswordFormFields(requestAndResponse,
+										editedUser, currentIsEditedUser);
+							}
+							
 							requestAndResponse
 									.print("<input type=\"email\" id=\"email\" name=\"email\" placeholder=\""
 											+ servletText
@@ -4903,7 +4930,6 @@ public class Servlet extends HttpServlet {
 								.getParameter("save");
 						if (submitted != null) {
 							boolean needsChange = false;
-							boolean hasErrors = false;
 
 							if (isTheCsrftWrong(requestAndResponse,
 									requestAndResponse.request
@@ -4914,46 +4940,13 @@ public class Servlet extends HttpServlet {
 							}
 
 							// Validate new passwords.
-							String changedPassword = null;
 							final String newPassword = requestAndResponse.request
 									.getParameter("newpassword");
 							final String newPassword2 = requestAndResponse.request
 									.getParameter("newpassword2");
-							if (newPassword == null || newPassword.isEmpty()) {
-								addErrorMessage(requestAndResponse,
-										servletText
-												.errorFirstPasswordMustBeSet(
-														currentIsEditedUser,
-														editedUser
-																.getUserName()));
-								hasErrors = true;
-							}
-
-							if (newPassword2 == null || newPassword2.isEmpty()) {
-								addErrorMessage(requestAndResponse,
-										servletText
-												.errorSecondPasswordMustBeSet(
-														currentIsEditedUser,
-														editedUser
-																.getUserName()));
-								hasErrors = true;
-							}
-
-							if (!hasErrors && newPassword != null
-									&& newPassword2 != null
-									&& !newPassword2.equals(newPassword)) {
-								addErrorMessage(requestAndResponse,
-										servletText.errorPasswordsMustMatch());
-								hasErrors = true;
-							}
-
-							if (!hasErrors
-									&& !AccountAttributeValidator
-											.isPasswordValid(newPassword)) {
-								addErrorMessage(requestAndResponse,
-										servletText.errorPasswordIsNotValid());
-								hasErrors = true;
-							}
+							boolean hasErrors = validateNewPassword(requestAndResponse,
+									editedUser, currentIsEditedUser, 
+									newPassword, newPassword2);
 
 							if (!hasErrors
 									&& editedUser.getPasswordOrBlank().equals(
@@ -4965,6 +4958,7 @@ public class Servlet extends HttpServlet {
 								hasErrors = true;
 							}
 
+							String changedPassword = null;
 							if (!hasErrors) {
 								changedPassword = newPassword;
 								needsChange = true;
@@ -5047,23 +5041,8 @@ public class Servlet extends HttpServlet {
 												+ "\" maxlength=\"20\"><br>");
 							}
 
-							requestAndResponse
-									.print("<div class=\"infoheader\">"
-											+ servletText
-													.sentenceEnterNewPasswordHereTwice(
-															currentIsEditedUser,
-															editedUser
-																	.getUserName())
-											+ "</div>");
-
-							requestAndResponse
-									.print("<input type=\"password\" id=\"newpassword\" name=\"newpassword\" placeholder=\""
-											+ servletText.sentenceNewPassword()
-											+ "\" maxlength=\"20\"><br>"
-											+ "<input type=\"password\" id=\"newpassword2\" name=\"newpassword2\" placeholder=\""
-											+ servletText
-													.sentenceVerifyNewPassword()
-											+ "\" maxlength=\"20\"><br>");
+							addNewPasswordFormFields(requestAndResponse,
+									editedUser, currentIsEditedUser);
 
 							requestAndResponse
 									.print("<table class=\"responseAndSave\"><tr>"
@@ -5087,6 +5066,75 @@ public class Servlet extends HttpServlet {
 		}
 
 		pageWrapper.addFooter();
+	}
+
+	/*** Validates the new password fields. */
+	private boolean validateNewPassword(RequestAndResponse requestAndResponse,
+			final User editedUser, final boolean currentIsEditedUser,
+			final String newPassword,
+			final String newPassword2) throws IOException {
+		boolean hasErrors = false;
+		
+		if (newPassword == null || newPassword.isEmpty()) {
+			addErrorMessage(requestAndResponse,
+					servletText
+							.errorFirstPasswordMustBeSet(
+									currentIsEditedUser,
+									editedUser
+											.getUserName()));
+			hasErrors = true;
+		}
+
+		if (newPassword2 == null || newPassword2.isEmpty()) {
+			addErrorMessage(requestAndResponse,
+					servletText
+							.errorSecondPasswordMustBeSet(
+									currentIsEditedUser,
+									editedUser
+											.getUserName()));
+			hasErrors = true;
+		}
+
+		if (!hasErrors && newPassword != null
+				&& newPassword2 != null
+				&& !newPassword2.equals(newPassword)) {
+			addErrorMessage(requestAndResponse,
+					servletText.errorPasswordsMustMatch());
+			hasErrors = true;
+		}
+
+		if (!hasErrors
+				&& !AccountAttributeValidator
+						.isPasswordValid(newPassword)) {
+			addErrorMessage(requestAndResponse,
+					servletText.errorPasswordIsNotValid());
+			hasErrors = true;
+		}
+		
+		return hasErrors;
+	}
+
+	/** Adds the new password and verify password form fields. */ 
+	private void addNewPasswordFormFields(
+			RequestAndResponse requestAndResponse, final User editedUser,
+			final boolean currentIsEditedUser) throws IOException {
+		requestAndResponse
+				.print("<div class=\"infoheader\">"
+						+ servletText
+								.sentenceEnterNewPasswordHereTwice(
+										currentIsEditedUser,
+										editedUser
+												.getUserName())
+						+ "</div>");
+
+		requestAndResponse
+				.print("<input type=\"password\" id=\"newpassword\" name=\"newpassword\" placeholder=\""
+						+ servletText.sentenceNewPassword()
+						+ "\" maxlength=\"20\"><br>"
+						+ "<input type=\"password\" id=\"newpassword2\" name=\"newpassword2\" placeholder=\""
+						+ servletText
+								.sentenceVerifyNewPassword()
+						+ "\" maxlength=\"20\"><br>");
 	}
 
 	/**
@@ -5127,6 +5175,12 @@ public class Servlet extends HttpServlet {
 				&& editedUser.getPassword() != null;
 	}
 
+	/** Returns true if the user does not have a password and needs it. */
+	private boolean doesUserNotHavePasswordAndNeedsIt(final User editedUser) {
+		return !editedUser.getIsSingleUser()
+				&& editedUser.getPassword() == null;
+	}
+	
 	/** Part of the HTML API. Handle a restore. */
 	private void handleHtmlDoUserRestore(RequestAndResponse requestAndResponse)
 			throws IOException, ServletException {

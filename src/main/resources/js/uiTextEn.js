@@ -462,7 +462,7 @@ uiTextEn.buttonCreateAccount = function() {
 };
 
 uiTextEn.sentenceChooseAUserName = function() {
-	return "Choose a username (at least 3 characters from a-z and 0-9)";
+	return "Choose a user name (at least 3 characters from a-z and 0-9)";
 };
 
 uiTextEn.sentenceChooseAPassword = function() {
@@ -470,7 +470,7 @@ uiTextEn.sentenceChooseAPassword = function() {
 };
 
 uiTextEn.sentenceYourUserName = function() {
-	return "Your username";
+	return "Your user name";
 };
 
 uiTextEn.sentenceYourPassword = function() {
