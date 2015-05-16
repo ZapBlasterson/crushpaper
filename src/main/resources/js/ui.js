@@ -4568,13 +4568,16 @@ function showPopupWithNoteFields(popup, title, entryType, noteop, dbId, extraHtm
 		html += "<div class=\"infotext\">" + uiText.sentenceSuggestShortNotes() + "</div>";
 	}
 
+	var needsLabels = false;
 	var isQuotation = isEntryAQuotation(dbId);
 	if (dbId && isQuotation && getTextForDbId) {
+		needsLabels = true;
+		html += "<div class=\"textLabel\">" + uiText.labelQuotation() + "</div>";
 		html += "<div><textarea class=\"mousetrap\" id=\"quotationinput\" placeholder=\"" + uiText.textYourQuotation() + "\"></textarea></div>";
 		html += "<input type=\"hidden\" id=\"quotationoriginal\">";
 	}
 
-	html += getNoteInputFieldForType(entryType, dbId) + "<br>";
+	html += getNoteInputFieldForType(entryType, dbId, needsLabels) + "<br>";
 	if (dbId) {
 		html += "<input type=\"hidden\" value=\"" + dbId + "\" id=\"id\">";
 	}
@@ -5216,7 +5219,7 @@ function ifNeededSentenceCtrlAndAltEnterToSubmit(entryType) {
 }
 
 /** Returns the note input field for the type. */
-function getNoteInputFieldForType(entryType, id) {
+function getNoteInputFieldForType(entryType, id, needsLabels) {
 	var result = "<input type=\"hidden\" value=\"" + entryType + "\" id=\"type\">";
 
 	if (entryType === "notebook") {
@@ -5228,6 +5231,10 @@ function getNoteInputFieldForType(entryType, id) {
 		return result + "<input class=\"mousetrap\" type=\"text\" id=\"noteinput\" placeholder=\"" + uiText.labelTheSourcesTitle() + "\"><br>";
 	}
 
+	if (needsLabels) {
+		result += "<div class=\"textLabel\">" + uiText.labelNote() + "</div>";
+	}
+	
 	return result + "<textarea class=\"mousetrap\" id=\"noteinput\" placeholder=\"" + uiText.textYourNote() + "\"></textarea>";
 }
 

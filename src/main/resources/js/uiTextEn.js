@@ -1022,3 +1022,11 @@ uiTextEn.labelOnlyUnlinkSourcesAndQuotations = function(numSourcesFromNotebook, 
 uiTextEn.errorNoteMustNotBeEmpty = function() {
 	return "Sorry, the note must not be blank.";
 };
+
+uiTextEn.labelQuotation = function() {
+	return "Quotation";
+};
+
+uiTextEn.labelNote = function() {
+	return "Note";
+};
