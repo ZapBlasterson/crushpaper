@@ -4201,7 +4201,7 @@ function save(alreadyStartedSave) {
 
 			setTimeout(function() {
 				if (userWasSignedIn) {
-					window.location.reload();
+					location.assign("/notebook/" + response.id + "/quotations/");
 				} else {
 					closePopup();
 
