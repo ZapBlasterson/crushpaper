@@ -2129,6 +2129,7 @@ var lastEntryDropTargetAcceptabilityDesc = null;
 var acceptabilityDescEl = null;
 var entryDropSiblingDividerEl = null;
 var entryDropBorderEl = null;
+var justTheEntry = null;
 
 /** Returns the true dbid, the parts after the ":". */
 function getTrueDbIdFromListDbId(listDbId) {
@@ -2314,7 +2315,8 @@ function aloneElOnShiftClick(clickedAloneEl, clickedDbId) {
 var padDraggedEntryInterval = null;
 
 /** Starts the drag of the alone el. */
-function startAloneDrag(ev) {
+function startAloneDrag(ev, justTheEntryArg) {
+	justTheEntry = justTheEntryArg
 	var eventEl = getEventEl(ev);
 
 	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
@@ -2341,7 +2343,8 @@ function startAloneDrag(ev) {
 	// Support dragging.
 	aloneElBeingDragged = draggedAloneEl;
 	draggedEntryClone = draggedAloneEl.cloneNode(true);
-	draggedEntryButtonEl = draggedEntryClone.getElementsByClassName("dragButton")[0];
+	var buttonClass = justTheEntry ? "dragButton" : "dragChildrenButton";
+	draggedEntryButtonEl = draggedEntryClone.getElementsByClassName(buttonClass)[0];
 	var position = getPosition(clickedAloneEl);
 
 	document.onmouseup = dragEntryOnMouseUp;
@@ -2372,12 +2375,7 @@ function startAloneDrag(ev) {
 		dragEntryOnMouseUp();
 	});
 
-	Mousetrap.bind("ctrl", dragEntryCtrlDown, 'keydown');
-	Mousetrap.bind("ctrl", dragEntryCtrlUp, 'keyup');
-	Mousetrap.bind("alt", dragEntryAltDown, 'keydown');
-	Mousetrap.bind("alt", dragEntryAltUp, 'keyup');
-
-	// So that the globals for ctrl, alt and position are initialized.
+	// So that the global for position is initialized.
 	dragEntryOnMouseMove(ev);
 	
 	return true;
@@ -2463,8 +2461,11 @@ function documentOnMouseOver(ev) {
 			aloneHoverMenuEl.className = "hoverMenu";
 
 			if (!isDisplaySmall()) {
-				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event);\" title=\"" +
-				uiText.tooltipDrag(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
+				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event, false);\" title=\"" +
+				uiText.tooltipDragWithChildren(entryType) + "\"><img class=\"noDrag\" src=\"/images/dragmult.png\"></button>";
+				
+				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragChildrenButton\" onmousedown=\"startAloneDrag(event, true);\" title=\"" +
+				uiText.tooltipDragWithoutChildren(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
 			}
 			
 			var isTree = isPaneATree(paneIndex);
@@ -3137,8 +3138,6 @@ function getDropTarget(mousePos) {
 }
 
 var dragEntryMousePos = null;
-var dragEntryCtrlKeyIsDown = false;
-var dragEntryAltKeyIsDown = false;
 
 /** Handles dragging of an entry. */
 function dragEntryOnMouseMove(ev) {
@@ -3147,12 +3146,8 @@ function dragEntryOnMouseMove(ev) {
 	
 	if (ev) {
 		dragEntryMousePos = getMousePosition(ev);
-		dragEntryAltKeyIsDown = ev.altKey;
-		dragEntryCtrlKeyIsDown = ev.ctrlKey;
 	}
 
-	var justTheEntry = !dragEntryCtrlKeyIsDown && !dragEntryAltKeyIsDown;
-	
 	if (draggedEntryClone) {
 		draggedEntryClone.style.top = (dragEntryMousePos.y - draggedEntryMouseOffset.y) + "px";
 		draggedEntryClone.style.left = (dragEntryMousePos.x - draggedEntryMouseOffset.x) + "px";
@@ -3165,30 +3160,6 @@ function dragEntryOnMouseMove(ev) {
 
 		return false;
 	}
-}
-
-/** Hande the alt key being pressed during an entry drag. */
-function dragEntryAltDown() {
-	dragEntryAltKeyIsDown = true;
-	dragEntryOnMouseMove();
-}
-
-/** Hande the alt key being unpressed during an entry drag. */
-function dragEntryAltUp() {
-	dragEntryAltKeyIsDown = false;
-	dragEntryOnMouseMove();
-}
-
-/** Hande the ctrl key being pressed during an entry drag. */
-function dragEntryCtrlDown() {
-	dragEntryCtrlKeyIsDown = true;
-	dragEntryOnMouseMove();
-}
-
-/** Hande the ctrl key being unpressed during an entry drag. */
-function dragEntryCtrlUp() {
-	dragEntryCtrlKeyIsDown = false;
-	dragEntryOnMouseMove();
 }
 
 /** Scrolls the window to pad the dragged entry. */
@@ -3487,7 +3458,6 @@ function dragEntryOnMouseUp(ev) {
 		// unpressed control before mousing up.
 		var mousePos = getMousePosition(ev);
 		var dropTarget = getDropTarget(mousePos);
-		var justTheEntry = !ev.ctrlKey && !ev.altKey;
 		var acceptabilityInfo = acceptabilityOfDropTarget(dropTarget, justTheEntry);
 		var acceptability = acceptabilityInfo[0];
 		if (acceptability === "pointer") {
@@ -3505,11 +3475,6 @@ function dragEntryOnMouseUp(ev) {
 	document.onmousemove = null;
 	document.onmouseup = null;
 	updateAcceptabilityDescription(null, null);
-	
-	Mousetrap.unbind("ctrl", 'keydown');
-	Mousetrap.unbind("ctrl", 'keyup');
-	Mousetrap.unbind("alt", 'keydown');
-	Mousetrap.unbind("alt", 'keyup');
 }
 
 /** Handles dropping on a drop target. */

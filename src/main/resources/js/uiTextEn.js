@@ -57,7 +57,7 @@ uiTextEn.oneOrOneOf = function(number, entryType) {
 	if (number === 1) {
 		return "The " + uiTextEn.getOneEntryTerm(entryType);
 	} else {
-		return "One of the " + number + " selected " + uiTextEn.getOneEntryTermPlural(entryType);
+		return "At least one of the " + number + " selected " + uiTextEn.getOneEntryTermPlural(entryType);
 	}
 };
 
@@ -717,9 +717,8 @@ uiTextEn.helpMouse = function() {
 uiTextEn.helpMouseHints = function(entryType) {
 	var hints = [
 	             "Right click or Command click a " + uiTextEn.getOneEntryTerm(entryType) + " or press <u>m</u> to display a context menu",
-	             "Drag a " + uiTextEn.getOneEntryTerm(entryType) + " to the left or right of another " + uiTextEn.getOneEntryTerm(entryType) + " to make it the next or previous of the other " + uiTextEn.getOneEntryTerm(entryType),
-	             "Drag a " + uiTextEn.getOneEntryTerm(entryType) + " into another " + uiTextEn.getOneEntryTerm(entryType) + " to make it a sub" + uiTextEn.getOneEntryTerm(entryType) + " of the other " + uiTextEn.getOneEntryTerm(entryType),
-	             "Hold down Ctrl or Alt to drag a " + uiTextEn.getOneEntryTerm(entryType) + "'s sub" + uiTextEn.getOneEntryTermPlural(entryType) + " with it",
+	             "Drag the drag icon of a " + uiTextEn.getOneEntryTerm(entryType) + " to the left or right of another " + uiTextEn.getOneEntryTerm(entryType) + " to make it the next or previous of the other " + uiTextEn.getOneEntryTerm(entryType),
+	             "Drag the drag icon of a " + uiTextEn.getOneEntryTerm(entryType) + " into another " + uiTextEn.getOneEntryTerm(entryType) + " to make it a sub" + uiTextEn.getOneEntryTerm(entryType) + " of the other " + uiTextEn.getOneEntryTerm(entryType),
 	             "Click the + or - icons to show or hide a " + uiTextEn.getOneEntryTerm(entryType) + "'s sub" + uiTextEn.getOneEntryTermPlural(entryType),
 	             "Click a " + uiTextEn.getOneEntryTerm(entryType) + " to select it or Ctrl or Alt click to unselect it",
 	             "Ctrl or Alt click other " + uiTextEn.getOneEntryTermPlural(entryType) + " to add them to the selection",
@@ -905,7 +904,7 @@ uiTextEn.dragHintCanNotDropIntoList = function(entryType, number) {
 };
 
 uiTextEn.dragHintCanNotDropIntoSub = function(entryType, number) {
-	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged into its sub" + uiTextEn.getOneEntryTerm(entryType) + " while Ctrl is pressed.";
+	return uiTextEn.oneOrOneOf(number, entryType) + " cannot be dragged into its sub" + uiTextEn.getOneEntryTerm(entryType) + " while dragging that sub" + uiTextEn.getOneEntryTerm(entryType) + " with it.";
 };
 
 uiTextEn.dragHintCanNotDropNextToItself = function(entryType, number) {
@@ -924,8 +923,12 @@ uiTextEn.tooltipOpen = function(entryType) {
 	return "Click to view this " + uiTextEn.getOneEntryTerm(entryType) + ".";
 };
 
-uiTextEn.tooltipDrag = function(entryType) {
-	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + ". Press Escape to stop dragging.";
+uiTextEn.tooltipDragWithChildren = function(entryType) {
+	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + " with its sub" + uiTextEn.getOneEntryTermPlural(entryType) + ". Press Escape to stop dragging.";
+};
+
+uiTextEn.tooltipDragWithoutChildren = function(entryType) {
+	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + " without its sub" + uiTextEn.getOneEntryTermPlural(entryType) + ". Press Escape to stop dragging.";
 };
 
 uiTextEn.editOrViewTooltip = function(isEditable) {
