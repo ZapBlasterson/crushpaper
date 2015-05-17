@@ -5621,7 +5621,16 @@ function getAboveAloneEl(dbId) {
 
 	// First try up, then try left.
 	if (doesSubtreeElHavePrevious(selectedEl)) {
-		return getAloneElFromSubtreeEl(getPreviousOfSubtreeEl(selectedEl));
+		selectedEl = getPreviousOfSubtreeEl(selectedEl);
+		while(true) {
+			var children = getChildrenOfSubtreeEl(selectedEl);
+			if(!children.length) {
+				break;
+			}
+			selectedEl = children[children.length - 1];
+		}
+		
+		return getAloneElFromSubtreeEl(selectedEl);
 	} else if (doesSubtreeElHaveParent(selectedEl)) {
 		return nullIfFakeAloneEl(getAloneElFromSubtreeEl(getParentOfSubtreeEl(selectedEl)));
 	}
@@ -5654,20 +5663,6 @@ function getBelowAloneEl(dbId) {
 			return getAloneElFromSubtreeEl(getNextOfSubtreeEl(selectedEl));
 		}
 	}
-}
-
-/** Returns the entry which is lefter than the specified entry. */
-function getLefterAloneEl(dbId) {
-	var selectedEl = getSubtreeElByDbId(dbId);
-	// Try the parent.
-	if (doesSubtreeElHaveParent(selectedEl)) {
-		var result = nullIfFakeAloneEl(getAloneElFromSubtreeEl(getParentOfSubtreeEl(selectedEl)));
-		if (result) {
-			return result;
-		}
-	}
-
-	return getAboveAloneEl(dbId);
 }
 
 /** Returns the entry which is righter than the specified entry. */
@@ -5720,13 +5715,13 @@ function getLastOfSelected() {
 	return last;
 }
 
-/** Moves the selection up, down, left or right. */
+/** Moves the selection up or down. */
 function moveSelection(direction) {
-	var previous, next, lefter, righter;
+	var previous, righter;
 	if (getNumSelected(true) < 1) {
-		if (direction === "up" || direction === "left") {
+		if (direction === "up") {
 			selectLastEntry();
-		} else if (direction === "down" || direction === "right") {
+		} else if (direction === "down") {
 			selectFirstEntry();
 		}
 	} else if (getNumSelected(true) === 1) {
@@ -5736,21 +5731,6 @@ function moveSelection(direction) {
 				selectAndScrollToAloneEl(previous, true);
 			}
 		} else if (direction === "down") {
-			next = getBelowAloneEl(getSelectedDbId(false, true));
-			if (next) {
-				selectAndScrollToAloneEl(next, true);
-			} else {
-				righter = getRighterAloneEl(getSelectedDbId(false, true));
-				if (righter) {
-					selectAndScrollToAloneEl(righter, true);
-				}
-			}
-		} else if (direction === "left") {
-			lefter = getLefterAloneEl(getSelectedDbId(false, true));
-			if (lefter) {
-				selectAndScrollToAloneEl(lefter, true);
-			}
-		} else if (direction === "right") {
 			righter = getRighterAloneEl(getSelectedDbId(false, true));
 			if (righter) {
 				selectAndScrollToAloneEl(righter, true);
@@ -5763,16 +5743,6 @@ function moveSelection(direction) {
 				selectAndScrollToAloneEl(previous, true);
 			}
 		} else if (direction === "down") {
-			next = getBelowAloneEl(getLastOfSelected());
-			if (next) {
-				selectAndScrollToAloneEl(next, true);
-			}
-		} else if (direction === "left") {
-			lefter = getLefterAloneEl(getFirstOfSelected());
-			if (lefter) {
-				selectAndScrollToAloneEl(lefter, true);
-			}
-		} else if (direction === "right") {
 			righter = getRighterAloneEl(getLastOfSelected());
 			if (righter) {
 				selectAndScrollToAloneEl(righter, true);
@@ -6278,17 +6248,8 @@ function getCommandMetaInfo(entryType) {
 	        	            	  "keys" : "Ctrl+Down",
 	        	            	  "description" : uiText.helpSelectBelow(entryType),
 	        	            	  "function" : moveSelectionDown
-	        	              },
-	        	              {
-	        	            	  "keys" : "Ctrl+Left",
-	        	            	  "description" : uiText.helpSelectLeft(entryType),
-	        	            	  "function" : moveSelectionLeft
-	        	              },
-	        	              {
-	        	            	  "keys" : "Ctrl+Right",
-	        	            	  "description" : uiText.helpSelectRight(entryType),
-	        	            	  "function" : moveSelectionRight
-	        	              } ],
+	        	              }
+	        	              ],
 	        } ];
 }
 
@@ -6399,18 +6360,6 @@ function moveSelectionUp() {
 /** Moves the selection down. */
 function moveSelectionDown() {
 	moveSelection("down");
-	return false;
-}
-
-/** Moves the selection left. */
-function moveSelectionLeft() {
-	moveSelection("left");
-	return false;
-}
-
-/** Moves the selection right. */
-function moveSelectionRight() {
-	moveSelection("right");
 	return false;
 }
 
