@@ -2146,10 +2146,11 @@ public class Servlet extends HttpServlet {
 			throws IOException, ServletException {
 		requestAndResponse.setResponseContentTypeJson();
 		String csrft;
-
+		boolean noMatterWhat;
 		try {
 			final JsonNodeHelper json = getJsonNode(requestAndResponse);
 			csrft = json.getString("csrft");
+			noMatterWhat = json.getBoolean("noMatterWhat");
 		} catch (final IOException e) {
 			returnJson400(requestAndResponse, servletText.errorJson());
 			return;
@@ -2160,7 +2161,22 @@ public class Servlet extends HttpServlet {
 					servletText.errorRequiresSignIn(false));
 			return;
 		}
-
+		
+		final User currentUser = dbLogic.getUserById(getEffectiveUserId(requestAndResponse));
+		boolean needsPassword = false;
+		boolean needsUsername = false;
+		if (currentUser != null) {
+			needsPassword = doesUserNotHavePasswordAndNeedsIt(currentUser);
+			needsUsername = currentUser.getIsAnon();
+		}
+		
+		if((needsUsername || needsPassword) && noMatterWhat == false) {
+			requestAndResponse.setResponseContentTypeJson();
+			requestAndResponse.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			requestAndResponse.print("{\"needsPassword\":" + needsPassword + ",\"needsUsername\":" + needsUsername + "}");
+			return;
+		}
+		
 		unmapSessionToUser(requestAndResponse);
 		returnJson200(requestAndResponse);
 	}

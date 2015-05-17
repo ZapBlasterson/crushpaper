@@ -1030,3 +1030,30 @@ uiTextEn.labelQuotation = function() {
 uiTextEn.labelNote = function() {
 	return "Note";
 };
+
+uiTextEn.errorNotSignedOutDetails = function(needsPassword, needsUsername) {
+	var result = "You did not set a ";
+	if (needsUsername) {
+		result += "user name";
+	}
+
+	if (needsUsername && needsPassword) {
+		result += " or ";
+	}
+
+	if (needsPassword) {
+		result += "password";
+	}
+
+	result += ".<br>";
+	
+	return result;
+};
+
+uiTextEn.buttonSetAccountInfo = function() {
+	return "Set Account Info";
+};
+
+uiTextEn.buttonForceSignOut = function() {
+	return "Sign Out Anyway";
+};

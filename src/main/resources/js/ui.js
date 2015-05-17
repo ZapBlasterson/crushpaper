@@ -347,23 +347,51 @@ function postSignIn() {
 }
 
 /** Sends the signout request. */
-function signOut() {
+function signOut(noMatterWhat) {
 	var xhr = createAsyncRequest("POST", "/signOut?" + getAnUrlUniquer(), function() {
 		aRequestIsInProgress(false);
-
 		if (xhr.status === 200) {
 			location.assign("/signedOut/");
 		} else {
+			var errorText = uiText.errorProbablyNotSignedOut();
+			var response;
+			if (xhr.responseText !== "") {
+				try {
+					response = JSON.parse(xhr.responseText);
+				} catch(e) {
+					errorText = uiText.errorJsonCouldNotBeParsed(uiText.errorProbablyNotSignedOut());
+				}
+			}
+			
+			if (("needsPassword" in response) || ("needsUsername" in response)) {
+				errorText = uiText.errorNotSignedOutDetails(response.needsPassword, response.needsUsername);
+				errorText += "<button class=\"specialbutton\" style=\"margin-top:10px; margin-right:20px; float:none;\" onclick=\"setAccountInfo(); return false;\">" + uiText.buttonSetAccountInfo() + "</button>";
+				errorText += "<button class=\"specialbutton\" style=\"margin-top:10px; float:none;\" onclick=\"signOut(true); return false;\">" + uiText.buttonForceSignOut() + "</button>";
+			} else {
+				errorText = getErrorText(xhr, uiText.errorNotSignedOut(), uiText.errorProbablyNotSignedOut());
+			}
+			
 			var title = uiText.popupTitleSignOut();
-			var errorText = getErrorText(xhr, uiText.errorNotSignedOut(), uiText.errorProbablyNotSignedOut());
+			
 			showPopupForError(title, errorText);
 		}
 	});
 
 	var message = { 'csrft': getCsrft() };
+	if(noMatterWhat) {
+		message.noMatterWhat = true;
+	}
+	
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
 }
+
+/** Close everything and allow the user to update their account. */
+function setAccountInfo() {
+	closePopup();
+	closeAllPanes(true);
+	makePane("/changeAccount/", "Account", null, "account");
+} 
 
 /** Returns the mouse offset of the current event. */
 function getMouseOffset(target, ev) {
@@ -8271,6 +8299,7 @@ function markFunctionsAsUsed() {
 	startAloneDrag();
 	checkboxOnClick();
 	paneMoveOnMouseDown();
+	setAccountInfo();
 }
 
 markFunctionsAsUsed();
