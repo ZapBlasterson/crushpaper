@@ -7626,6 +7626,12 @@ function onFinishPageReload() {
 	resetSessionDict();
 	updateAllDatesAndTimes(document);
 	loadAllPanes();
+	
+	// Because when FireFox refreshes it tries to keep checkboxes checked.
+	var checkboxes = document.getElementsByClassName("aloneCheckbox");
+    for (var i = 0; i < checkboxes.length; ++i) {
+		checkboxes[i].checked = false;
+	}
 }
 
 /** This is an unreliable indicator of whether the device has a touch screen.
@@ -7985,6 +7991,9 @@ function addInlineNoteEditShortCuts() {
 		
 		var noteEl = getNoteElOfAloneEl(aloneEl); 
 		noteEl.blur();
+		
+		// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
+		return false;
 	});
 	
 	Mousetrap.bind("alt+s", function() {
@@ -7995,6 +8004,9 @@ function addInlineNoteEditShortCuts() {
 		
 		var noteEl = getNoteElOfAloneEl(aloneEl); 
 		noteEl.blur();
+		
+		// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
+		return false;
 	});
 }
 
