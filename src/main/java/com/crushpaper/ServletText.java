@@ -270,10 +270,6 @@ public class ServletText {
 		return "There is nothing here. This page assists in debugging.";
 	}
 
-	public String sentencePressHForHelp() {
-		return "Press the \"h\" key for <u>h</u>elp.";
-	}
-
 	public String sentenceTheDatabaseHasNoErrors() {
 		return "The database has no errors.";
 	}
@@ -869,7 +865,7 @@ public class ServletText {
 		if(forTouch) {
 			result += "Press a note to edit it.";
 		} else {
-			result += "Mouse over, right click or press h to see all of the available commands.";
+			result += "Mouse over, right click or click \"UI HELP\" on the left to see all of the available commands.";
 		}
 		
 		return result;

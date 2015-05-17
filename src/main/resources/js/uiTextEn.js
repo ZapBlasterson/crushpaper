@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global mightHaveTouch */
-
 var uiTextEn = {};
 
 /* Capitalizes the first letter of a string. */
@@ -125,7 +123,7 @@ uiTextEn.getOneEntryTermPlural = function(entryType) {
 };
 
 uiTextEn.popupTitleHelp = function() {
-	return "Keyboard and Mouse Help" + (!mightHaveTouch() ? " (press 'h' to see this at any time)" : "");
+	return "Keyboard and Mouse Help";
 };
 
 uiTextEn.sentenceSaving = function() {
@@ -402,7 +400,7 @@ uiTextEn.sentenceCtrlAndAltEnterToSubmit = function(entryType) {
 };
 
 uiTextEn.sentenceContextMenuHelp = function() {
-	return "Each button's shortcut is shown to its right.<br>To view even more commands press the 'h' key.<br><br>";
+	return "Each button's shortcut is shown to its right.<br>To view even more commands click \"UI HELP\" on the left.<br><br>";
 };
 
 uiTextEn.popupTitleOptions = function() {
@@ -819,16 +817,8 @@ uiTextEn.helpSelect = function(entryType) {
 	return "How to Select " + uiTextEn.getOneEntryTermCapFirstAndPlural(entryType);
 };
 
-uiTextEn.helpSelectAll = function(entryType) {
-	return "<u>S</u>elect all " + uiTextEn.getOneEntryTermPlural(entryType) + " on the page";
-};
-
-uiTextEn.helpUnselectAll = function(entryType) {
-	return "Unselect all currently selected " + uiTextEn.getOneEntryTermPlural(entryType);
-};
-
 uiTextEn.helpUnselectAllOrDismiss = function(entryType) {
-	return "Unselect all currently selected " + uiTextEn.getOneEntryTermPlural(entryType) + " or dismiss a popup";
+	return "Unselect all currently selected " + uiTextEn.getOneEntryTermPlural(entryType) + ", or dismiss a popup, or stop inline editing";
 };
 
 uiTextEn.helpSelectAbove = function(entryType) {
@@ -845,15 +835,6 @@ uiTextEn.helpSelectLeft = function(entryType) {
 
 uiTextEn.helpSelectRight = function(entryType) {
 	return "Select the first sub" + uiTextEn.getOneEntryTerm(entryType) + " of the currently selected " + uiTextEn.getOneEntryTerm(entryType);
-};
-
-
-uiTextEn.helpHelp = function() {
-	return "Help";
-};
-
-uiTextEn.helpHelpHelp = function() {
-	return "Show this help dialog";
 };
 
 
@@ -941,7 +922,7 @@ uiTextEn.editOrViewTooltip = function(isEditable) {
 		return " Click to view in another pane.";
 	}
 
-	return " Right click, Command click or press h to see what you can do with it.";
+	return " Right click, Command click or click \"UI HELP\" on the left to see what you can do with it.";
 };
 
 uiTextEn.aOrAn = function(entryType) {

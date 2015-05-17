@@ -20,6 +20,8 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 var uiText = null;
 
+var isFireFox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
 /** Returns the element corresponding to the browser event. */
 function getEventEl(ev) {
 	if (!ev) {
@@ -2005,6 +2007,8 @@ function unselectAllEntries() {
 		updateSelectionDisplayForAloneEl(getAloneElByDbId(dbId));
 	}
 
+	noteEscapeHandler();
+	
 	return false;
 }
 
@@ -5611,25 +5615,6 @@ function reallyShowPopupForCreateNotebook() {
 	return false;
 }
 
-/** Mark all entries as selected. */
-function selectAllEntries() {
-	var container = getFirstContainer();
-	if (!container)
-		return false;
-
-	// Because this would otherwise be a live list that would be modified in
-	// place.
-	var aloneEls = copyArray(container.getElementsByClassName("alone"));
-	for (var i = 0; i < aloneEls.length; ++i) {
-		var aloneEl = aloneEls[i];
-		if (!isElementOfClass(aloneEl, "fakealone")) {
-			selectAloneEl(aloneEl, false);
-		}
-	}
-
-	return false;
-}
-
 /** Returns the entry which is above the specified entry. */
 function getAboveAloneEl(dbId) {
 	var selectedEl = getSubtreeElByDbId(dbId);
@@ -6010,17 +5995,6 @@ function removeDeleteOptionsShortCuts() {
 	Mousetrap.unbind("alt+d");
 }
 
-/** Handles control+space keys presses to unselect the currently selected entries. */
-function handleCtrlSpace() {
-	if (isPopupUp()) {
-		return false;
-	}
-
-	unselectAllEntries();
-
-	return false;
-}
-
 /** Returns a header for the help popup decorated with HTML. */
 function decorateHelpHeader(text) {
 	return "<span class=\"helpheader\">" + text + ":</span><br>";
@@ -6033,10 +6007,8 @@ function finishHelpItemsList() {
 
 /** Returns HTML for a pretty key combo. */
 function getPrettyKeys(keys) {
-	var combo = [ keys ];
-	if (keys.length > 1 && keys.indexOf("+") !== -1) {
-		combo = keys.split("+");
-	}
+	keys = keys.replace(/\+{2}/g, '+plus');
+	var combo = keys.split("+");
 
 	var result = "";
 	for (var i = 0; i < combo.length; ++i) {
@@ -6062,6 +6034,8 @@ function getPrettyKey(key) {
 		key = "&rarr;";
 	} else if (key === "Del") {
 		key = "Delete";
+	} else if (key === "plus") {
+		key = "+";
 	}
 
 	return "<span class=\"key\">" + key + "</span>";
@@ -6097,7 +6071,12 @@ function showPopupForHelp() {
 			for (j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				if ("description" in command) {
-					html += decorateHelpShortcutDescription(command.keys, command.description);
+					var keys = command.keys;
+					if ("displayKeys" in command) {
+						keys = command.displayKeys;
+					}
+					
+					html += decorateHelpShortcutDescription(keys, command.description);
 				}
 			}
 		}
@@ -6147,7 +6126,7 @@ function getCommandMetaInfo(entryType) {
 	        	"worksOnLists": true,
 	        	"commands" : [
 	        	              {
-	        	            	  "keys" : "c",
+	        	            	  "keys" : "Alt+c",
 	        	            	  "description" : uiText.helpCreateSubnote(entryType),
 	        	            	  "function" : showPopupForCreateChildEntry
 	        	              },
@@ -6158,7 +6137,7 @@ function getCommandMetaInfo(entryType) {
 	        	            	  "worksOnLists": true,
 	        	              },
 	        	              {
-	        	            	  "keys" : "Del",
+	        	            	  "keys" : "Alt+Del",
 	        	            	  "description" : uiText.helpDelete(entryType),
 	        	            	  "function" : showPopupForDeleteEntry,
 	        	            	  "worksOnLists": true
@@ -6186,7 +6165,7 @@ function getCommandMetaInfo(entryType) {
 	        	"hints" : uiText.helpMouseHints(entryType),
 	        	"commands" : [
 	        	              {
-	        	            	  "keys" : "m",
+	        	            	  "keys" : "Alt+m",
 	        	            	  "function" : handleKeyPressForContextMenu
 	        	              }
 	        	              ]
@@ -6196,22 +6175,22 @@ function getCommandMetaInfo(entryType) {
 	        	"inContextMenu" : true,
 	        	"commands" : [
 	        	              {
-	        	            	  "keys" : "i",
+	        	            	  "keys" : "Alt+i",
 	        	            	  "description" : uiText.helpInsert(entryType),
 	        	            	  "function" : showPopupForInsertEntry
 	        	              },
 	        	              {
-	        	            	  "keys" : "u",
+	        	            	  "keys" : "Alt+u",
 	        	            	  "description" : uiText.helpUnderneath(entryType),
 	        	            	  "function" : showPopupForPutUnderneathEntry
 	        	              },
 	        	              {
-	        	            	  "keys" : "b",
+	        	            	  "keys" : "Alt+b",
 	        	            	  "description" : uiText.helpBefore(entryType),
 	        	            	  "function" : showPopupForPutBeforeEntry
 	        	              },
 	        	              {
-	        	            	  "keys" : "a",
+	        	            	  "keys" : "Alt+a",
 	        	            	  "description" : uiText.helpAfter(entryType),
 	        	            	  "function" : showPopupForPutAfterEntry
 	        	              } ]
@@ -6221,22 +6200,22 @@ function getCommandMetaInfo(entryType) {
 	        	"inContextMenu" : true,
 	        	"commands" : [
 	        	              {
-	        	            	  "keys" : "Ctrl+Up",
+	        	            	  "keys" : "Ctrl+Alt+Up",
 	        	            	  "description" : uiText.helpMovePrevious(entryType),
 	        	            	  "function" : moveEntriesBefore
 	        	              },
 	        	              {
-	        	            	  "keys" : "Ctrl+Down",
+	        	            	  "keys" : "Ctrl+Alt+Down",
 	        	            	  "description" : uiText.helpMoveAfter(entryType),
 	        	            	  "function" : moveEntriesAfter
 	        	              },
 	        	              {
-	        	            	  "keys" : "Ctrl+Left",
+	        	            	  "keys" : "Ctrl+Alt+Left",
 	        	            	  "description" : uiText.helpMoveLeft(entryType),
 	        	            	  "function" : moveEntriesLeft
 	        	              },
 	        	              {
-	        	            	  "keys" : "Ctrl+Right",
+	        	            	  "keys" : "Ctrl+Alt+Right",
 	        	            	  "description" : uiText.helpMoveRight(entryType),
 	        	            	  "function" : moveEntriesRight
 	        	              },
@@ -6253,13 +6232,17 @@ function getCommandMetaInfo(entryType) {
 	        	"header" : uiText.helpShowOrHide(entryType),
 	        	"inContextMenu" : true,
 	        	"commands" : [
+	        	              
 	        	              {
-	        	            	  "keys" : "+",
+	        	            	  "keys" : "Alt+Shift+=",
+	        	            	  "displayKeys" : "Alt++",
 	        	            	  "description" : uiText.helpShow(entryType),
 	        	            	  "function" : showChildrenOfSelectedEntry
 	        	              },
+	        	              
 	        	              {
-	        	            	  "keys" : "-",
+	        	            	  "keys" : "Alt+-",
+	        	            	  "forceKeyPressOnFireFox": true,
 	        	            	  "description" : uiText.helpHide(entryType),
 	        	            	  "function" : hideChildrenOfSelectedEntry
 	        	              },
@@ -6282,47 +6265,30 @@ function getCommandMetaInfo(entryType) {
 	        	"inContextMenu" : false,
 	        	"commands" : [
 	        	              {
-	        	            	  "keys" : "s",
-	        	            	  "description" : uiText.helpSelectAll(entryType),
-	        	            	  "function" : selectAllEntries
-	        	              },
-	        	              {
-	        	            	  "keys" : "Ctrl+Space",
-	        	            	  "description" : uiText.helpUnselectAll(entryType),
-	        	            	  "function" : handleCtrlSpace
-	        	              },
-	        	              {
 	        	            	  "keys" : "Esc",
 	        	            	  "description" : uiText.helpUnselectAllOrDismiss(entryType),
-	        	            	  "function": unselectAllEntries	        	              },
+	        	            	  "function": unselectAllEntries
+	        	              },
 	        	              {
-	        	            	  "keys" : "Up",
+	        	            	  "keys" : "Ctrl+Up",
 	        	            	  "description" : uiText.helpSelectAbove(entryType),
 	        	            	  "function" : moveSelectionUp
 	        	              },
 	        	              {
-	        	            	  "keys" : "Down",
+	        	            	  "keys" : "Ctrl+Down",
 	        	            	  "description" : uiText.helpSelectBelow(entryType),
 	        	            	  "function" : moveSelectionDown
 	        	              },
 	        	              {
-	        	            	  "keys" : "Left",
+	        	            	  "keys" : "Ctrl+Left",
 	        	            	  "description" : uiText.helpSelectLeft(entryType),
 	        	            	  "function" : moveSelectionLeft
 	        	              },
 	        	              {
-	        	            	  "keys" : "Right",
+	        	            	  "keys" : "Ctrl+Right",
 	        	            	  "description" : uiText.helpSelectRight(entryType),
 	        	            	  "function" : moveSelectionRight
 	        	              } ],
-	        }, {
-	        	"header" : uiText.helpHelp(),
-	        	"inContextMenu" : false,
-	        	"commands" : [ {
-	        		"keys" : "h",
-	        		"description" : uiText.helpHelpHelp(),
-	        		"function" : showPopupForHelp
-	        	} ]
 	        } ];
 }
 
@@ -6344,7 +6310,8 @@ function removeContextMenuShortCuts() {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				if (supportShortcutInContextMenu(command)) {
-					Mousetrap.unbind(command.keys.toLowerCase());
+					var actionAndForced = getKeyActionAndForced(command);
+					Mousetrap.unbind(command.keys.toLowerCase(), actionAndForced[0], actionAndForced[1]);
 				}
 			}
 		}
@@ -6399,8 +6366,9 @@ function showPopupForContextMenu() {
 					html += decorateContextMenuButton(command.keys, command.description,
 							getFunctionName(command["function"]));
 					if (supportShortcutInContextMenu(command)) {
+						var actionAndForced = getKeyActionAndForced(command);
 						Mousetrap.bind(command.keys.toLowerCase(),
-								createContextMenuFunc(command["function"]));
+								createContextMenuFunc(command["function"]), actionAndForced[0], actionAndForced[1]);
 					}
 				}
 			}
@@ -6446,6 +6414,16 @@ function moveSelectionRight() {
 	return false;
 }
 
+/** Returns an array with the key action and whether it should be forced. */
+function getKeyActionAndForced(command) {
+	if (command.forceKeyPressOnFireFox && isFireFox) {
+		return [ "keypress", true ];
+	}
+	
+	var undef;
+	return [ undef, false ];
+}			
+
 /** Adds global shortcuts. */
 function addGlobalShortCuts() {
 	var commandMetaInfo = getCommandMetaInfo(getDefaultEntryTypes());
@@ -6454,8 +6432,9 @@ function addGlobalShortCuts() {
 		if (("commands" in commandMetaInfoSection) && !("notGlobal" in commandMetaInfoSection)) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
+				var actionAndForced = getKeyActionAndForced(command);
 				Mousetrap.bind(command.keys.toLowerCase(),
-						command["function"]);
+						command["function"], actionAndForced[0], actionAndForced[1]);
 			}
 		}
 	}
@@ -6480,7 +6459,8 @@ function removeGlobalShortCuts() {
 		if (("commands" in commandMetaInfoSection) && !("notGlobal" in commandMetaInfoSection)) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
-				Mousetrap.unbind(command.keys.toLowerCase());
+				var actionAndForced = getKeyActionAndForced(command);
+				Mousetrap.unbind(command.keys.toLowerCase(), actionAndForced[0], actionAndForced[1]);
 			}
 		}
 	}
@@ -7064,6 +7044,7 @@ function hideChildrenOfSelectedEntry() {
 	}
 
 	hideChildrenOfEntry(getSelectedDbId(false, true));
+	return false;
 }
 
 /** Hides the children of the selected note. */
@@ -7862,7 +7843,6 @@ function clearNoteFromEditing() {
  */
 function noteOnFocus(ev) {
 	noteIsFocused = true;
-	removeGlobalShortCuts();
 	addInlineNoteEditShortCuts();
 	var eventEl = getEventEl(ev);
 	var aloneEl = getCorrespondingAloneEl(eventEl);
@@ -7884,7 +7864,7 @@ function noteOnBlur() {
 	}
 	
 	removeInlineNoteEditShortCuts();
-	saveNoteTextAfterInlineEdit(true);
+	saveNoteTextAfterInlineEdit();
 }
 
 /** Handle input to the note.
@@ -7895,7 +7875,7 @@ function noteOnBlur() {
  * And sometimes noteOnFocus() is not called even though the note has the focus.
  * It seems like a browser bug.
  */
-function noteOnInput(ev) {
+function noteOnInput() {
 	var aloneEl = getAloneElByDbId(editedNoteDbId);
 	if (!aloneEl) {
 		return;
@@ -7920,7 +7900,7 @@ function noteOnInput(ev) {
 	}
 	
 	if (!noteIsFocused) {
-		saveNoteTextAfterInlineEdit(ev);
+		saveNoteTextAfterInlineEdit();
 	}
 }
 
@@ -7980,39 +7960,50 @@ function getTextOfEl(el) {
 	return result;
 }
 
+/** Handle pressing Escape while inline editing a note. */
+function noteEscapeHandler() {
+	if (!noteIsFocused) {
+		return;
+	}
+		
+	undoNoteEdit(editedNoteDbId, oldNoteHtml);
+	var aloneEl = getAloneElByDbId(editedNoteDbId);
+	if (!aloneEl) {
+		return;
+	}
+	
+	var noteEl = getNoteElOfAloneEl(aloneEl); 
+	noteEl.blur();
+	
+	// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
+	return false;
+}
+
+/** Handle blurring a note while inline editing it. */
+function blurNote() {
+	if (!noteIsFocused) {
+		return;
+	}
+		
+	var aloneEl = getAloneElByDbId(editedNoteDbId);
+	if (!aloneEl) {
+		return;
+	}
+	
+	var noteEl = getNoteElOfAloneEl(aloneEl); 
+	noteEl.blur();
+	
+	// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
+	return false;
+}
+	
 /** Adds shortcuts for inline note text editing. */
 function addInlineNoteEditShortCuts() {
-	Mousetrap.bind("esc", function() {
-		undoNoteEdit(editedNoteDbId, oldNoteHtml);
-		var aloneEl = getAloneElByDbId(editedNoteDbId);
-		if (!aloneEl) {
-			return;
-		}
-		
-		var noteEl = getNoteElOfAloneEl(aloneEl); 
-		noteEl.blur();
-		
-		// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
-		return false;
-	});
-	
-	Mousetrap.bind("alt+s", function() {
-		var aloneEl = getAloneElByDbId(editedNoteDbId);
-		if (!aloneEl) {
-			return;
-		}
-		
-		var noteEl = getNoteElOfAloneEl(aloneEl); 
-		noteEl.blur();
-		
-		// Because otherwise FireFox will propogate this event to a handler that has not even been registered yet. 
-		return false;
-	});
+	Mousetrap.bind("alt+s", blurNote);
 }
 
 /** Removes shortcuts for inline note text editing. */
 function removeInlineNoteEditShortCuts() {
-	Mousetrap.unbind("esc");
 	Mousetrap.unbind("alt+s");
 }
 
@@ -8036,8 +8027,6 @@ function setCaretPosition(el, position) {
 	    }
 	}
 }
-
-var isFireFox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 /** Sets the caret position within an el. */
 function setCaretPositionHelper(el, position) {
@@ -8132,7 +8121,7 @@ function deselectAllSelections() {
 var notesBeingSaved = {};
 
 /** Save a note text after inline editing. */
-function saveNoteTextAfterInlineEdit(needsGlobalShortcuts) {
+function saveNoteTextAfterInlineEdit() {
 	if (editedNoteDbId in notesBeingSaved) {
 		return;
 	}
@@ -8164,9 +8153,6 @@ function saveNoteTextAfterInlineEdit(needsGlobalShortcuts) {
 	if (doNotSave) {
 		undoNoteEdit(dbId, oldNoteHtml);
 		clearNoteFromEditing();
-		if (needsGlobalShortcuts && !isPopupUp()) {
-			addGlobalShortCuts();
-		}
 		return;
 	}
 	
@@ -8219,9 +8205,6 @@ function saveNoteTextAfterInlineEdit(needsGlobalShortcuts) {
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
 	commandsAreNowAllowed(false);
-	if (needsGlobalShortcuts) {
-		addGlobalShortCuts();
-	}
 }
 
 /** JSHint does not provide a method for annotating externally used function as used
@@ -8277,6 +8260,7 @@ function markFunctionsAsUsed() {
 	checkboxOnClick();
 	paneMoveOnMouseDown();
 	setAccountInfo();
+	showPopupForHelp();
 }
 
 markFunctionsAsUsed();
