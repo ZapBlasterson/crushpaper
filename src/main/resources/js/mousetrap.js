@@ -327,7 +327,7 @@
      * @param {Array} modifiers
      * @param {string=} action passed in
      */
-    function _pickBestAction(key, modifiers, action) {
+    function _pickBestAction(key, modifiers, action, doNotChangeTheAction) {
 
         // if no action was picked in we should try to pick the one
         // that we think would work best for this key
@@ -337,7 +337,7 @@
 
         // modifier keys don't work as expected with keypress,
         // switch to keydown
-        if (action == 'keypress' && modifiers.length) {
+        if (action == 'keypress' && modifiers.length && !doNotChangeTheAction) {
             action = 'keydown';
         }
 
@@ -366,7 +366,7 @@
      * @param  {string=} action
      * @returns {Object}
      */
-    function _getKeyInfo(combination, action) {
+    function _getKeyInfo(combination, action, doNotChangeTheAction) {
         var keys;
         var key;
         var i;
@@ -400,7 +400,7 @@
 
         // depending on what the key combination is
         // we will try to pick the best event for it
-        action = _pickBestAction(key, modifiers, action);
+        action = _pickBestAction(key, modifiers, action, doNotChangeTheAction);
 
         return {
             key: key,
@@ -817,7 +817,7 @@
          * @param {number=} level - what part of the sequence the command is
          * @returns void
          */
-        function _bindSingle(combination, callback, action, sequenceName, level) {
+        function _bindSingle(combination, callback, action, sequenceName, level, doNotChangeTheAction) {
 
             // store a direct mapped reference for use with Mousetrap.trigger
             self._directMap[combination + ':' + action] = callback;
@@ -835,7 +835,7 @@
                 return;
             }
 
-            info = _getKeyInfo(combination, action);
+            info = _getKeyInfo(combination, action, doNotChangeTheAction);
 
             // make sure to initialize array if this is the first time
             // a callback is added for this key
@@ -868,9 +868,10 @@
          * @param {string|undefined} action
          * @returns void
          */
-        self._bindMultiple = function(combinations, callback, action) {
+        self._bindMultiple = function(combinations, callback, action, doNotChangeTheAction) {
             for (var i = 0; i < combinations.length; ++i) {
-                _bindSingle(combinations[i], callback, action);
+            	var undef;
+                _bindSingle(combinations[i], callback, action, undef, undef, doNotChangeTheAction);
             }
         };
 
@@ -894,10 +895,10 @@
      * @param {string=} action - 'keypress', 'keydown', or 'keyup'
      * @returns void
      */
-    Mousetrap.prototype.bind = function(keys, callback, action) {
+    Mousetrap.prototype.bind = function(keys, callback, action, doNotChangeTheAction) {
         var self = this;
         keys = keys instanceof Array ? keys : [keys];
-        self._bindMultiple.call(self, keys, callback, action);
+        self._bindMultiple.call(self, keys, callback, action, doNotChangeTheAction);
         return self;
     };
 
@@ -918,9 +919,9 @@
      * @param {string} action
      * @returns void
      */
-    Mousetrap.prototype.unbind = function(keys, action) {
+    Mousetrap.prototype.unbind = function(keys, action, doNotChangeTheAction) {
         var self = this;
-        return self.bind.call(self, keys, function() {}, action);
+        return self.bind.call(self, keys, function() {}, action, doNotChangeTheAction);
     };
 
     /**
