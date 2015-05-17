@@ -438,7 +438,7 @@ uiTextEn.tooltipEdit = function(entryType) {
 };
 
 uiTextEn.tooltipDelete = function(entryType) {
-	return "Click to delete this " + uiTextEn.getOneEntryTerm(entryType) + " and any other selected " + uiTextEn.getOneEntryTermPlural(entryType) + ". Shortcut key is Delete";
+	return "Click to delete this " + uiTextEn.getOneEntryTerm(entryType) + " and any other selected " + uiTextEn.getOneEntryTermPlural(entryType) + ". Shortcut key is Delete. Hold Ctrl or Alt to delete all selected " + uiTextEn.getOneEntryTermPlural(entryType) + ".";
 };
 
 uiTextEn.errorCouldNotGetPage = function() {
@@ -923,12 +923,17 @@ uiTextEn.tooltipOpen = function(entryType) {
 	return "Click to view this " + uiTextEn.getOneEntryTerm(entryType) + ".";
 };
 
+
+uiTextEn.tooltipDragHelper = function(entryType, withOrWithout) {
+	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + " " + withOrWithout + " its sub" + uiTextEn.getOneEntryTermPlural(entryType) + ". Press Escape to stop dragging. Hold Ctrl or Alt to drag all selected " + uiTextEn.getOneEntryTermPlural(entryType) + ".";
+};
+
 uiTextEn.tooltipDragWithChildren = function(entryType) {
-	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + " with its sub" + uiTextEn.getOneEntryTermPlural(entryType) + ". Press Escape to stop dragging.";
+	return uiTextEn.tooltipDragHelper(entryType, "with");
 };
 
 uiTextEn.tooltipDragWithoutChildren = function(entryType) {
-	return "Hold down to drag this " + uiTextEn.getOneEntryTerm(entryType) + " without its sub" + uiTextEn.getOneEntryTermPlural(entryType) + ". Press Escape to stop dragging.";
+	return uiTextEn.tooltipDragHelper(entryType, "without");
 };
 
 uiTextEn.editOrViewTooltip = function(isEditable) {

@@ -2316,7 +2316,7 @@ var padDraggedEntryInterval = null;
 
 /** Starts the drag of the alone el. */
 function startAloneDrag(ev, justTheEntryArg) {
-	justTheEntry = justTheEntryArg
+	justTheEntry = justTheEntryArg;
 	var eventEl = getEventEl(ev);
 
 	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
@@ -2324,7 +2324,7 @@ function startAloneDrag(ev, justTheEntryArg) {
 		return;
 	}
 	
-	selectAloneEl(clickedAloneEl, false);
+	selectAloneEl(clickedAloneEl, !ev.ctrlKey && !ev.shiftKey);
 
 	var draggedAloneEl = clickedAloneEl;
 	var clickedDbId = getDbIdFromEl(clickedAloneEl);
@@ -3872,7 +3872,7 @@ function deleteOnClick(ev) {
 		return;
 	}
 
-	selectAloneEl(aloneEl, false);
+	selectAloneEl(aloneEl, !ev.ctrlKey && !ev.shiftKey);
 
 	showPopupForDeleteEntry();
 }
