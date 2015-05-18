@@ -2484,10 +2484,10 @@ function documentOnMouseOver(ev) {
 			aloneHoverMenuEl.className = "hoverMenu";
 
 			if (!isDisplaySmall()) {
-				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event, false);\" title=\"" +
+				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragChildrenButton\" onmousedown=\"startAloneDrag(event, false);\" title=\"" +
 				uiText.tooltipDragWithChildren(entryType) + "\"><img class=\"noDrag\" src=\"/images/dragmult.png\"></button>";
 				
-				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragChildrenButton\" onmousedown=\"startAloneDrag(event, true);\" title=\"" +
+				aloneHoverMenuEl.innerHTML += "<button class=\"noDrag dragButton\" onmousedown=\"startAloneDrag(event, true);\" title=\"" +
 				uiText.tooltipDragWithoutChildren(entryType) + "\"><img class=\"noDrag\" src=\"/images/drag.png\"></button>";
 			}
 			
