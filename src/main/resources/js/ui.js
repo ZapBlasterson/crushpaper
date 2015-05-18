@@ -21,6 +21,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 var uiText = null;
 
 var isFireFox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isIe = window.navigator.userAgent.indexOf("MSIE ") > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
 
 /** Returns the element corresponding to the browser event. */
 function getEventEl(ev) {
@@ -6210,11 +6211,13 @@ function getCommandMetaInfo(entryType) {
 	        	              },
 	        	              {
 	        	            	  "keys" : "Ctrl+Alt+Left",
+	        	            	  "forceKeyUpOnIe": true,
 	        	            	  "description" : uiText.helpMoveLeft(entryType),
 	        	            	  "function" : moveEntriesLeft
 	        	              },
 	        	              {
 	        	            	  "keys" : "Ctrl+Alt+Right",
+	        	            	  "forceKeyUpOnIe": true,
 	        	            	  "description" : uiText.helpMoveRight(entryType),
 	        	            	  "function" : moveEntriesRight
 	        	              },
@@ -6394,6 +6397,10 @@ function moveSelectionDown() {
 function getKeyActionAndForced(command) {
 	if (command.forceKeyPressOnFireFox && isFireFox) {
 		return [ "keypress", true ];
+	}
+	
+	if (command.forceKeyUpOnIe && isIe) {
+		return [ "keyup", true ];
 	}
 	
 	var undef;
