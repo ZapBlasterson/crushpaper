@@ -7402,6 +7402,7 @@ new Image().src = getRefreshPngUrl();
 function onFinishFullPageLoad() {
 	uiText = uiTextEn;
 	displayIeLt8Message();
+	makeShortcutsWorkInIe();
 	window.onpopstate = handlePopStateGetPage;
 	window.oncontextmenu = onContextMenu;
 	// So that clicking anywhere that is not an entry unselects all entries.
@@ -8227,8 +8228,9 @@ function saveNoteTextAfterInlineEdit() {
 		commandsAreNowAllowed(true);
 		delete notesBeingSaved[dbId];
 		var aloneEl = getAloneElByDbId(dbId);
+		var noteEl;
 		if (aloneEl) {
-			var noteEl = getNoteElOfAloneEl(aloneEl); 
+			noteEl = getNoteElOfAloneEl(aloneEl); 
 			noteEl.setAttribute("contentEditable", true);
 			noteEl.style.cursor = "";
 		}
@@ -8252,6 +8254,10 @@ function saveNoteTextAfterInlineEdit() {
 			}
 
 			refreshSearchPane();
+			
+			if (isIe && noteEl && doesNoteHaveCaret(noteEl)) {
+				deselectAllSelections();
+			}
 		} else {
 			undoNoteEdit(dbId, copyOfOldNoteHtml);
 			var errorText = getErrorText(xhr, uiText.errorNotSaved(), uiText.errorProbablyNotSaved());
@@ -8270,6 +8276,22 @@ function saveNoteTextAfterInlineEdit() {
 	xhr.send(JSON.stringify(message));
 	aRequestIsInProgress(true);
 	commandsAreNowAllowed(false);
+}
+
+/** A hacky way of making sure that IE shortcuts work even if there are browser defaults. */
+function makeShortcutsWorkInIe() {
+	if (!isIe) {
+		return;
+	}
+
+	var buttons = ["s", "c", "a"];
+	for (var i = 0; i < buttons.length; ++i) {
+		var button = document.createElement("BUTTON");
+		button.className = "hiddenButton";
+		button.setAttribute("accesskey", buttons[i]);
+		button.setAttribute("tabindex", "-1");
+		document.body.appendChild(button);
+	}
 }
 
 /** JSHint does not provide a method for annotating externally used function as used

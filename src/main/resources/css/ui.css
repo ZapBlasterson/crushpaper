@@ -305,3 +305,5 @@ input[type="text"], div.account > input[type="text"], div.account > input[type="
  margin-bottom:10px; margin-top:0px; width:100%; font-size:large; }
 div.centered > button { margin-top:10px; }
 div.centered { margin:0 auto; display:block; display:table; }
+
+button.hiddenButton { position:absolute; left:-100px;}
