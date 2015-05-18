@@ -7913,6 +7913,9 @@ function getHtmlOfEl(el) {
         	result += "<br>";
         } else {
         	result += getHtmlOfEl(child);
+        	if (child.nodeName === "P") {
+        		result += "<br>";
+        	}
         }
 	}
 	
@@ -7930,6 +7933,9 @@ function getTextOfEl(el) {
         	result += "\n";
         } else {
         	result += getTextOfEl(child);
+        	if (child.nodeName === "P") {
+        		result += "\n";
+        	}
         }
 	}
 	
