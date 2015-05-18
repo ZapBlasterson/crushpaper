@@ -3024,7 +3024,7 @@ public class Servlet extends HttpServlet {
 			if(!getNoTitle()) {
 				requestAndResponse
 					.print("<div class=\"dragNsPane\" onmousedown=\"paneResizeOnMouseDown(event);\"></div>" +
-							"<div class=\"dragEwPane\" onmousedown=\"paneResizeOnMouseDown(event);\"><img src=\"/images/resize.png\" class=\"resize\"><div class=\"dragDiagPane\"></div></div>");
+							"<div class=\"dragEwPane\" onmousedown=\"paneResizeOnMouseDown(event);\"><div class=\"dragDiagPane\"></div></div>");
 			}
 			
 			requestAndResponse.print("</div></div></div></div>");
