@@ -4276,6 +4276,7 @@ function updateDisplayedEntryDetails(response) {
 		
 		if(note) {
 			note.innerHTML = response.noteHtml;
+			makeNotesInTreeContentEditable(note.parentNode);
 		}
 		
 		var modTimeEl = getModTimeElOfAloneEl(aloneEl);
@@ -8045,6 +8046,11 @@ function setCaretPosition(el, position) {
 
 /** Sets the caret position to the end of an el tree. */
 function setCaretPositionEnd(el) {
+	if (el.childNodes.length === 0) {
+    	var textNode = document.createTextNode("");
+   		el.appendChild(textNode);
+	}
+	
 	var child = el.childNodes[el.childNodes.length - 1];
 	var length = 1;
     if (child.nodeName === "#text") {
