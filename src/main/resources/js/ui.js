@@ -3036,20 +3036,6 @@ function fixDivTitlesInSubtreeAndChildren(newSubtreeEl, entryType) {
 		}
 	}
 
-	var notes = newSubtreeEl.getElementsByClassName("note");
-	if (notes) {
-		for (i = 0; i < notes.length; ++i) {
-			notes[i].setAttribute("title", uiText.noteTooltip(entryType, !isOnlyViewable));
-		}
-	}
-
-	var aloneEls = newSubtreeEl.getElementsByClassName("alone");
-	if (aloneEls) {
-		for (i = 0; i < aloneEls.length; ++i) {
-			aloneEls[i].setAttribute("title", uiText.aloneElTooltip(entryType, !isOnlyViewable));
-		}
-	}
-
 	var checkboxEls = newSubtreeEl.getElementsByClassName("aloneCheckbox");
 	if (checkboxEls) {
 		for (i = 0; i < checkboxEls.length; ++i) {
