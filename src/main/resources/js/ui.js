@@ -1995,6 +1995,15 @@ function areAnySelectedFromAList() {
 	return false;
 }
 
+/** Handle when the user hits the escape key when there is no popup. */
+function escapeHandler() {
+	unselectAllEntries();
+	
+	noteEscapeHandler();
+	
+	return false;
+}
+
 /** Unselects all entries, modifying the data structures and the DOM. */
 function unselectAllEntries() {
 	setUpWindowForMousing();
@@ -2007,8 +2016,6 @@ function unselectAllEntries() {
 		updateSelectionDisplayForAloneEl(getAloneElByDbId(dbId));
 	}
 
-	noteEscapeHandler();
-	
 	return false;
 }
 
@@ -5717,38 +5724,60 @@ function getLastOfSelected() {
 
 /** Moves the selection up or down. */
 function moveSelection(direction) {
-	var previous, righter;
-	if (getNumSelected(true) < 1) {
+	if (noteIsFocused) {
+		var isFirstOrLast = isCaretOnFirstOrLastLine();
 		if (direction === "up") {
-			selectLastEntry();
-		} else if (direction === "down") {
-			selectFirstEntry();
-		}
-	} else if (getNumSelected(true) === 1) {
-		if (direction === "up") {
-			previous = getAboveAloneEl(getSelectedDbId(false, true));
-			if (previous) {
-				selectAndScrollToAloneEl(previous, true);
+			if (!isFirstOrLast[0]) {
+				return true;
 			}
 		} else if (direction === "down") {
-			righter = getRighterAloneEl(getSelectedDbId(false, true));
-			if (righter) {
-				selectAndScrollToAloneEl(righter, true);
-			}
-		}
-	} else {
-		if (direction === "up") {
-			previous = getAboveAloneEl(getFirstOfSelected());
-			if (previous) {
-				selectAndScrollToAloneEl(previous, true);
-			}
-		} else if (direction === "down") {
-			righter = getRighterAloneEl(getLastOfSelected());
-			if (righter) {
-				selectAndScrollToAloneEl(righter, true);
+			if (!isFirstOrLast[1]) {
+				return true;
 			}
 		}
 	}
+	
+	var newSelection;
+	if (getNumSelected(true) < 1) {
+		if (direction === "up") {
+			newSelection = getLastEntry();
+		} else if (direction === "down") {
+			newSelection = getFirstEntry();
+		}
+	} else if (getNumSelected(true) === 1) {
+		if (direction === "up") {
+			newSelection = getAboveAloneEl(getSelectedDbId(false, true));
+		} else if (direction === "down") {
+			newSelection = getRighterAloneEl(getSelectedDbId(false, true));
+		}
+	} else {
+		if (direction === "up") {
+			newSelection = getAboveAloneEl(getFirstOfSelected());
+		} else if (direction === "down") {
+			newSelection = getRighterAloneEl(getLastOfSelected());
+		}
+	}
+
+	if (newSelection) {
+		blurNote();
+		
+		selectAndScrollToAloneEl(newSelection, true);
+	
+		// Because FireFox does not let you focus in onfocus callback.
+		setTimeout(function() {
+			var noteEl = getNoteElOfAloneEl(newSelection);
+			if (noteEl) {
+				noteEl.focus();
+				if (direction === "up") {
+					setCaretPositionEnd(noteEl);
+				} else if (direction === "down") {
+					setCaretPosition(noteEl, 0);
+				}
+			}
+		}, 0);
+	}
+	
+	return false;
 }
 
 /** Selects the entry. */
@@ -5808,34 +5837,34 @@ function selectTheEntrysParentInstead() {
 	return false;
 }
 
-/** Handles the shortcut to select the topmost entry in the document. */
-function selectFirstEntry() {
+/** Returns the topmost entry in the document. */
+function getFirstEntry() {
 	var container = getFirstContainer();
 	if (!container)
-		return false;
+		return null;
 
 	var aloneEls = container.getElementsByClassName("alone");
 	// Skip the fake at the top.
 	if (aloneEls && aloneEls.length > 1) {
-		selectAndScrollToAloneEl(aloneEls[1], true);
+		return aloneEls[1];
 	}
 
-	return false;
+	return null;
 }
 
-/** Handles the shortcut to select the bottommost entry in the document. */
-function selectLastEntry() {
+/** Returns the bottommost entry in the document. */
+function getLastEntry() {
 	var container = getFirstContainer();
 	if (!container)
-		return false;
+		return null;
 
 	var aloneEls = container.getElementsByClassName("alone");
 	// Make sure the fake at the top is not selected.
 	if (aloneEls && aloneEls.length > 1) {
-		selectAndScrollToAloneEl(aloneEls[aloneEls.length - 1], true);
+		return aloneEls[aloneEls.length - 1];
 	}
 
-	return false;
+	return null;
 }
 
 /** Handles the shortcut that selects the insert as first child option for the create child popup. */
@@ -6237,15 +6266,15 @@ function getCommandMetaInfo(entryType) {
 	        	              {
 	        	            	  "keys" : "Esc",
 	        	            	  "description" : uiText.helpUnselectAllOrDismiss(entryType),
-	        	            	  "function": unselectAllEntries
+	        	            	  "function": escapeHandler
 	        	              },
 	        	              {
-	        	            	  "keys" : "Ctrl+Up",
+	        	            	  "keys" : "Up",
 	        	            	  "description" : uiText.helpSelectAbove(entryType),
 	        	            	  "function" : moveSelectionUp
 	        	              },
 	        	              {
-	        	            	  "keys" : "Ctrl+Down",
+	        	            	  "keys" : "Down",
 	        	            	  "description" : uiText.helpSelectBelow(entryType),
 	        	            	  "function" : moveSelectionDown
 	        	              }
@@ -6353,14 +6382,12 @@ function getFunctionName(func) {
 
 /** Moves the selection up. */
 function moveSelectionUp() {
-	moveSelection("up");
-	return false;
+	return moveSelection("up");
 }
 
 /** Moves the selection down. */
 function moveSelectionDown() {
-	moveSelection("down");
-	return false;
+	return moveSelection("down");
 }
 
 /** Returns an array with the key action and whether it should be forced. */
@@ -7977,6 +8004,17 @@ function setCaretPosition(el, position) {
 	}
 }
 
+/** Sets the caret position to the end of an el tree. */
+function setCaretPositionEnd(el) {
+	var child = el.childNodes[el.childNodes.length - 1];
+	var length = 1;
+    if (child.nodeName === "#text") {
+    	length = child.nodeValue.length;
+    }
+
+   	setCaretPositionHelper(child, length);
+}
+
 /** Sets the caret position within an el. */
 function setCaretPositionHelper(el, position) {
     if (window.getSelection && document.createRange) {
@@ -8019,6 +8057,30 @@ function getCaretPosition(el) {
 	return caretPos;
 }
 
+/** Gets whether the caret position within an el tree is on the first or last line. */
+function isCaretOnFirstOrLastLine() {
+	var result = [ false, false ];
+	var range;
+	if (window.getSelection) {
+		var selection = window.getSelection();
+		if (selection.rangeCount) {
+			range = selection.getRangeAt(0);
+			if (range.commonAncestorContainer.nodeName === "#text") {
+				result = isCaretOnFirstOrLastLineHelper(range.startContainer);
+			} else {
+				var startNode = range.startContainer;
+				if (range.startContainer.childNodes.length !== 0) {
+					startNode = range.startContainer.childNodes[range.endOffset];
+				}
+				
+				result = isCaretOnFirstOrLastLineHelper(startNode);
+			}
+		}
+	}
+	
+	return result;
+}
+
 /** Gets the caret position within an el. */
 function getCaretPositionHelper(stopAt, el) {
 	if (stopAt === el || !el) {
@@ -8036,6 +8098,11 @@ function getCaretPositionHelper(stopAt, el) {
 	}
 
 	return result + getCaretPositionHelper(stopAt, el.parentNode);
+}
+
+/** Gets whether the caret position is on the first and last line. */
+function isCaretOnFirstOrLastLineHelper(el) {
+     return [ !el.previousSibling, !el.nextSibling ];
 }
 
 /** Gets the logical length of an el in terms of cursor positions. */
