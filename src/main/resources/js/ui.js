@@ -2185,13 +2185,13 @@ function documentOnMouseDown(ev, fromTouch) {
 	var clickedAloneEl = getCorrespondingAloneEl(eventEl);
 	if (!clickedAloneEl) {
 		unselectAllEntries();
-		noteOnBlur();
+		blurNote();
 		return;
 	}
 
 	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note', '.alone');
 	if(!noteEl) {
-		noteOnBlur();
+		blurNote();
 	}
 
 	var clickedDbId = getDbIdFromEl(clickedAloneEl);
@@ -2230,16 +2230,27 @@ function documentOnMouseDown(ev, fromTouch) {
 		return;
 	}
 
-	if (handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev)) {
+	var shouldReturn = handleSelectionMouseDown(clickedAloneEl, clickedDbId, ev);
+	
+	var isNote = getElOrAncestor(eventEl, 'DIV', 'note', '.alone');
+	
+	if (!fromTouch) {
+		var lastSelectedDbId = getSelectedDbId(true);
+		if (lastSelectedDbId) {
+			focusNoteAndSetCaret(getAloneElByDbId(lastSelectedDbId), !isNote && isFireFox);
+		}
+	}
+	
+	if (shouldReturn) {
 		return;
 	}
 
-	var textIsSelectable = getElOrAncestor(eventEl, 'DIV', 'note', '.alone') ||
+	var textIsSelectable = isNote ||
 	getElOrAncestor(eventEl, 'DIV', 'quotation', '.alone');
 
 	// Allow the user to select text.
 	if (textIsSelectable) {
-		return;
+		return true;
 	}
 	
 	if (fromTouch) {
@@ -5723,6 +5734,11 @@ function getLastOfSelected() {
 	return last;
 }
 
+// Globals for note text editing.
+var editedNoteDbId = null;
+var oldNoteHtml = null;
+var noteIsFocused = false;
+
 /** Moves the selection up or down. */
 function moveSelection(direction) {
 	if (noteIsFocused) {
@@ -5764,23 +5780,42 @@ function moveSelection(direction) {
 		
 		selectAndScrollToAloneEl(newSelection, true);
 	
-		// Because FireFox does not let you focus in onfocus callback.
-		setTimeout(function() {
-			var noteEl = getNoteElOfAloneEl(newSelection);
-			if (noteEl) {
-				noteEl.focus();
-				if (direction === "up") {
-					setCaretPositionEnd(noteEl);
-				} else if (direction === "down") {
-					setCaretPosition(noteEl, 0);
-				}
-			}
-		}, 0);
+		focusNoteAndSetCaret(newSelection);
 	}
 	
 	return false;
 }
 
+/** Removes any selection from the page. */
+function deselectAllSelections() {
+    var selection = ('getSelection' in window) ? window.getSelection() :
+        ('selection' in document) ? document.selection : null;
+	  
+    if ('removeAllRanges' in selection) {
+        selection.removeAllRanges();
+    } else if ('empty' in selection) {
+        selection.empty();
+    }
+}
+
+/** Focuses the note for the aloneEl and sets the caret. */
+function focusNoteAndSetCaret(aloneEl, forceSetCaret) {
+	// Because FireFox does not let you focus in an onfocus callback.
+	setTimeout(function() {
+		var noteEl = getNoteElOfAloneEl(aloneEl);
+		if (!forceSetCaret && doesNoteHaveCaret(noteEl)) {
+			return;
+		}
+		
+		deselectAllSelections();
+		
+		if (noteEl) {
+			noteEl.focus();
+			setCaretPositionEnd(noteEl);
+		}
+	}, 0);
+}
+	
 /** Selects the entry. */
 function selectAloneEl(aloneEl, unselectOthers, toggleSelection) {
 	if (unselectOthers) {
@@ -7795,11 +7830,6 @@ function makeNotesInTreeContentEditable(el, paneType) {
 	}
 }
 
-// Globals for note text editing.
-var editedNoteDbId = null;
-var oldNoteHtml = null;
-var noteIsFocused = false;
-
 /** Undo the unsaved edit to a note text. */
 function undoNoteEdit(dbId, htmlToReplaceWith) {
 	if (htmlToReplaceWith === null) {
@@ -7837,10 +7867,6 @@ function noteOnFocus(ev) {
  *  or programmatically.
  */
 function noteOnBlur() {
-	if (noteIsFocused) {
-		deselectAllSelections();
-	}
-
 	noteIsFocused = false;
 	if (!editedNoteDbId) {
 		return;
@@ -8070,6 +8096,22 @@ function getCaretPosition(el) {
 	return caretPos;
 }
 
+/** Returns true if the note el has a caret. */
+function doesNoteHaveCaret(noteEl) {
+	if (window.getSelection) {
+		var selection = window.getSelection();
+		if (selection.rangeCount) {
+			var range = selection.getRangeAt(0);
+			if (range) {
+				var noteElWithFocus = getElOrAncestor(range.startContainer, 'DIV', 'note', '.alone');
+				return noteElWithFocus === noteEl;
+			}
+		}
+	}
+	
+	return false;
+}
+
 /** Gets whether the caret position within an el tree is on the first or last line. */
 function isCaretOnFirstOrLastLine() {
 	var result = [ false, false ];
@@ -8133,18 +8175,6 @@ function getCaretPositionsInEl(el) {
 	}
 
 	return result;
-}
-
-/** Removes any selection from the page. */
-function deselectAllSelections() {
-    var selection = ('getSelection' in window) ? window.getSelection() :
-        ('selection' in document) ? document.selection : null;
-	  
-    if ('removeAllRanges' in selection) {
-        selection.removeAllRanges();
-    } else if ('empty' in selection) {
-        selection.empty();
-    }
 }
 
 var notesBeingSaved = {};
