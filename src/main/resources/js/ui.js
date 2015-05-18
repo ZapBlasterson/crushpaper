@@ -7336,25 +7336,27 @@ function panePencilOnMouseOut(ev) {
 
 function getRightTriPngUrl() { return "/images/righttri.png"; }
 function getTri90PngUrl() { return "/images/tri90.png"; }
-function getMinusPngUrl() { return "/images/plus.png"; }
+function getMinusPngUrl() { return "/images/minus.png"; }
 function getPlusPngUrl() { return "/images/plus.png"; }
 function getRightTriBorderPngUrl() { return "/images/righttriborder.png"; }
 function getTri90BorderPngUrl() { return "/images/tri90border.png"; }
-function getMinusBorderPngUrl() { return "/images/plusborder.png"; }
+function getMinusBorderPngUrl() { return "/images/minusborder.png"; }
 function getPlusBorderPngUrl() { return "/images/plusborder.png"; }
 function getFatPlusPngUrl() { return "/images/fatplus.png"; }
-function getFatPencilPngUrl() { return "/images/pencil.png"; }
-function getFatTrashPngUrl() { return "/images/trash.png"; }
-function getFatPencilDarkPngUrl() { return "/images/pencildark.png"; }
-function getFatTrashDarkPngUrl() { return "/images/trashdark.png"; }
-function getFatPencilWhitePngUrl() { return "/images/pencilwhite.png"; }
-function getFatTrashWhitePngUrl() { return "/images/trashwhite.png"; }
-function getFatPencilGreenPngUrl() { return "/images/pencilgreen.png"; }
-function getFatPencilGreenDarkPngUrl() { return "/images/pencilgreendark.png"; }
+function getPencilPngUrl() { return "/images/pencil.png"; }
+function getTrashPngUrl() { return "/images/trash.png"; }
+function getPencilDarkPngUrl() { return "/images/pencildark.png"; }
+function getTrashDarkPngUrl() { return "/images/trashdark.png"; }
+function getPencilWhitePngUrl() { return "/images/pencilwhite.png"; }
+function getTrashWhitePngUrl() { return "/images/trashwhite.png"; }
+function getPencilGreenPngUrl() { return "/images/pencilgreen.png"; }
+function getPencilGreenDarkPngUrl() { return "/images/pencilgreendark.png"; }
 function getNotebookPngUrl() { return "/images/notebook.png"; }
 function getXPngUrl() { return "/images/x.png"; }
 function getXDarkPngUrl() { return "/images/x.png"; }
 function getRefreshPngUrl() { return "/images/refresh.png"; }
+function getDragPngUrl() { return "/images/drag.png"; }
+function getDragMultPngUrl() { return "/images/dragmult.png"; }
 
 new Image().src = getTri90PngUrl();
 new Image().src = getRightTriPngUrl();
@@ -7365,18 +7367,20 @@ new Image().src = getRightTriBorderPngUrl();
 new Image().src = getPlusBorderPngUrl();
 new Image().src = getMinusBorderPngUrl();
 new Image().src = getFatPlusPngUrl();
-new Image().src = getFatPencilPngUrl();
-new Image().src = getFatTrashPngUrl();
-new Image().src = getFatPencilDarkPngUrl();
-new Image().src = getFatTrashDarkPngUrl();
-new Image().src = getFatPencilWhitePngUrl();
-new Image().src = getFatTrashWhitePngUrl();
-new Image().src = getFatPencilGreenPngUrl();
-new Image().src = getFatPencilGreenDarkPngUrl();
+new Image().src = getPencilPngUrl();
+new Image().src = getTrashPngUrl();
+new Image().src = getPencilDarkPngUrl();
+new Image().src = getTrashDarkPngUrl();
+new Image().src = getPencilWhitePngUrl();
+new Image().src = getTrashWhitePngUrl();
+new Image().src = getPencilGreenPngUrl();
+new Image().src = getPencilGreenDarkPngUrl();
 new Image().src = getNotebookPngUrl();
 new Image().src = getXPngUrl();
 new Image().src = getXDarkPngUrl();
 new Image().src = getRefreshPngUrl();
+new Image().src = getDragPngUrl();
+new Image().src = getDragMultPngUrl();
 
 /** Called after a page is finished loading. */
 function onFinishFullPageLoad() {
