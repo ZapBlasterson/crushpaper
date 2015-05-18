@@ -6107,12 +6107,7 @@ function showPopupForHelp() {
 			for (j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				if ("description" in command) {
-					var keys = command.keys;
-					if ("displayKeys" in command) {
-						keys = command.displayKeys;
-					}
-					
-					html += decorateHelpShortcutDescription(keys, command.description);
+					html += decorateHelpShortcutDescription(getDisplayKeys(command), command.description);
 				}
 			}
 		}
@@ -6338,18 +6333,11 @@ function removeContextMenuShortCuts() {
 		if (commandMetaInfoSection.inContextMenu) {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
-				if (supportShortcutInContextMenu(command)) {
-					var actionAndForced = getKeyActionAndForced(command);
-					Mousetrap.unbind(command.keys.toLowerCase(), actionAndForced[0], actionAndForced[1]);
-				}
+				var actionAndForced = getKeyActionAndForced(command);
+				Mousetrap.unbind(command.keys.toLowerCase(), actionAndForced[0], actionAndForced[1]);
 			}
 		}
 	}
-}
-
-/** Returns true if there should be a shortcut for the command in the context menu. */
-function supportShortcutInContextMenu(command) {
-	return command.keys.match("^[a-zA-Z0-9]+$");
 }
 
 /** Shows the context menu popup. */
@@ -6392,22 +6380,28 @@ function showPopupForContextMenu() {
 			for (var j = 0; j < commandMetaInfoSection.commands.length; ++j) {
 				var command = commandMetaInfoSection.commands[j];
 				if (isATree || command.worksOnLists) {
-					html += decorateContextMenuButton(command.keys, command.description,
+					html += decorateContextMenuButton(getDisplayKeys(command), command.description,
 							getFunctionName(command["function"]));
-					if (supportShortcutInContextMenu(command)) {
-						var actionAndForced = getKeyActionAndForced(command);
-						Mousetrap.bind(command.keys.toLowerCase(),
-								createContextMenuFunc(command["function"]), actionAndForced[0], actionAndForced[1]);
-					}
+					var actionAndForced = getKeyActionAndForced(command);
+					Mousetrap.bind(command.keys.toLowerCase(),
+							createContextMenuFunc(command["function"]), actionAndForced[0], actionAndForced[1]);
 				}
 			}
 		}
 	}
 
-
 	addThenCenterPopup(popup, html);
 
 	return false;
+}
+
+/** Returns the display keys for the command. */
+function getDisplayKeys(command) {
+	if ("displayKeys" in command) {
+		return command.displayKeys;
+	}
+	
+	return command.keys;
 }
 
 /** Return the name of a function. */
