@@ -1036,3 +1036,43 @@ uiTextEn.buttonSetAccountInfo = function() {
 uiTextEn.buttonForceSignOut = function() {
 	return "Sign Out Anyway";
 };
+
+uiTextEn.popupTitleExportTheNotebook = function() {
+	return "Export The Notebook";
+};
+
+uiTextEn.tooltipButtonExport = function() {
+	return "Export the notebook.";
+};
+
+uiTextEn.buttonExport = function() {
+	return "Export";
+};
+
+uiTextEn.labelFormatHtml = function() {
+	return "Export as HTML.";
+};
+
+uiTextEn.labelHtmlStructureParagraphs = function() {
+	return "Export the notes hierarchy as a series of paragraphs.";
+};
+
+uiTextEn.labelHtmlStructureNestedLists = function() {
+	return "Export the notes hierarchy as nested lists.";
+};
+
+uiTextEn.labelFormatMarkdown = function() {
+	return "Export in Markdown Format.";
+};
+
+uiTextEn.labelFormatRtf = function() {
+	return "Export in Rich Text Format (RTF).";
+};
+
+uiTextEn.labelIncludeReferencesSection = function() {
+	return "Include a references section at the end.";
+};
+
+uiTextEn.labelIncludeQuotations = function() {
+	return "Include quotations.";
+};

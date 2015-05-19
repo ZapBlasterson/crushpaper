@@ -5278,6 +5278,46 @@ function showPopupForDeleteSource(id, paneIndex) {
 	return false;
 }
 
+/** Shows the popup for exporting a notebook. */
+function showPopupForExportNotebook(id) {
+	if (!areCommandsAllowed) {
+		return false;
+	}
+
+	var title = uiText.popupTitleExportTheNotebook();
+
+	var popup = createPopupForDialog(true);
+	var html = decoratePopupTitle(title);
+
+	html += "<table><tr><td><form action=\"/doExport/" +
+			"\" method=\"POST\">" +
+			"<input checked onclick=\"exportFormatOnClick(event);\" type=\"radio\" name=\"format\" value=\"html\" id=\"formatHtml\"><label for=\"formatHtml\">" + uiText.labelFormatHtml() + "</label><br>" +
+			"<div style=\"margin-left:20px;\">" +
+			"<input checked type=\"radio\" name=\"htmlStructure\" value=\"paragraphs\" id=\"htmlStructureParagraphs\"><label for=\"htmlStructureParagraphs\">" + uiText.labelHtmlStructureParagraphs() + "</label><br>" +
+			"<input type=\"radio\" name=\"htmlStructure\" value=\"nestedLists\" id=\"htmlStructureNestedLists\"><label for=\"htmlStructureNestedLists\">" + uiText.labelHtmlStructureNestedLists() + "</label><br>" +
+			"</div>" +
+			"<input onclick=\"exportFormatOnClick(event);\" type=\"radio\" name=\"format\" value=\"markdown\" id=\"formatMarkdown\"><label for=\"formatMarkdown\">" + uiText.labelFormatMarkdown() + "</label><br>" +
+			"<input onclick=\"exportFormatOnClick(event);\" type=\"radio\" name=\"format\" value=\"rtf\" id=\"formatRtf\"><label for=\"formatRtf\">" + uiText.labelFormatRtf() + "</label><br>" +
+			"<input checked type=\"checkbox\" name=\"includeReferencesSection\" id=\"includeReferencesSection\"><label for=\"includeReferencesSection\">" + uiText.labelIncludeReferencesSection() + "</label><br>" +
+			"<input type=\"checkbox\" name=\"includeQuotations\" id=\"includeQuotations\"><label for=\"includeQuotations\">" + uiText.labelIncludeQuotations() + "</label><br>" +
+			"<input type=\"hidden\" name=\"id\" value=\"" + id + "\">" +
+			"<input type=\"hidden\" name=\"csrft\" value=\"" + getCsrft() + "\">" +
+			"<button class=\"specialbutton withTopMargin\" title=\"" + uiText.tooltipButtonExport() + "\">" +
+			uiText.buttonExport() + "</button></form></td></tr></table>";
+	
+	addThenCenterPopup(popup, html);
+
+	return false;
+}
+
+/** Make sure the HTML structure radio buttons are only selectable when they should be. */
+function exportFormatOnClick(ev) {
+	var eventEl = getEventEl(ev);
+	var disabled = eventEl.id !== "formatHtml";
+	document.getElementById("htmlStructureParagraphs").disabled = disabled;
+	document.getElementById("htmlStructureNestedLists").disabled = disabled;
+}
+
 /** Returns true if the element exists and is checked. */
 function isElementChecked(id) {
 	return document.getElementById(id) && document.getElementById(id).checked === true;
@@ -7357,6 +7397,8 @@ function getXDarkPngUrl() { return "/images/x.png"; }
 function getRefreshPngUrl() { return "/images/refresh.png"; }
 function getDragPngUrl() { return "/images/drag.png"; }
 function getDragMultPngUrl() { return "/images/dragmult.png"; }
+function getExportPngUrl() { return "/images/export.png"; }
+function getExportDarkPngUrl() { return "/images/exportdark.png"; }
 
 new Image().src = getTri90PngUrl();
 new Image().src = getRightTriPngUrl();
@@ -7381,6 +7423,8 @@ new Image().src = getXDarkPngUrl();
 new Image().src = getRefreshPngUrl();
 new Image().src = getDragPngUrl();
 new Image().src = getDragMultPngUrl();
+new Image().src = getExportPngUrl();
+new Image().src = getExportDarkPngUrl();
 
 /** Called after a page is finished loading. */
 function onFinishFullPageLoad() {
@@ -7762,6 +7806,13 @@ function paneTrashOnClick(ev) {
 	} else if (paneType === "source") {
 		showPopupForDeleteSource(paneEl.id, paneIndex);
 	}
+}
+
+/** Handle clicking the export icon on a notebook. */
+function paneExportOnClick(ev) {
+	var eventEl = getEventEl(ev);
+	var paneEl = getContainingPaneEl(eventEl);
+	showPopupForExportNotebook(paneEl.id);
 }
 
 /** Shows or hides the menu. */
@@ -8332,6 +8383,8 @@ function markFunctionsAsUsed() {
 	paneMoveOnMouseDown();
 	setAccountInfo();
 	showPopupForHelp();
+	paneExportOnClick();
+	exportFormatOnClick();
 }
 
 markFunctionsAsUsed();

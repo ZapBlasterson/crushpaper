@@ -43,6 +43,13 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 1. See more on search <a onclick="newPaneForLink(event, 'Search Help', 'help'); return false;" href="/help/Search-Help">here</a>.
 
+### Exporting Notebooks
+
+1. You can export a note book by clicking the down arrow to the right of the notebook title.
+1. You can choose three formats: HTML, RTF (Rich Text Format) and Markdown.
+1. You can choose to include quotations inline in the exported notebook or just notes.
+1. You can choose to include a list of references at the end of the exported notebook. 
+
 ### Backing up Notes, Quotations and Sources
 
 1. You can backup all of your notes, quotations and sources in a JSON file. (JSON is a popular text format for data.)

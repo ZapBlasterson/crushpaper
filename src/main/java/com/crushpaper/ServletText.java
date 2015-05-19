@@ -1246,4 +1246,8 @@ public class ServletText {
 	public String sentenceMsWordListFormat() {
 		return "The file is in MS Word List Format.";
 	}
+
+	public String pageTitleExportNotebook() {
+		return "Export Notebook";
+	}
 }

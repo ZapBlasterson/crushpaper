@@ -264,6 +264,16 @@ public class Servlet extends HttpServlet {
 			response.setContentType("application/json;charset=utf-8");
 		}
 
+		/** Sets the content type of the response to text utf8. */
+		public void setResponseContentTypeText() {
+			response.setContentType("text/plain;charset=utf-8");
+		}
+
+		/** Sets the content type of the response to RTF. */
+		public void setResponseContentTypeRtf() {
+			response.setContentType("application/rtf");
+		}
+
 		private String overrideUri;
 		private String requestUri;
 		private boolean parametersAlreadyParsed;
@@ -647,6 +657,8 @@ public class Servlet extends HttpServlet {
 			handleHtmlCloseAccount(requestAndResponse);
 		} else if (uri.equals("/saveOptions")) {
 			handleJsonSaveOptions(requestAndResponse);
+		} else if (uri.startsWith("/doExport/")) {
+			handleHtmlDoExport(requestAndResponse);
 		} else {
 			returnHtml404(requestAndResponse);
 		}
@@ -1190,10 +1202,7 @@ public class Servlet extends HttpServlet {
 		final String note = requestAndResponse.request
 				.getParameter(DbLogic.Constants.note);
 
-		final String isPublicString = requestAndResponse.request
-				.getParameter("isPublic");
-		final boolean isPublic = isPublicString != null
-				&& isPublicString.equals("on");
+		final boolean isPublic = getCheckBoxValue(requestAndResponse, "isPublic");
 
 		final String csrft = requestAndResponse.getParameter("csrft");
 		if (isTheCsrftWrong(requestAndResponse, csrft)) {
@@ -2129,9 +2138,9 @@ public class Servlet extends HttpServlet {
 
 		if (includeJustTextFields) {
 			result.append(",\"noteHtml\":"
-					+ JsonBuilder.quote(getNoteMarkdown(entry, false, entry.hasQuotation())) + "\n");
+					+ JsonBuilder.quote(getNoteHtml(entry, false, entry.hasQuotation(), true)) + "\n");
 			result.append(",\"quotationHtml\":"
-					+ JsonBuilder.quote(getQuotationMarkdown(entry))
+					+ JsonBuilder.quote(getQuotationHtml(entry, true))
 					+ "\n");
 		} else {
 			final StringBuilder innerResult = new StringBuilder();
@@ -2959,6 +2968,12 @@ public class Servlet extends HttpServlet {
 									+ (paneId != null ? "id=\"buttons_"
 											+ paneId + "\" " : "")
 									+ " class=\"paneButtons\">");
+					
+					if (includeExport) {
+						requestAndResponse
+								.print("<div class=\"exportIcon\" onclick=\"paneExportOnClick(event); return false;\"></div>");
+					}
+
 					if (includeEdit) {
 						requestAndResponse
 								.print("<div class=\"editIcon\" onmouseover=\"panePencilOnMouseOver(event); return false;\" onmouseout=\"panePencilOnMouseOut(event); return false;\" onclick=\"panePencilOnClick(event); return false;\"></div>");
@@ -3092,6 +3107,11 @@ public class Servlet extends HttpServlet {
 			return this;
 		}
 
+		public PageWrapper setIncludeExport() {
+			this.includeExport = true;
+			return this;
+		}
+
 		/** Adds meta data to the page that will be served to the client. */
 		public void addMetaData(KeyAndValue keyAndValue) {
 			metaData.add(keyAndValue);
@@ -3103,6 +3123,7 @@ public class Servlet extends HttpServlet {
 		private final boolean needsAdmin;
 		private boolean includeEdit;
 		private boolean includeDelete;
+		private boolean includeExport;
 		private final ArrayList<KeyAndValue> metaData = new ArrayList<KeyAndValue>();
 	}
 
@@ -3648,7 +3669,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	/** Returns the entry's note html. */
-	private String getNoteMarkdown(Entry entry, boolean noLinks, boolean noPlaceholder) {
+	private String getNoteHtml(Entry entry, boolean noLinks, boolean noPlaceholder, boolean nbsps) {
 		final String value = entry.getNoteOrTitle();
 		if (value == null || value.isEmpty()) {
 			if(noPlaceholder) {
@@ -3663,23 +3684,32 @@ public class Servlet extends HttpServlet {
 			return "<span class=\"placeholder\">" + placeholder + "</span>";
 		}
 
-		return textToPreishHtml(value);
+		return textToPreishHtml(value, nbsps);
 	}
 
 	/** Converts to preish HTML. */
-	private String textToPreishHtml(final String value) {
-		return StringEscapeUtils.escapeHtml4(value).replace("\n", "<br>").replace(" ", "&nbsp;");
+	private String textToPreishHtml(final String value, boolean nbsps) {
+		if (value == null) {
+			return "";
+		}
+		
+		String lines = StringEscapeUtils.escapeHtml4(value).replace("\n", "<br>");
+		if (nbsps) {
+			return lines.replace(" ", "&nbsp;");
+		}
+		
+		return lines;
 	}
 
 	/** Returns the entry's quotation html. */
-	private String getQuotationMarkdown(Entry entry) {
+	private String getQuotationHtml(Entry entry, boolean nbsps) {
 		final String value = entry.getQuotation();
 		if (value == null || value.isEmpty()) {
 			return "<span class=\"placeholder\">"
 					+ servletText.fragmentBlankQuotation() + "</span>";
 		}
 
-		return "<div>" + textToPreishHtml(value) + "</div>";
+		return "<div>" + textToPreishHtml(value, nbsps) + "</div>";
 	}
 
 	/** Returns the destination directory for a new backup. */
@@ -4541,29 +4571,20 @@ public class Servlet extends HttpServlet {
 							}
 
 							// Validate mayContact.
-							final String mayContactString = requestAndResponse.request
-									.getParameter("mayContact");
-							final boolean mayContact = mayContactString != null
-									&& mayContactString.equals("on");
+							final boolean mayContact = getCheckBoxValue(requestAndResponse, "mayContact");
 							if (mayContact != editedUser.getMayContact()) {
 								needsChange = true;
 							}
 
 							// Validate isAccountClosed.
-							final String isAccountClosedString = requestAndResponse.request
-									.getParameter("isAccountClosed");
-							final boolean isAccountClosed = isAccountClosedString != null
-									&& isAccountClosedString.equals("on");
+							final boolean isAccountClosed = getCheckBoxValue(requestAndResponse, "isAccountClosed");
 							if (isAccountClosed != editedUser
 									.getIsAccountClosed()) {
 								needsChange = true;
 							}
 
 							// Validate isAdmin.
-							final String isAdminString = requestAndResponse.request
-									.getParameter("isAdmin");
-							final boolean isAdmin = isAdminString != null
-									&& isAdminString.equals("on");
+							final boolean isAdmin = getCheckBoxValue(requestAndResponse, "isAdmin");
 							if (isAdmin != editedUser.getIsAdmin()) {
 								if (!isAdmin && editedUser.getIsSingleUser()) {
 									hasErrors = true;
@@ -5781,15 +5802,15 @@ public class Servlet extends HttpServlet {
 		if (entry.hasQuotation()) {
 			result.append("<div class=\"quotation\" title=\""
 					+ servletText.quotationInListTooltip() + "\">");
-			result.append(getQuotationMarkdown(entry));
+			result.append(getQuotationHtml(entry, true));
 			result.append("</div><br>");
 		}
 
-		String noteMarkdown = getNoteMarkdown(entry, true, entry.hasQuotation());
-		if (!noteMarkdown.isEmpty()) {
+		String noteHtml = getNoteHtml(entry, true, entry.hasQuotation(), true);
+		if (!noteHtml.isEmpty()) {
 			result.append("<div class=\"note mousetrap\" title=\""
 				+ servletText.noteInListTooltip(entry.getType()) + "\">");
-			result.append(noteMarkdown);
+			result.append(noteHtml);
 			result.append("</div>");
 		}
 
@@ -5941,14 +5962,14 @@ public class Servlet extends HttpServlet {
 
 			if (entry.hasQuotation()) {
 				result.append("<div class=\"quotation\">");
-				result.append(getQuotationMarkdown(entry));
+				result.append(getQuotationHtml(entry, true));
 				result.append("</div><br>");
 			}
 
-			String noteMarkdown = getNoteMarkdown(entry, false, entry.hasQuotation());
-			if (!noteMarkdown.isEmpty()) {
+			String noteHtml = getNoteHtml(entry, false, entry.hasQuotation(), true);
+			if (!noteHtml.isEmpty()) {
 				result.append("<div class=\"note mousetrap\">");
-				result.append(noteMarkdown);
+				result.append(noteHtml);
 				result.append("</div>");
 			}
 			
@@ -6528,7 +6549,7 @@ public class Servlet extends HttpServlet {
 			String mayNotSeeMessage, String introMessage, String touchIntroMessage,
 			String tooltipNewChild, String buttonNewChild,
 			String titleIfCanSee, Entry root, boolean userCanSee, User user,
-			boolean showDelete, String buttonFunction, String paneType,
+			boolean showDeleteAndExport, String buttonFunction, String paneType,
 			Boolean notEditable) throws IOException, ServletException {
 
 		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
@@ -6583,9 +6604,12 @@ public class Servlet extends HttpServlet {
 
 				pageWrapper.setTitle(titleIfCanSee);
 				pageWrapper.setIncludeEdit();
-				if (showDelete) {
+				
+				if (showDeleteAndExport) {
+					pageWrapper.setIncludeExport();
 					pageWrapper.setIncludeDelete();
 				}
+				
 				pageWrapper.addHeader();
 
 				pageWrapper.addPageIntroText(introMessage, touchIntroMessage);
@@ -6861,8 +6885,595 @@ public class Servlet extends HttpServlet {
 		return contextHandlers;
 	}
 
+	/** Manages a list of unique sources, each with a small contiguous integer ID. */
+	static class SourcesHashList {
+		
+		/** Add a source to the hash list and return its ID. */
+		int add(Entry source) {
+			Integer id = hash.get(source);
+			
+			if (id == null) {
+				id = hash.size() + 1;
+				list.add(source);
+				hash.put(source, id);
+			}
+			
+			return id;
+		}
+
+		/** Return the list of sources. */
+		public List<Entry> getSources() {
+			return list;
+		}
+
+		private List<Entry> list = new ArrayList<Entry>();
+		private HashMap<Entry, Integer> hash = new HashMap<Entry, Integer>();
+	}
+	
+	/** Part of the HTML API. Handle an export. */
+	private void handleHtmlDoExport(RequestAndResponse requestAndResponse)
+			throws IOException, ServletException {
+		
+		final String pageTitle = servletText.pageTitleExportNotebook();
+		final String csrft = requestAndResponse.getParameter("csrft");
+		final String id = requestAndResponse.getParameter("id");
+		String format = requestAndResponse.getParameter("format");
+		if (format == null
+				|| (!format.equals("markdown") && !format.equals("rtf")
+						&& !format.equals("html"))) {
+			format = "html";
+		}
+
+		String htmlStructure = requestAndResponse.getParameter("htmlStructure");
+		if (htmlStructure == null
+				|| (!htmlStructure.equals("nestedLists") && !htmlStructure.equals("paragraphs"))) {
+			htmlStructure = "paragraphs";
+		}
+
+		final boolean includeQuotations = getCheckBoxValue(requestAndResponse, "includeQuotations");
+		
+		final boolean includeReferencesSection = getCheckBoxValue(requestAndResponse, "includeReferencesSection");
+		
+		final PageWrapper pageWrapper = new PageWrapper(requestAndResponse,
+				pageTitle, false).setPaneId("export");
+		
+		if (isTheCsrftWrong(requestAndResponse, csrft)) {
+			pageWrapper.addHeader();
+			requestAndResponse.print(servletText.errorRequiresSignIn(false));
+			pageWrapper.addFooter();
+		} else if (!isUserSignedIn(requestAndResponse)) {
+			pageWrapper.addHeader();
+			requestAndResponse.print(servletText
+					.errorRequiresSignIn(false));
+			pageWrapper.addFooter();
+		} else if (isUsersAccountClosed(requestAndResponse)) {
+			pageWrapper.addHeader();
+			requestAndResponse.print(servletText.errorAccountIsClosed());
+			pageWrapper.addFooter();
+		} else {
+			final StringBuilder result = new StringBuilder();
+			try {
+				final String userId = getEffectiveUserId(requestAndResponse);
+				final User user = dbLogic.getUserById(userId);
+				if (user != null) {
+					Entry entry = dbLogic.getEntryById(id);
+					if (entry != null
+							&& !entry.getType("").equals(DbLogic.Constants.notebook)) {
+						entry = null;
+					}
+
+					if (entry == null) {
+						pageWrapper.addHeader();
+						requestAndResponse.print(servletText.errorNotebookCouldNotBeFound());
+						pageWrapper.addFooter();
+						return;
+					}
+					
+					boolean userCanSee = false;
+					Entry root = null;
+					if (entry != null) {
+						root = dbLogic.getEntryById(entry.getRootId());
+						userCanSee = dbLogic.canUserSeeEntry(user, entry,
+								isUserAnAdmin(requestAndResponse));
+					}
+
+					if (!userCanSee) {
+						pageWrapper.addHeader();
+						requestAndResponse.print(servletText.errorMayNotSeeNotebook());
+						pageWrapper.addFooter();
+						return;
+					}
+
+					String extension = null;
+					if (format.equals("html")) {
+						getNotebookHtmlForExport(result, entry, root, htmlStructure.equals("nestedLists"), includeQuotations, includeReferencesSection);
+						extension = "html";
+					} else if (format.equals("markdown")) {
+						getNotebookMarkdownForExport(result, entry, root, includeQuotations, includeReferencesSection);
+						extension = "md";
+						requestAndResponse.setResponseContentTypeText();
+					} else if (format.equals("rtf")) {
+						getNotebookRtfForExport(result, entry, root, includeQuotations, includeReferencesSection);
+						extension = "rtf";
+						requestAndResponse.setResponseContentTypeRtf();
+					}
+
+					requestAndResponse.response.setHeader(
+							"Content-Disposition",
+							"attachment; filename=crushpaper-export-"
+									+ user.getUserName()
+									+ "-"
+									+ formatDateTimeForFileName(System
+											.currentTimeMillis()) + "." + extension);
+				}
+
+				dbLogic.commit();
+			} catch (final PersistenceException e) {
+			}
+
+			requestAndResponse.print(result.toString());
+		}
+	}
+
 	/**
-	 * Returns the name of the resource this class is embedded in which might be
+	 * Helper method. Adds the HTML for an entry to an export.
+	 */
+	private void addEntryHtmlToExport(Entry entry, StringBuilder result, SourcesHashList sources, boolean asNestedLists, boolean includeQuotations,
+			boolean includeReferencesSection, boolean skipThisLevel) throws IOException {
+		
+		if (!skipThisLevel) {
+			if (asNestedLists) {
+				result.append("<div class=\"noteAndQuotation\">\n");
+			}
+			
+			final Entry source = dbLogic.getEntryById(entry.getSourceId());
+			int sourceId = 0;
+			if (source != null) {
+				sourceId = sources.add(source);
+			}
+			
+			if (includeQuotations && entry.hasQuotation()) {
+				result.append("<p class=\"quotation\">");
+				result.append(textToPreishHtml(entry.getQuotation(), false));
+				
+				if (includeReferencesSection) {
+					if (sourceId != 0) {
+						result.append(" <a href=\"#reference" + sourceId + "\">[" + sourceId + "]</a>");
+					}
+				}
+
+				result.append("</p>\n");
+			}
+		
+			if (entry.hasNote()) {
+				String noteHtml = textToPreishHtml(entry.getNote(), false);
+				if (!noteHtml.isEmpty()) {
+					result.append("<p class=\"note\">");
+					result.append(noteHtml);
+					result.append("</p>\n");
+				}
+			}
+		}
+
+		List<?> childrenFromDb = dbLogic.getEntriesByParentId(entry
+				.getId());
+		
+		if (!childrenFromDb.isEmpty()) {
+			if (asNestedLists) {
+				result.append("<ol class=\"subnotes\">\n");
+			}
+	
+			final Hashtable<String, Entry> children = new Hashtable<String, Entry>();
+			Entry first = null;
+			for (final Object childObject : childrenFromDb) {
+				final Entry child = (Entry) childObject;
+				children.put(child.getId(), child);
+				if (!child.hasPreviousSiblingId()) {
+					first = child;
+				}
+			}
+	
+			if (first != null) {
+				// This is the code path if there is no DB corruption.
+				Entry child = first;
+				for (int i = 0; i < children.size(); ++i) {
+					if (child == null) {
+						break;
+					}
+	
+					if (asNestedLists) {
+						result.append("<li>\n");
+					}
+					
+					addEntryHtmlToExport(child, result, sources, asNestedLists, includeQuotations, includeReferencesSection, false);
+					
+					if (asNestedLists) {
+						result.append("</li>\n");
+					}
+					
+					if (!child.hasNextSiblingId()) {
+						break;
+					}
+	
+					final String nextId = child.getNextSiblingId();
+					child = children.get(nextId);
+				}
+			} else {
+				// This is an error code path. It should only happen if there is
+				// DB corruption.
+				final Iterator<Map.Entry<String, Entry>> iterator = children
+						.entrySet().iterator();
+				while (iterator.hasNext()) {
+					final Map.Entry<String, Entry> mapEntry = iterator.next();
+					final Entry child = mapEntry.getValue();
+	
+					if (asNestedLists) {
+						result.append("<li>\n");
+					}
+					
+					addEntryHtmlToExport(child, result, sources, asNestedLists, includeQuotations, includeReferencesSection, false);
+					
+					if (asNestedLists) {
+						result.append("</li>\n");
+					}
+				}
+			}
+	
+			if (asNestedLists) {
+				result.append("</ol>\n");
+			}
+		}
+		
+		if (!skipThisLevel && asNestedLists) {
+			result.append("</div>\n");
+		}
+	}
+	
+	/** Helper method. Adds the HTML for a source to a list. */
+	private void addSourceHtmlToExport(Entry source, StringBuilder result) throws IOException {
+		final String url = source.getSourceUrl();
+
+		result.append("<div class=\"source\">\n");
+		
+		result.append("<div class=\"sourceTitle\">");
+		String title = source.getSourceTitle();
+		if (title == null || title.isEmpty()) {
+			title = servletText.fragmentBlankTitle();
+		}
+
+		result.append(StringEscapeUtils.escapeHtml4(title));
+		
+		result.append("</div>\n");
+		
+		if (url != null && !url.isEmpty()) {
+			result.append("<a target=\"_blank\" href=\"");
+			result.append(StringEscapeUtils.escapeHtml4(url));
+			result.append("\">");
+			result.append(StringEscapeUtils.escapeHtml4(url));
+			result.append("</a>\n");
+		}
+
+		result.append("</div>\n");
+	}
+	
+	/** Export the notebook in HTML format. */ 
+	private void getNotebookHtmlForExport(final StringBuilder result,
+			Entry entry, Entry root, boolean asNestedLists, boolean includeQuotations, boolean includeReferencesSection) throws IOException {
+		String title = StringEscapeUtils.escapeHtml4(entry.getNoteOrTitle());
+				
+		result.append("<!doctype html><html>\n");
+		result.append("<head>\n");
+		result.append("<title>");
+		result.append(title);
+		result.append("</title>\n");
+		result.append("<style type=\"text/css\">"
+				+ "p.quotation { font-family:Georgia, serif; background:#FDFFAA; padding:4px 8px 4px 8px; border-left:1px solid #dedede; }\n"
+				+ "</style>");
+		result.append("</head>\n");
+		result.append("<body>\n");
+		result.append("<h1>");
+		result.append(title);
+		result.append("</h1>\n");
+		
+		SourcesHashList sources = new SourcesHashList();
+		
+		addEntryHtmlToExport(root, result, sources, asNestedLists, includeQuotations, includeReferencesSection, true);
+		
+		if (includeReferencesSection) {
+			List<Entry> sourcesList = sources.getSources();
+			if (!sourcesList.isEmpty()) {
+				result.append("<h2>References</h2>\n<ol>\n");
+				int i = 0;
+				for (Entry source : sourcesList) {
+					result.append("<li>\n");
+					result.append("<a name=\"reference" + (++i) + "\">\n");
+					addSourceHtmlToExport(source, result);
+					result.append("</a>\n</li>\n");
+				}
+				
+				result.append("</ol>\n");
+			}
+		}
+		
+		result.append("</body>\n</html>\n");
+	}
+	
+	/** Blockquotes a string in Markdown format. */
+	private String markdownBlockquote(String value) {
+		return "> " + value.replace("\n", "\n> ");
+	}
+	
+	/**
+	 * Helper method. Adds the Markdown for an entry to an export.
+	 */
+	private void addEntryMarkdownToExport(Entry entry, StringBuilder result, SourcesHashList sources, boolean includeQuotations,
+			boolean includeReferencesSection, boolean skipThisLevel) throws IOException {
+		
+		if (!skipThisLevel) {
+			final Entry source = dbLogic.getEntryById(entry.getSourceId());
+			int sourceId = 0;
+			if (source != null) {
+				sourceId = sources.add(source);
+			}
+			
+			if (includeQuotations && entry.hasQuotation()) {
+				result.append(markdownBlockquote(entry.getQuotation("")));
+				if (includeReferencesSection) {
+					if (sourceId != 0) {
+						result.append(" [Reference" + sourceId + "] [Reference" + sourceId + "]");
+					}
+				}
+				result.append("\n\n");
+			}
+			
+			if (entry.hasNote()) {
+				result.append(entry.getNote("").replace("\n", "  \n") + "\n\n");
+			}
+		}
+
+		List<?> childrenFromDb = dbLogic.getEntriesByParentId(entry
+				.getId());
+		
+		if (!childrenFromDb.isEmpty()) {
+			final Hashtable<String, Entry> children = new Hashtable<String, Entry>();
+			Entry first = null;
+			for (final Object childObject : childrenFromDb) {
+				final Entry child = (Entry) childObject;
+				children.put(child.getId(), child);
+				if (!child.hasPreviousSiblingId()) {
+					first = child;
+				}
+			}
+	
+			if (first != null) {
+				// This is the code path if there is no DB corruption.
+				Entry child = first;
+				for (int i = 0; i < children.size(); ++i) {
+					if (child == null) {
+						break;
+					}
+	
+					addEntryMarkdownToExport(child, result, sources, includeQuotations, includeReferencesSection, false);
+					
+					if (!child.hasNextSiblingId()) {
+						break;
+					}
+	
+					final String nextId = child.getNextSiblingId();
+					child = children.get(nextId);
+				}
+			} else {
+				// This is an error code path. It should only happen if there is
+				// DB corruption.
+				final Iterator<Map.Entry<String, Entry>> iterator = children
+						.entrySet().iterator();
+				while (iterator.hasNext()) {
+					final Map.Entry<String, Entry> mapEntry = iterator.next();
+					final Entry child = mapEntry.getValue();
+	
+					addEntryMarkdownToExport(child, result, sources, includeQuotations, includeReferencesSection, false);
+				}
+			}
+		}
+	}
+	
+	/** Helper method. Adds the Markdown for a source to a list. */
+	private void addSourceMarkdownToExport(Entry source, int index, StringBuilder result) throws IOException {
+		result.append("Reference " + index + " ");
+		final String title = source.getNoteOrTitle("");
+		result.append(title);
+				
+		final String url = source.getSourceUrl();
+
+		if (url != null && !url.isEmpty()) {
+			result.append("  \n");
+			result.append(" [" + url + "] [Reference" + index + "]");
+			result.append("\n");
+		} else {
+			result.append("\n");
+		}
+		
+		result.append("\n");
+		
+		result.append("[Reference" + index + "]: ");
+		
+		if (url != null && !url.isEmpty()) {
+			result.append(url);
+		}
+
+		result.append(" \"");
+		result.append(title);
+		
+		result.append("\"\n");
+	}
+	
+	/** Export the notebook in Markdown format. */ 
+	private void getNotebookMarkdownForExport(final StringBuilder result,
+			Entry entry, Entry root, boolean includeQuotations, boolean includeReferencesSection) throws IOException {
+		result.append("# ");
+		result.append(entry.getNoteOrTitle());
+		result.append("\n\n");
+		
+		SourcesHashList sources = new SourcesHashList();
+		addEntryMarkdownToExport(root, result, sources, includeQuotations, includeReferencesSection, true);
+		
+		if (includeReferencesSection) {
+			List<Entry> sourcesList = sources.getSources();
+			if (!sourcesList.isEmpty()) {
+				result.append("## References\n\n");
+				int i = 0;
+				for (Entry source : sourcesList) {
+					addSourceMarkdownToExport(source, ++i, result);
+				}
+				
+				result.append("\n");
+			}
+		}
+	}	
+	
+	/** Appends the string the a RTF value escaping for unicode. This is a slow function. */
+	private void appendRtfString(StringBuilder result, String value) {
+		// Inspired by http://blog.stuartlewis.com/2010/09/18/java-rtf-and-unicode-characters/
+		for (int i = 0; i < value.length(); i++) {
+		    int codePoint = value.codePointAt(i);
+		 
+		    // If the character value is above the
+		    // 7-bit range of RTF ASCII
+		    if (codePoint == 10) {
+		    	result.append("\\par\n");
+		    } else if (codePoint > 127) {
+		    	result.append("\\u" + codePoint + "?");
+		    } else {
+		    	result.append(value.substring(i, i + 1));
+		    }
+		}
+	}
+	
+	/**
+	 * Helper method. Adds the RTF for an entry to an export.
+	 */
+	private void addEntryRtfToExport(Entry entry, StringBuilder result, SourcesHashList sources, boolean includeQuotations,
+			boolean includeReferencesSection, boolean skipThisLevel) throws IOException {
+		
+		if (!skipThisLevel) {
+			final Entry source = dbLogic.getEntryById(entry.getSourceId());
+			int sourceId = 0;
+			if (source != null) {
+				sourceId = sources.add(source);
+			}
+			
+			if (includeQuotations && entry.hasQuotation()) {
+				appendRtfString(result, entry.getQuotation(""));
+				result.append("\\par\n");
+				if (includeReferencesSection) {
+					if (sourceId != 0) {
+						result.append("[Reference " + sourceId + "]\\par\n");
+					}
+				}
+				result.append("\\par\n");
+			}
+			
+			if (entry.hasNote()) {
+				appendRtfString(result, entry.getNote(""));
+				result.append("\\par\n\\par\n");
+			}
+		}
+
+		List<?> childrenFromDb = dbLogic.getEntriesByParentId(entry
+				.getId());
+		
+		if (!childrenFromDb.isEmpty()) {
+			final Hashtable<String, Entry> children = new Hashtable<String, Entry>();
+			Entry first = null;
+			for (final Object childObject : childrenFromDb) {
+				final Entry child = (Entry) childObject;
+				children.put(child.getId(), child);
+				if (!child.hasPreviousSiblingId()) {
+					first = child;
+				}
+			}
+	
+			if (first != null) {
+				// This is the code path if there is no DB corruption.
+				Entry child = first;
+				for (int i = 0; i < children.size(); ++i) {
+					if (child == null) {
+						break;
+					}
+	
+					addEntryRtfToExport(child, result, sources, includeQuotations, includeReferencesSection, false);
+					
+					if (!child.hasNextSiblingId()) {
+						break;
+					}
+	
+					final String nextId = child.getNextSiblingId();
+					child = children.get(nextId);
+				}
+			} else {
+				// This is an error code path. It should only happen if there is
+				// DB corruption.
+				final Iterator<Map.Entry<String, Entry>> iterator = children
+						.entrySet().iterator();
+				while (iterator.hasNext()) {
+					final Map.Entry<String, Entry> mapEntry = iterator.next();
+					final Entry child = mapEntry.getValue();
+	
+					addEntryRtfToExport(child, result, sources, includeQuotations, includeReferencesSection, false);
+				}
+			}
+		}
+	}
+	
+	/** Helper method. Adds the RTF for a source to a list. */
+	private void addSourceRtfToExport(Entry source, int index, StringBuilder result) throws IOException {
+		final String title = source.getNoteOrTitle("");
+		final String url = source.getSourceUrl();
+
+		result.append("Reference " + index + ": ");
+		appendRtfString(result, title);
+		result.append("\\par\n");
+		
+		if (url != null && !url.isEmpty()) {
+			appendRtfString(result, url);
+			result.append("\\par\n");
+		}
+
+		result.append("\\par\n");
+	}
+	
+	/** Export the notebook in RTF format. */ 
+	private void getNotebookRtfForExport(final StringBuilder result,
+			Entry entry, Entry root, boolean includeQuotations, boolean includeReferencesSection) throws IOException {
+		// This is the spec: http://www.biblioscape.com/rtf15_spec.htm
+		result.append("{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}\\viewkind4\\uc1\\pard\\sl240\\slmult1\\lang9\\f0\\fs22"); 
+		result.append("\\b ");
+		appendRtfString(result, entry.getNoteOrTitle());
+		result.append("\\b0 \\par\n\\par\n");
+		
+		SourcesHashList sources = new SourcesHashList();
+		addEntryRtfToExport(root, result, sources, includeQuotations, includeReferencesSection, true);
+		
+		if (includeReferencesSection) {
+			List<Entry> sourcesList = sources.getSources();
+			if (!sourcesList.isEmpty()) {
+				result.append("\\b ");
+				result.append("References");
+				result.append("\\b0\\par\n\\par\n");
+				int i = 0;
+				for (Entry source : sourcesList) {
+					addSourceRtfToExport(source, ++i, result);
+				}
+				
+				result.append("\\par\n");
+			}
+		}
+		
+		result.append(" } \0");
+	}	
+	
+	/**
+	 * Returns the name of the resource this class is	 embedded in which might be
 	 * a JAR.
 	 */
 	private String getClassResourceName() {
