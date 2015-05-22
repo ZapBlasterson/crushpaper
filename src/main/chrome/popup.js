@@ -259,8 +259,8 @@ function save() {
 					"service",
 					function(items) {
 						var xhr = new XMLHttpRequest();
-
-						xhr.open("POST", getServiceOrDefault(items) + "/createQuotationJson?" + getAnUrlUniquer(), true);
+						var service = getServiceOrDefault(items);
+						xhr.open("POST", service + "/createQuotationJson?" + getAnUrlUniquer(), true);
 
 						xhr.setRequestHeader("Content-Type",
 								"application/json; charset=utf-8");
@@ -275,6 +275,22 @@ function save() {
 									if ("error" in responseDict) {
 										errorText = responseDict.error;
 									} else {
+										var host = /^.*:\/\/([^:]*)/g.exec(service);
+										if (host.length > 1) {
+											chrome.tabs.query({ url: '*://' + host[1] + "/*" }, function(tabs) {
+											    if (tabs && tabs.length) {
+											    	for (var i = 0; i < tabs.length; ++i) {
+											    		chrome.tabs.executeScript(tabs[i].id, {code:
+											    			"var script = document.createElement('script');" +
+															"script.textContent = \"if(refreshSource) { refreshSource(\\\"" + responseDict.sourceId + "\\\"); }\";" +
+															"(document.head||document.documentElement).appendChild(script);" +
+															"script.parentNode.removeChild(script);"
+											    			});
+											    	}
+											    }
+											});
+										}
+										
 										document.getElementById("response").innerHTML = "<span class=\"successMessage\">" + sentenceSuccessfullySaved() + "</span>";
 										document.getElementById("successOverlay").style.display = "block";
 										var timeoutId = setTimeout(function() { window.close(); }, 3000);

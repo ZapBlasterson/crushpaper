@@ -8361,6 +8361,17 @@ function onDropAloneEl(ev) {
 	ev.preventDefault();
 }
 
+/** Refreshes any information possible related to a source
+ * which was just updated with a new quotation.
+ * This is called from the Chrome extension.
+ */
+function refreshSource(sourceDbId) {
+	refreshQuotationsPane();
+	refreshSourcesPane();
+	refreshSearchPane();
+	refreshPaneById(sourceDbId);
+}
+
 /** JSHint does not provide a method for annotating externally used function as used
  * so this function is a way of hiding those errors.
  */
@@ -8419,6 +8430,7 @@ function markFunctionsAsUsed() {
 	exportFormatOnClick();
 	onDragOverAloneEl();
 	onDropAloneEl();
+	refreshSource();
 }
 
 markFunctionsAsUsed();
