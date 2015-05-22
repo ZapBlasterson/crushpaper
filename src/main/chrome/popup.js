@@ -101,22 +101,47 @@ function errorJsonCouldNotBeParsed(prefix) {
 	return prefix + " The server returned JSON that could not be parsed.";
 }
 
-function errorNoReponseFromServer(prefix) {
-	return prefix + " The server did not respond.";
+function errorEmptyResponseFromServer(prefix, statusCode) {
+	if (statusCode === 0) {
+		return prefix + " The request timed out.";
+	}
+
+	return prefix + " The server sent an empty response" + (statusCode !== "none" ? " with status code " + statusCode : "") + ".";
 }
 
 function sentenceSuccessfullySaved() {
 	return "Successfully saved.";
 }
 
+function errorJsonMissingKey(prefix, key) {
+	return prefix + " The server returned JSON missing the key \"" + key + "\".";
+}
+
+/** Validates a response dictionary from within a responseText. */
+function validateResponseDict(responseDict, prefix, neededKeys) {
+	var returnValue = {};
+
+	for (var i = 0; i < neededKeys.length; ++i) {
+		var neededKey = neededKeys[i];
+
+		if (!(neededKey in responseDict)) {
+			return { "error": errorJsonMissingKey(prefix, neededKey) };
+		}
+
+		returnValue[neededKey] = responseDict[neededKey];
+	}
+
+	return returnValue;
+}
+
 /** Returns the set of errors as a single string. */
-function getErrorText(responseText, whatDidNotHappen, whatProbablyDidNotHappen) {
+function getErrorText(xhr, whatDidNotHappen, whatProbablyDidNotHappen) {
 	var result;
-	if(responseText === "") {
-		result = errorNoReponseFromServer(whatProbablyDidNotHappen);
+	if(xhr.responseText === "") {
+		result = errorEmptyResponseFromServer(whatProbablyDidNotHappen, xhr.status);
 	} else {
 		try {
-			var response = JSON.parse(responseText);
+			var response = JSON.parse(xhr.responseText);
 			result = whatDidNotHappen;
 			if("errors" in response) {
 				for(var i = 0; i < response.errors.length; ++i) {
@@ -129,6 +154,22 @@ function getErrorText(responseText, whatDidNotHappen, whatProbablyDidNotHappen) 
 	}
 	
 	return result;
+}
+
+/** Returns the quotation and source IDs from the response or an error. */
+function getQuotationAndSourceIds(xhr, whatProbablyDidNotHappen) {
+	if(xhr.responseText === "") {
+		return { "error": errorEmptyResponseFromServer(whatProbablyDidNotHappen, xhr.status) };
+	} else {
+		var dict;
+		try {
+			dict = JSON.parse(xhr.responseText);
+		} catch(e) {
+			return { "error": errorJsonCouldNotBeParsed(whatProbablyDidNotHappen) };
+		}
+		
+		return validateResponseDict(dict, whatProbablyDidNotHappen, [ "quotationId", "sourceId" ]);
+	}
 }
 
 /** Sets the response to the specified error text. */
@@ -224,14 +265,33 @@ function save() {
 						xhr.setRequestHeader("Content-Type",
 								"application/json; charset=utf-8");
 
+						xhr.timeout = 60 * 1000;
+						
 						xhr.onreadystatechange = function() {
 							if (xhr.readyState === 4) {
+								var errorText;
 								if (xhr.status === 200) {
-									document.getElementById("response").innerHTML = "<span class=\"successMessage\">" + sentenceSuccessfullySaved() + "</span>";
-									document.getElementById("successOverlay").style.display = "block"; 
-									setTimeout(function() { window.close(); }, 3000);
+									var responseDict = getQuotationAndSourceIds(xhr, errorProbablyNotSaved());
+									if ("error" in responseDict) {
+										errorText = responseDict.error;
+									} else {
+										document.getElementById("response").innerHTML = "<span class=\"successMessage\">" + sentenceSuccessfullySaved() + "</span>";
+										document.getElementById("successOverlay").style.display = "block";
+										var timeoutId = setTimeout(function() { window.close(); }, 3000);
+										document.getElementById("dragMe").ondragstart = function(ev) {
+											// If the window closed the HTML5 drag would be cancelled.
+											clearTimeout(timeoutId);
+											ev.dataTransfer.effectAllowed = 'link';
+											// Chrome lowercases this.
+											ev.dataTransfer.setData("quotationid", responseDict.quotationId);
+											return true;
+										};
+									}
 								} else {
-									var errorText = getErrorText(xhr.responseText, errorNotSaved(), errorProbablyNotSaved());
+									errorText = getErrorText(xhr, errorNotSaved(), errorProbablyNotSaved());
+								}
+								
+								if (errorText) {
 									setError(errorText);
 									document.getElementById('quotation').disabled = false;
 									document.getElementById('note').disabled = false;
@@ -255,3 +315,15 @@ function save() {
 }
 
 document.getElementById('save').addEventListener('click', save);
+
+/** JSHint does not provide a method for annotating externally used function as used
+ * so this function is a way of hiding those errors.
+ */
+function markFunctionsAsUsed() {
+	if (true) { return; }
+
+	// JSHint's dead code detection doesn't detect that the following code is dead:
+	indicateNeedsConfiguration();
+}
+
+markFunctionsAsUsed();

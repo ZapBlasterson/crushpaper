@@ -757,9 +757,11 @@ public class Servlet extends HttpServlet {
 				return;
 			}
 
-			dbLogic.commit();
+			requestAndResponse.print("{\"success\":true, " + 
+					"\"quotationId\":\"" + entry.getId() + "\"," +
+					"\"sourceId\":\"" + source.getId() + "\"}");
 
-			returnJson200(requestAndResponse);
+			dbLogic.commit();
 		} catch (final PersistenceException e) {
 			logger.log(Level.INFO, "Exception", e);
 			returnJson500(requestAndResponse,
@@ -5942,7 +5944,7 @@ public class Servlet extends HttpServlet {
 			result.append("<div class=\"subtree\">");
 
 			result.append("<div class=\"alone " + entry.getId()
-					+ "\" id=\"alone_" + entry.getId() + "\">");
+					+ "\" id=\"alone_" + entry.getId() + "\" ondragover=\"onDragOverAloneEl(event)\" ondrop=\"onDropAloneEl(event)\">");
 
 			result.append("<table class=\"nopadding alonetd\"><tr><td onmousedown=\"triangleOnMouseDown(event); return false;\" class=\"triTd justDrag\">"
 					+ "<div></div></td><td>"

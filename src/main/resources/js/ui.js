@@ -3597,7 +3597,9 @@ function makeEntriesSiblingOrChild(targetAloneEl, movedDbIds, justTheEntry, uri,
 				if (isFromList) {
 					unselectEntry(movedId);
 					movedAloneEl = getAloneElByDbId(movedId);
-					updateSelectionDisplayForAloneEl(movedAloneEl);
+					if (movedAloneEl) {
+						updateSelectionDisplayForAloneEl(movedAloneEl);
+					}
 
 					var aloneDbId = getTrueDbIdFromListDbId(movedId);
 					var aloneEl = getAloneElByDbId(aloneDbId);
@@ -8329,6 +8331,36 @@ function makeShortcutsWorkInIe() {
 	}
 }
 
+/** Allow dragging from the Chrome extension to a note. */
+function onDragOverAloneEl(ev) {
+    // Because ev.dataTransfer.getData() does not work correctly in Chrome in this callback.
+	var data = ev.dataTransfer;
+	if (!data.types || !data.types.length || data.types[0] !== "quotationid") {
+		return;
+	}
+
+	ev.preventDefault();
+}
+
+/** Handle dropping from the Chrome extension into a note. */
+function onDropAloneEl(ev) {
+	var eventEl = getEventEl(ev);
+
+	var aloneEl = getCorrespondingAloneEl(eventEl);
+	if (!aloneEl) {
+		return;
+	}
+
+	var quotationId = ev.dataTransfer.getData("quotationid");
+	if (!quotationId) {
+		return;
+	}
+
+	commandsAreNowAllowed(false);
+	makeEntriesSiblingOrChild(aloneEl, [ ":" + quotationId ], true, "/makeChildrenJson", uiText.popupTitleDragNodeToNewParent, null);
+	ev.preventDefault();
+}
+
 /** JSHint does not provide a method for annotating externally used function as used
  * so this function is a way of hiding those errors.
  */
@@ -8385,6 +8417,8 @@ function markFunctionsAsUsed() {
 	showPopupForHelp();
 	paneExportOnClick();
 	exportFormatOnClick();
+	onDragOverAloneEl();
+	onDropAloneEl();
 }
 
 markFunctionsAsUsed();
