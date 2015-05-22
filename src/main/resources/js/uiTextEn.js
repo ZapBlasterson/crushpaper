@@ -822,11 +822,11 @@ uiTextEn.helpUnselectAllOrDismiss = function(entryType) {
 };
 
 uiTextEn.helpSelectAbove = function(entryType) {
-	return "Select the " + uiTextEn.getOneEntryTerm(entryType) + " above the currently selected " + uiTextEn.getOneEntryTerm(entryType) + ", or the last " + uiTextEn.getOneEntryTerm(entryType) + " on the page";
+	return "Select the " + uiTextEn.getOneEntryTerm(entryType) + " above the currently selected " + uiTextEn.getOneEntryTerm(entryType) + ", or scroll up and select the " + uiTextEn.getOneEntryTerm(entryType) + " that you can now see";
 };
 
 uiTextEn.helpSelectBelow = function(entryType) {
-	return "Select the " + uiTextEn.getOneEntryTerm(entryType) + " below the currently selected " + uiTextEn.getOneEntryTerm(entryType) + ", or the first " + uiTextEn.getOneEntryTerm(entryType) + " on the page";
+	return "Select the " + uiTextEn.getOneEntryTerm(entryType) + " below the currently selected " + uiTextEn.getOneEntryTerm(entryType) + ", or scroll down and select the " + uiTextEn.getOneEntryTerm(entryType) + " that you can now see";
 };
 
 uiTextEn.helpSelectLeft = function(entryType) {

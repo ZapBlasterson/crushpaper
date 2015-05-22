@@ -5786,9 +5786,9 @@ function moveSelection(direction) {
 	var newSelection;
 	if (getNumSelected(true) < 1) {
 		if (direction === "up") {
-			newSelection = getLastEntry();
+			newSelection = getEntryForUpWithNoSelection();
 		} else if (direction === "down") {
-			newSelection = getFirstEntry();
+			newSelection = getEntryForDownWithNoSelection();
 		}
 	} else if (getNumSelected(true) === 1) {
 		if (direction === "up") {
@@ -5902,31 +5902,54 @@ function selectTheEntrysParentInstead() {
 	return false;
 }
 
-/** Returns the topmost entry in the document. */
-function getFirstEntry() {
+/** Returns the entry to display when nothing is selected and the user presses up. */
+function getEntryForUpWithNoSelection() {
 	var container = getFirstContainer();
 	if (!container)
 		return null;
 
 	var aloneEls = container.getElementsByClassName("alone");
+	
 	// Skip the fake at the top.
-	if (aloneEls && aloneEls.length > 1) {
-		return aloneEls[1];
+	var aboveAloneEl;
+	for (var i = 1; i < aloneEls.length; ++i) {
+		var aloneEl = aloneEls[i];
+		
+		if (isEntryVisibleByEl(aloneEl)) {
+			if (aboveAloneEl) {
+				return aboveAloneEl;
+			}
+			
+			return aloneEl;
+		}
+		
+		aboveAloneEl = aloneEl;
 	}
 
 	return null;
 }
 
-/** Returns the bottommost entry in the document. */
-function getLastEntry() {
+/** Returns the entry to display when nothing is selected and the user presses down. */
+function getEntryForDownWithNoSelection() {
 	var container = getFirstContainer();
 	if (!container)
 		return null;
 
 	var aloneEls = container.getElementsByClassName("alone");
+	
 	// Make sure the fake at the top is not selected.
-	if (aloneEls && aloneEls.length > 1) {
-		return aloneEls[aloneEls.length - 1];
+	var belowAloneEl;
+	for (var i = aloneEls.length - 1; i > 0; --i) {
+		var aloneEl = aloneEls[i];
+		if (isEntryVisibleByEl(aloneEl)) {
+			if (belowAloneEl) {
+				return belowAloneEl;
+			}
+			
+			return aloneEl;
+		}
+		
+		belowAloneEl = aloneEl;
 	}
 
 	return null;
@@ -6601,6 +6624,11 @@ function isEntryVisible(dbId) {
 		return false;
 	}
 
+	return isEntryVisibleByEl(aloneEl);
+}
+
+/** Returns true if the entry is at least partially visible. */
+function isEntryVisibleByEl(aloneEl) {
 	var targetPos = getPosition(aloneEl);
 	var targetHeight = parseInt(aloneEl.offsetHeight);
 
