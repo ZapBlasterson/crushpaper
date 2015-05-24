@@ -5767,20 +5767,58 @@ function getLastOfSelected() {
 var editedNoteDbId = null;
 var oldNoteHtml = null;
 var noteIsFocused = false;
+var lastCaretPosition = null;
+var lastDirection = null;
+
+/** Immediately after the user presses the up or down button when a note has the focus check to see if the caret has been moved.
+ * If the caret has not been moved then move the focus to the next or previous note. */
+function justAfterUpOrDown() {
+	if (noteIsFocused) {
+		var aloneEl = getAloneElByDbId(editedNoteDbId);
+		if (!aloneEl) {
+			return;
+		}
+
+		var noteEl = getNoteElOfAloneEl(aloneEl); 
+		var caretPosition = getCaretPosition(noteEl);
+		if (lastCaretPosition === caretPosition) {
+			var newSelection;
+			if (lastDirection === "up") {
+				newSelection = getAboveAloneEl(editedNoteDbId);
+			} else if (lastDirection === "down") {
+				newSelection = getRighterAloneEl(editedNoteDbId);
+			}
+	
+			if (newSelection) {
+				blurNote();
+				
+				selectAndScrollToAloneEl(newSelection, true);
+			
+				focusNoteAndSetCaret(newSelection);
+			}
+		}
+	}
+}
 
 /** Moves the selection up or down. */
 function moveSelection(direction) {
 	if (noteIsFocused) {
-		var isFirstOrLast = isCaretOnFirstOrLastLine();
-		if (direction === "up") {
-			if (!isFirstOrLast[0]) {
-				return true;
-			}
-		} else if (direction === "down") {
-			if (!isFirstOrLast[1]) {
-				return true;
+		if (direction === "up" || direction === "down") {
+			var isFirstOrLast = isCaretOnFirstOrLastLine();
+			if (isFirstOrLast[0] || isFirstOrLast[1]) {
+				var aloneEl = getAloneElByDbId(editedNoteDbId);
+				if (!aloneEl) {
+					return;
+				}
+
+				var noteEl = getNoteElOfAloneEl(aloneEl); 
+				lastCaretPosition = getCaretPosition(noteEl);
+				setTimeout(justAfterUpOrDown, 0);
+				lastDirection = direction;
 			}
 		}
+		
+		return;
 	}
 	
 	var newSelection;
