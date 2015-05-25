@@ -332,6 +332,10 @@ function save() {
 
 document.getElementById('save').addEventListener('click', save);
 
+if (location.search) {
+	document.getElementById('closebutton').style.display = "none";
+}
+
 /** JSHint does not provide a method for annotating externally used function as used
  * so this function is a way of hiding those errors.
  */

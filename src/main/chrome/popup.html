@@ -64,6 +64,16 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
     padding-left:20px;
     padding-right:20px;
 }
+
+#dragMe {
+    cursor:move;
+    border:1px dashed green;
+    padding:10px;
+    border-radius:4px;
+    background-image:url("drag.png");
+    background-repeat: no-repeat;
+    padding-left:36px;
+}
 	</style>
 	<script src="/mousetrap.min.js"></script>
   </head>
@@ -71,7 +81,9 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
   <div style="margin:10px">
   <span class="title">Save Quotation to CrushPaper</span>
   <span class="closebutton" id="closebutton">&#10006;</span>
-  <hr class="title"/>  
+  </div>
+  <hr class="title"/>
+  <div style="margin:10px">  
   <div id="needsConfigurationMessage"></div>
   <table class="titleAndUrl"><tr>
   <td>Title</td> 
@@ -90,10 +102,13 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
   </tr></table>
   </div>
   </div>
+  </div>
   <script src="getSessionIdLib.js"></script>
   <script src="popup.js"></script>
-  <div id="successOverlay"><div>The quotation was saved.<br><br>Click on "Quotations" in CrushPaper to see it.<br><br>
-  <div id="dragMe" draggable="true">Drag this text into a notebook to link this quotation with a note.</div></div></div>  
+  <div id="successOverlay"><div>The quotation was saved.<br><br>
+  <div id="dragMe" draggable="true">Drag this text into a notebook to link this quotation with a note.</div>
+  <br>Or click on "Quotations" in CrushPaper to see it.
+  </div></div>  
   </body>
 </html>
 

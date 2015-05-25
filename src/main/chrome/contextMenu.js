@@ -20,7 +20,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 function openPopUp(info, tabWithSelection) {
     chrome.tabs.create({
-        url: chrome.extension.getURL('popup.html'),
+        url: chrome.extension.getURL('popup.html?fromContextMenu'),
         active: false
 	    }, function(popupTab) {
 	        // After the tab has been created, open a window and inject the tab.
