@@ -1906,9 +1906,7 @@ public class Servlet extends HttpServlet {
 						childrenAction = "parent";
 					}
 
-					if (idsArray.length > 1) {
-						childrenAction = "delete";
-					} else if (noteop.equals("deleteNotebook")
+					if (noteop.equals("deleteNotebook")
 							|| noteop.equals("deleteSource")) {
 						childrenAction = "parent";
 					}

@@ -5169,19 +5169,12 @@ function showPopupForDeleteEntry() {
 			"\" id=\"ids\"><input type=\"hidden\" " +
 			"value=\"delete\" id=\"noteop\">";
 
-			var childrenToParentDisabled = "";
-			var childrenToDeleteDisabled = "";
-			if (anyHasChildren && getNumSelected() > 1) {
-				childrenToDeleteDisabled = childrenToParentDisabled = "disabled=\"true\"";
-			}
-
 			if (entryType === "notebook") {
 				html += "<input type=\"hidden\" checked name=\"children\" value=\"parent\" id=\"childrenToParent\">";
 			} else if (anyHasChildren) {
 				html += uiText.sentenceWhatToDoWithChildren(entryType) + "<br>";
 				if (anyHasParent) {
-					html += "<input " + childrenToParentDisabled  +
-					" checked type=\"radio\" name=\"children\" value=\"parent\" id=\"childrenToParent\"><label for=\"childrenToParent\">" + uiText.labelMoveToParent(entryType) + "</label><br>";
+					html += "<input checked type=\"radio\" name=\"children\" value=\"parent\" id=\"childrenToParent\"><label for=\"childrenToParent\">" + uiText.labelMoveToParent(entryType) + "</label><br>";
 				}
 
 				/** Disable for now because probably no one will want this feature unless it is more polished.
@@ -5189,8 +5182,7 @@ function showPopupForDeleteEntry() {
 	            	" type=\"radio\" name=\"children\" value=\"orphan\" id=\"childrenToOrphan\"><label for=\"childrenToOrphan\">" + uiText.labelOrphan() + "</label><br>";
 				 */
 
-				html += "<input " + childrenToDeleteDisabled + " " +
-					" " + (!anyHasParent ? "checked " : "") + " type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete\">" + uiText.labelDelete() + "</label><br>";
+				html += "<input " + (!anyHasParent ? "checked " : "") + " type=\"radio\" name=\"children\" value=\"delete\" id=\"childrenToDelete\"><label for=\"childrenToDelete\">" + uiText.labelDelete() + "</label><br>";
 			}
 			
 			if (numSourcesFromNotebook || numQuotationsFromNotebook) {
