@@ -1681,11 +1681,12 @@ function paneMoveOnMouseDown(ev) {
 	var position = getPosition(movedPane);
 	
 	movedPaneClone = document.createElement("DIV");
+	movedPaneClone.innerHTML = "<br><br><br>" + uiText.dragPaneHint();
 	movedPaneClone.style.opacity = 0.7;
 	movedPaneClone.style.filter = "alpha(opacity=70)"; // For IE.
 	movedPaneClone.style["z-index"] = "100";
 	movedPaneClone.style.position = "absolute";
-	movedPaneClone.className = "pane paneContainer";
+	movedPaneClone.className = "pane paneContainer dragPaneClone";
 	document.body.appendChild(movedPaneClone);
 
 	// This would work without the pixel adjustments here if padding was 0px.

@@ -1076,3 +1076,7 @@ uiTextEn.labelIncludeReferencesSection = function() {
 uiTextEn.labelIncludeQuotations = function() {
 	return "Include quotations.";
 };
+
+uiTextEn.dragPaneHint = function() {
+	return "Drag this to the right or left to reorder it.";
+};

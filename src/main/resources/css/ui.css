@@ -32,6 +32,7 @@ div.helpListHeader { font-weight:bold; font-size:medium; }
 div.helpListItem { margin-top:10px; }
 td.resultNumber { padding-right:5px !important; padding-left:5px !important; vertical-align:middle; }
 .dragButton, .dragChildrenButton { cursor:move; }
+.dragPaneClone { font-weight:bold !important; font-size:x-large !important; padding:20px !important; }
 
 #allPanes { z-index:5; position:relative; }
 hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
