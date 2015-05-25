@@ -2190,7 +2190,7 @@ function documentOnMouseDown(ev, fromTouch) {
 	}
 
 	var noteEl = getElOrAncestor(eventEl, 'DIV', 'note', '.alone');
-	if(!noteEl) {
+	if (!noteEl && !isElementOfClass(eventEl, "content") && eventEl.nodeName !== "TD") {
 		blurNote();
 	}
 
