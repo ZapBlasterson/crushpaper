@@ -57,11 +57,12 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
     color:green;
     font-size:large;
     font-weight:bold;
+    justify-content:center;
+    align-items:center;
 }
 #successOverlay > div {
-    position:fixed;
-    top:180px;
-    left:45px;
+    padding-left:20px;
+    padding-right:20px;
 }
 	</style>
 	<script src="/mousetrap.min.js"></script>
@@ -87,11 +88,12 @@ table.responseAndSave > tbody > tr > td { padding:0px; vertical-align:middle; }
 	<td id="response"></td>
 	<td><button id="save"><u>S</u>ave</button></td>
   </tr></table>
-
+  </div>
+  </div>
   <script src="getSessionIdLib.js"></script>
   <script src="popup.js"></script>
-  <div id="successOverlay"><div><center>The quotation was saved.<br>Click on "Quotations" in CrushPaper to see it.<br><br>
-  <div id="dragMe" draggable="true">Drag me into a notebook to link this quotation with a note.</div></center></div></div>  
+  <div id="successOverlay"><div>The quotation was saved.<br><br>Click on "Quotations" in CrushPaper to see it.<br><br>
+  <div id="dragMe" draggable="true">Drag this text into a notebook to link this quotation with a note.</div></div></div>  
   </body>
 </html>
 

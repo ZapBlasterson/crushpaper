@@ -292,7 +292,7 @@ function save() {
 										}
 										
 										document.getElementById("response").innerHTML = "<span class=\"successMessage\">" + sentenceSuccessfullySaved() + "</span>";
-										document.getElementById("successOverlay").style.display = "block";
+										document.getElementById("successOverlay").style.display = "flex";
 										var timeoutId = setTimeout(function() { window.close(); }, 3000);
 										document.getElementById("dragMe").ondragstart = function(ev) {
 											// If the window closed the HTML5 drag would be cancelled.
