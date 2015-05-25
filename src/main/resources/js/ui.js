@@ -7969,7 +7969,11 @@ function noteOnBlur() {
 		return;
 	}
 	
-	removeInlineNoteEditShortCuts();
+	// This is a hack because when a popup is shown the note is blurred after the popup is shown.
+	if (!isPopupUp()) {
+		removeInlineNoteEditShortCuts();
+	}
+	
 	saveNoteTextAfterInlineEdit();
 }
 
