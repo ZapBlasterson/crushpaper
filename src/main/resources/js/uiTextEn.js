@@ -943,7 +943,7 @@ uiTextEn.modTimeTooltip = function(entryType, isEditable) {
 };
 
 uiTextEn.sentenceSuggestShortNotes = function() {
-	return "I suggest that you write short notes.<br>Make each list item a separate subnote by clicking the big white plus button.";
+	return "I suggest that you write short notes.<br>The big blue and white plus button creates a subnote of a note.";
 };
 
 uiTextEn.tooltipPaneEdit = function(entryType) {
