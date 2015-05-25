@@ -17,12 +17,12 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 --->
 
 ### What is CrushPaper?
-CrushPaper is for anyone who writes papers, essays or articles and quotes their sources.
+CrushPaper is for students, writers and anyone who writes papers, essays or articles and quotes their sources.
 
-With CrushPaper you can easily research the web for relevant sources, save them to CrushPaper and then combine them with your own insights into an article. 
+Easily research the web for relevant sources, save quotations from them to CrushPaper.com and then combine them with your own insights into a paper. 
 
 ### Why is CrushPaper Special?
-CrushPaper makes it easy to organize your notes into hierarchies within notebooks.
+CrushPaper makes it easy to organize your quotations and notes into hierarchies within notebooks.
 
 CrushPaper's keyboard and mouse features make it easy to move your notes and quotations into whatever structure feels good to your brain. 
 
@@ -30,7 +30,7 @@ The CrushPaper Chrome extension makes it easy to save quotations by right clicki
 
 You can use CrushPaper on your mobile device but much of its functionality only works in a web browser.
   
-CrushPaper is free and open source under the GNU Affero General Public License. You can use crushpaper.com or you can run it on your PC or laptop. It runs on Windows, Linux and probably OSX.
+CrushPaper is free and open source under the GNU Affero General Public License. You can even run it on your own computer instead of using CrushPaper.com. It runs on Windows, Linux and probably OSX.
 
 ### More Information
 The [user guide](doc/User-Guide.md) explains how to use CrushPaper.
