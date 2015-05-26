@@ -4206,7 +4206,11 @@ function save(alreadyStartedSave) {
 
 			setTimeout(function() {
 				if (userWasSignedIn) {
-					location.assign("/notebook/" + response.id + "/quotations/");
+					var newUrl = "/notebook/" + response.id;
+					if (!isDisplaySmall()) {
+						newUrl += "/quotations/";
+					}
+					location.assign(newUrl);
 				} else {
 					closePopup();
 
