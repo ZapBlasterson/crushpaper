@@ -808,6 +808,7 @@ public class Servlet extends HttpServlet {
 		addHelpLink(requestAndResponse, "Account Information");
 		addHelpLink(requestAndResponse, "Search Help");
 		addHelpLink(requestAndResponse, "Chrome Extension");
+		addHelpLink(requestAndResponse, "Chrome Extension Permissions");
 		addHelpLink(requestAndResponse, "Privacy Policy");
 		addHelpLink(requestAndResponse, "Future Enhancements");
 		endHelpSection(requestAndResponse);

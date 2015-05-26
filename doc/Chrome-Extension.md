@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 --->
 
-### How to use the CrushPaper Chrome Extension
+### How to Use the CrushPaper Chrome Extension
 
 1. The Chrome Extension allows you to save quotations from other websites to CrushPaper.com or your own CrushPaper server.<br><br>
 1. To install it <a target="_blank" href="https://chrome.google.com/webstore/detail/save-to-crushpaper/jjnfigkmhokbibfpbcjlnigabaomnhki">click here</a>.<br><br>
