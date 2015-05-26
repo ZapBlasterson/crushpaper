@@ -33,7 +33,7 @@ div.helpListItem { margin-top:10px; }
 td.resultNumber { padding-right:5px !important; padding-left:5px !important; vertical-align:middle; }
 .dragButton, .dragChildrenButton { cursor:move; }
 .dragPaneClone { font-weight:bold !important; font-size:x-large !important; padding:20px !important; }
-
+img.scimage { margin-top:5px; margin-left:15px; }
 #allPanes { z-index:5; position:relative; }
 hr.title { height:1px; border:none; color:#DDD; background-color:#DDD; width:100%; }
 div.paneTitle { display:inline-block; position:absolute; white-space:nowrap; margin-top:10px; }

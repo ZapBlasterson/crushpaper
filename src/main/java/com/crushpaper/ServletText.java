@@ -239,7 +239,7 @@ public class ServletText {
 	}
 
 	public String sentenceNoSourcesExist() {
-		return "No sources have been created yet.<br><br>A source is created when you create a quotation from a web page.<br><br>"
+		return "No sources have been created yet.<br><br>A source is created when you save a quotation from a web page.<br><br>"
 				+ sentenceChromeExtension();
 	}
 
@@ -249,13 +249,14 @@ public class ServletText {
 	}
 
 	private String sentenceChromeExtension() {
-		return "If you have the CrushPaper Chrome extension installed then create a quotation:<br><br>"
-				+ "1. Go to another web site.<br>"
-				+ "2. Select any text on that web site.<br>"
-				+ "3. Right click the text.<br>"
-				+ "4. Click \"Save selected text to CrushPaper\".<br>"
-				+ "5. Come back to this page and click the refresh icon. "
-				+ "<div title=\"Click to refresh this part of the page.\" class=\"refreshIcon\" onclick=\"refreshPane(event); return false;\"></div>";
+		return "To save a quotation install the <a target=\"_blank\" href=\"https://chrome.google.com/webstore/detail/save-to-crushpaper/jjnfigkmhokbibfpbcjlnigabaomnhki\">Chrome Extension</a>.	<br><br>"
+				+ "1. Go to another web site and select any text on that web site.<br><br>"
+				+ "2. Right click the text and click \"Save selected text to CrushPaper\".<br>"
+				+ "<img src=\"/images/sc-rightclicktext.png\" class=\"scimage\" height=\"376\" width=\"495\"><br><br>"
+				+ "3. Enter your note about the text and click save.<br>"
+				+ "<img src=\"/images/sc-savequotation.png\" class=\"scimage\" height=\"400\" width=\"495\"><br><br>"
+				+ "4. Drag the quotation into a notebook if you wish.<br>"
+				+ "<img src=\"/images/sc-dragquotation.png\" class=\"scimage\" height=\"400\" width=\"495\">";
 	}
 
 	public String sentenceNoQuotationsForThisSourceExist() {
