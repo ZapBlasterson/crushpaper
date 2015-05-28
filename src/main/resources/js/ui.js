@@ -2270,11 +2270,17 @@ function checkboxOnClick(ev) {
 	}
 	
 	if (eventEl.checked === true) {
-		selectAloneEl(clickedAloneEl, false, false);
+		// Select the entry.
+		if (ev.shiftKey) {
+			aloneElOnShiftClick(clickedAloneEl, getDbIdFromEl(clickedAloneEl));
+		} else {
+			selectAloneEl(clickedAloneEl, false, false);
+		}
 	} else {
+		// Unselect the entry.
 		selectAloneEl(clickedAloneEl, false, true);
 	}
-	
+
 	eventEl.blur();
 }
 
