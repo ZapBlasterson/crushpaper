@@ -7101,7 +7101,9 @@ function hideChildrenAfterMaximumLevel(subtreeEl, newMaximumLevelsShown, current
 	while (true) {
 		var aloneEl = getAloneElFromSubtreeEl(subtreeEl);
 		if (isElementOfClass(aloneEl, "alone") && !isElementOfClass(aloneEl, "fakealone")) {
-			showPlusIcon(aloneEl);
+			if (getEntryHasChildren(getDbIdFromEl(aloneEl))) {
+				showPlusIcon(aloneEl);
+			}
 		}
 
 		if (!doesSubtreeElHaveParent(subtreeEl))
@@ -7126,7 +7128,9 @@ function hideChildrenAfterMaximumLevelHelper(subtreeEl, newMaximumLevelsShown, c
 
 	var aloneEl = getAloneElFromSubtreeEl(subtreeEl);
 	setTheRightChildIconsForAloneEl(aloneEl);
-	showPlusIcon(aloneEl);
+	if (getEntryHasChildren(getDbIdFromEl(aloneEl))) {
+		showPlusIcon(aloneEl);
+	}
 }
 
 /** Hides the children of the selected note. */
