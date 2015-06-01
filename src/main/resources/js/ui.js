@@ -4733,7 +4733,13 @@ function showPopupForEditEntry() {
 		var entryType = getEntryType(selectedDbId);
 		title = uiText.popupTitleEditTheSelectedNote(entryType);
 		startFastScrollTransition(selectedDbId, function() {
-			var popup = createPopupForDialog(true, [removeTextEditingShortCuts]);
+			var onCloseCallbacks = [removeTextEditingShortCuts];
+			if (entryType === "notebook") {
+				onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+			}
+			
+			var popup = createPopupForDialog(true, onCloseCallbacks);
+			
 			addTextEditingShortCuts(entryType);
 			showPopupWithNoteFields(popup, title, entryType, "edit", selectedDbId, null, true);
 		});
@@ -4812,7 +4818,7 @@ function showPopupForEditNotebook(id, notebookTitle, paneIndex) {
 		return false;
 	}
 
-	var popup = createPopupForDialog(true, [removeTextEditingShortCuts]);
+	var popup = createPopupForDialog(true, [removeTextEditingShortCuts, removeCreateNotebookPopupShortCuts]);
 	addTextEditingShortCuts("notebook");
 
 	showPopupWithNoteFields(popup, uiText.popupTitleEditTheSelectedNotebook(), "notebook", "editNotebook", id,
@@ -5478,7 +5484,12 @@ function showPopupForCreateChildEntry() {
 		title = uiText.popupTitleCreateChildNote(entryType);
 		ensureDirectChildrenAreVisible(selectedDbId,
 				startFastScrollTransition(selectedDbId, function() {
-					var popup = createPopupForDialog(true, [removeCreateChildOptionsShortCuts, removeTextEditingShortCuts]);
+					var onCloseCallbacks = [removeCreateChildOptionsShortCuts, removeTextEditingShortCuts];
+					if (entryType === "notebook") {
+						onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+					}
+					
+					var popup = createPopupForDialog(true, onCloseCallbacks);
 					addCreateChildOptionsShortCuts(entryType);
 
 					var extraHtml = getInsertAsFirstChildHtml(entryType, selectedDbId);
@@ -5524,7 +5535,11 @@ function showPopupForInsertEntry() {
 		var entryType = getEntryType(selectedDbId);
 		title = uiText.popupTitleInsertNote(entryType);
 		startFastScrollTransition(selectedDbId, function() {
-			var popup = createPopupForDialog(true, [ removeTextEditingShortCuts ]);
+			var onCloseCallbacks = [removeTextEditingShortCuts];
+			if (entryType === "notebook") {
+				onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+			}
+			var popup = createPopupForDialog(true, onCloseCallbacks);
 			addTextEditingShortCuts(entryType);
 			var subtreeEl = getSubtreeElByDbId(selectedDbId);
 			var hasParent = doesSubtreeElHaveParent(subtreeEl);
@@ -5562,7 +5577,11 @@ function showPopupForPutAfterEntry() {
 			showPopupForError(title, uiText.errorTheEntryNeedsAParent(entryType));
 		} else {
 			startFastScrollTransition(selectedDbId, function() {
-				var popup = createPopupForDialog(true, [ removeTextEditingShortCuts ]);
+				var onCloseCallbacks = [removeTextEditingShortCuts];
+				if (entryType === "notebook") {
+					onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+				}
+				var popup = createPopupForDialog(true, onCloseCallbacks);
 				addTextEditingShortCuts(entryType);
 
 				showPopupWithNoteFields(popup, title, entryType, "putAfter", selectedDbId);
@@ -5599,7 +5618,11 @@ function showPopupForPutBeforeEntry() {
 			showPopupForError(title, uiText.errorTheEntryNeedsAParent(entryType));
 		} else {
 			startFastScrollTransition(selectedDbId, function() {
-				var popup = createPopupForDialog(true, [ removeTextEditingShortCuts ]);
+				var onCloseCallbacks = [removeTextEditingShortCuts];
+				if (entryType === "notebook") {
+					onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+				}
+				var popup = createPopupForDialog(true, onCloseCallbacks);
 				addTextEditingShortCuts(entryType);
 
 				showPopupWithNoteFields(popup, title, entryType, "putBefore", selectedDbId);
@@ -5634,7 +5657,11 @@ function showPopupForPutUnderneathEntry() {
 		title = uiText.popupTitleNewNoteUnderneath(entryType);
 		ensureDirectChildrenAreVisible(selectedDbId,
 				startFastScrollTransition(selectedDbId, function() {
-					var popup = createPopupForDialog(true);
+					var onCloseCallbacks = [removeTextEditingShortCuts];
+					if (entryType === "notebook") {
+						onCloseCallbacks.push(removeCreateNotebookPopupShortCuts);
+					}
+					var popup = createPopupForDialog(true, onCloseCallbacks);
 					addTextEditingShortCuts(entryType);
 					showPopupWithNoteFields(popup, title, entryType, "putUnderneath", selectedDbId);
 				}),
@@ -5656,10 +5683,21 @@ function showPopupForCreateNotebook() {
 	forwardToHttpsIfAvailableOrShow("createNotebook=1", reallyShowPopupForCreateNotebook);
 }
 
+/** Adds shortcuts for create notebook. */
+function addCreateNotebookPopupShortCuts() {
+	Mousetrap.bind("enter", save);
+}
+
+/** Removes shortcuts for create notebook. */
+function removeCreateNotebookPopupShortCuts() {
+	Mousetrap.unbind("enter");
+}
+
 /** Shows the popup for putting a new notebook. */
 function reallyShowPopupForCreateNotebook() {
-	var popup = createPopupForDialog(true, [removeMakePublicOptionShortCuts]);
+	var popup = createPopupForDialog(true, [removeMakePublicOptionShortCuts, removeCreateNotebookPopupShortCuts]);
 	addMakePublicOptionShortCuts();
+	addCreateNotebookPopupShortCuts();
 
 	showPopupWithNoteFields(popup, uiText.popupTitleCreateNotebook(), "notebook", "newNotebook");
 
@@ -6077,9 +6115,10 @@ function addMakePublicOptionShortCuts() {
 function addTextEditingShortCuts(entryType) {
 	if (entryType === "notebook") {
 		addMakePublicOptionShortCuts();
+		addCreateNotebookPopupShortCuts();
 	}
 
-	if (getOptionSaveOnEnter()) {
+	if (getOptionSaveOnEnter() && entryType !== "notebook") {
 		Mousetrap.bind("ctrl+enter", insertEnterAtCursor);
 		Mousetrap.bind("alt+enter", insertEnterAtCursor);
 		Mousetrap.bind("enter", saveAndReturnFalse);
