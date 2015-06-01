@@ -59,7 +59,8 @@ a.cursorIsPointer { cursor:pointer; }
 a.externalsite { text-transform:lowercase !important; }
 span.versionNumber { font-size:xx-small; margin-top:10px; display:block; }
 #menu > div > a:hover, a.nextLink:hover, a:hover, a.previousLink:hover { color:#61CDF5; text-decoration:underline; }
-#appName, div.paneTitle { font-weight:bold !important; font-size:large; margin-bottom:0px; color:#555; cursor:text; }
+#appName, div.paneTitle { font-weight:bold !important; font-size:large; margin-bottom:0px; color:#555;  }
+div.paneTitle { cursor:text; }
 img.plusOrMinus { visibility:hidden; }
 h3 { font-size:medium; }
 #appName { font-weight:bold; color:#555; text-decoration:none; }
