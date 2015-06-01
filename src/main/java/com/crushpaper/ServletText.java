@@ -1268,7 +1268,7 @@ public class ServletText {
 	}
 	
 	public String demoMovieUrl() {
-		return "https://www.youtube.com/watch?v=3CWAfqTsbAg";
+		return "https://www.youtube.com/watch?v=IuzYuJpTPc8";
 	}
 
 	public String labelGoogleGroup() {
