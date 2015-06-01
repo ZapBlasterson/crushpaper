@@ -2928,6 +2928,16 @@ public class Servlet extends HttpServlet {
 					}
 
 					requestAndResponse
+					.print("<a target=\"_blank\" class=\"externalsite\" title=\""
+							+ servletText.labelChromeExtensionTooltip()
+							+ "\" href=\"" + servletText.urlChromeExtension() + "\">" + servletText.labelChromeExtension() + "</a>");
+					
+					requestAndResponse
+					.print("<a target=\"_blank\" class=\"externalsite\" title=\""
+							+ servletText.labelDemoMovieTooltip()
+							+ "\" href=\"" + servletText.demoMovieUrl() + "\">" + servletText.labelDemoMovie() + "</a>");
+
+					requestAndResponse
 							.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 									+ servletText.labelTwitterTooltip()
 									+ "\" href=\"https://twitter.com/ZapBlasterson\">Twitter</a>");
@@ -2940,7 +2950,7 @@ public class Servlet extends HttpServlet {
 					requestAndResponse
 							.print("<a target=\"_blank\" class=\"externalsite\" title=\""
 									+ servletText.labelGoogleGroupTooltip()
-									+ "\" href=\"https://groups.google.com/d/forum/crushpaper\">Google Group</a>");
+									+ "\" href=\"https://groups.google.com/d/forum/crushpaper\">" + servletText.labelGoogleGroup() + "</a>");
 
 					requestAndResponse.print("</div>");
 					requestAndResponse.print("</div></div></div>");

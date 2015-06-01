@@ -248,8 +248,12 @@ public class ServletText {
 				+ sentenceChromeExtension();
 	}
 
+	public String urlChromeExtension() {
+		return "https://chrome.google.com/webstore/detail/save-to-crushpaper/jjnfigkmhokbibfpbcjlnigabaomnhki";
+	}
+	
 	private String sentenceChromeExtension() {
-		return "To save a quotation install the <a target=\"_blank\" href=\"https://chrome.google.com/webstore/detail/save-to-crushpaper/jjnfigkmhokbibfpbcjlnigabaomnhki\">Chrome Extension</a>.	<br><br>"
+		return "To save a quotation install the <a target=\"_blank\" href=\"" + urlChromeExtension() + "\">Chrome Extension</a>.<br><br>"
 				+ "1. Go to another web site and select any text on that web site.<br><br>"
 				+ "2. Right click the text and click \"Save selected text to CrushPaper\".<br>"
 				+ "<img src=\"/images/sc-rightclicktext.png\" class=\"scimage\" height=\"376\" width=\"495\"><br><br>"
@@ -771,7 +775,10 @@ public class ServletText {
 					+ "<b>Try CrushPaper for free without creating an account!</b><br><br>"
 					+ "<form action=\"/newNotebook/\" method=\"GET\">"
 					+ "<button onclick=\"showPopupForCreateNotebook(); return false;\" id=\"save\" class=\"specialbutton\" style=\"float: none;\" title=\"Create a notebook where you can put notes and quotations\">"
-					+ "Create a New Notebook" + "</button></form></div></div>";
+					+ "Create a New Notebook" + "</button></form><br>" +
+					"Or watch the <a target=\"_blank\" title=\""
+							+ "\" href=\"" + demoMovieUrl() + "\">Demo Movie</a>" +
+					"</div></div>";
 		return "";
 	}
 
@@ -1250,5 +1257,29 @@ public class ServletText {
 
 	public String pageTitleExportNotebook() {
 		return "Export Notebook";
+	}
+
+	public String labelDemoMovie() {
+		return "Demo Movie";
+	}
+	
+	public String labelDemoMovieTooltip() {
+		return "Watch the Demo Movie";
+	}
+	
+	public String demoMovieUrl() {
+		return "https://www.youtube.com/watch?v=3CWAfqTsbAg";
+	}
+
+	public String labelGoogleGroup() {
+		return "Google Group";
+	}
+
+	public String labelChromeExtension() {
+		return "Chrome Extension";
+	}
+
+	public String labelChromeExtensionTooltip() {
+		return "Install the Google Chrome Browser Extension";
 	}
 }
