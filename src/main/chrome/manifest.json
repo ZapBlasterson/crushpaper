@@ -3,7 +3,7 @@
 
   "name": "Save to CrushPaper",
   "description": "Save quotations to CrushPaper",
-  "version": "0.0.9",
+  "version": "0.0.10",
 
   "permissions": [
     "cookies",
