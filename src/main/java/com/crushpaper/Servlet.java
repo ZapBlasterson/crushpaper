@@ -918,7 +918,8 @@ public class Servlet extends HttpServlet {
 			}
 		}
 
-		return getMarkdownHtml(helpMarkdown, false, true);
+		String helpMarkedDown = getMarkdownHtml(helpMarkdown, false, true);
+		return helpMarkedDown.replaceAll("( href=\"/)doc(/[^\"\\.]+)\\.md", "$1help$2"); 
 	}
 
 	/** Part of the HTML API. Displays help. */

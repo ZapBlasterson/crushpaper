@@ -41,4 +41,4 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
         1. Don't change anything in the popup. Click the OK button.
         1. Click the OK button
 
-To build on the command line follow <a onclick="newPaneForLink(event, null, 'help'); return false;" href="/help/Build,-Install,-Configure-and-Run">these directions</a>.
+To build on the command line follow <a onclick="newPaneForLink(event, null, 'help'); return false;" href="/doc/Build,-Install,-Configure-and-Run.md">these directions</a>.

@@ -33,10 +33,10 @@ You can use CrushPaper on your mobile device but much of its functionality only 
 CrushPaper is free and open source. You can even run it on your own computer instead of using CrushPaper.com. It runs on Windows, Linux and probably OSX.<br><br>
 
 ### More Information
-The <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/User-Guide">user guide</a> explains how to use CrushPaper.<br><br>
+The <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/User-Guide.md">user guide</a> explains how to use CrushPaper.<br><br>
 
-This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/Why-I-Created-CrushPaper">page</a> explains why I created CrushPaper.<br><br>
+This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/Why-I-Created-CrushPaper.md">page</a> explains why I created CrushPaper.<br><br>
 
-This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/Why-CrushPaper-Is-Free">page</a> explains why CrushPaper is free.<br><br>
+This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/Why-CrushPaper-Is-Free.md">page</a> explains why CrushPaper is free.<br><br>
 
 CrushPaper is made mostly by one person. That is me, Zap Blasterson. If you have any suggestions or complaints you can message me on Twitter, GitHub or Google Groups and I will do my very best to improve CrushPaper.

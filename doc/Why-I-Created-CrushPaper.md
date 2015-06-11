@@ -49,8 +49,8 @@ I want to make CrushPaper that application.
 
 ### More Information
 
-This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/What-Is-CrushPaper">page</a> explains what CrushPaper is.
+This <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/What-CrushPaper-Is.md">page</a> explains what CrushPaper is.
 <br><br>
 
-The <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/User-Guide">user guide</a> explains how to use CrushPaper.
+The <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/User-Guide.md">user guide</a> explains how to use CrushPaper.
 <br><br>

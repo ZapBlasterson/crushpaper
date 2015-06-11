@@ -17,7 +17,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 --->
 This document covers administrator use of the CrushPaper web site.
 <br><br>
-For information on how to install, configure and run the CrushPaper server see this <a  onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/help/Install,-Configure-and-Run">document</a>.
+For information on how to install, configure and run the CrushPaper server see this <a onclick="newPaneForLink(event, 'Help', 'help'); return false;" href="/doc/Build,-Install,-Configure-and-Run.md">document</a>.
 <br><br>
 
 ### Pages

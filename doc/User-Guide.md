@@ -41,7 +41,7 @@ along with CrushPaper.  If not, see <http://www.gnu.org/licenses/>.
 
 ### Searching and Browsing
 
-1. See more on search <a onclick="newPaneForLink(event, 'Search Help', 'help'); return false;" href="/help/Search-Help">here</a>.
+1. See more on search <a onclick="newPaneForLink(event, 'Search Help', 'help'); return false;" href="/doc/Search-Help.md">here</a>.
 
 ### Exporting Notebooks
 
