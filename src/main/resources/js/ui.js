@@ -674,7 +674,7 @@ function decoratePopupTitle(text, isError) {
 	"<div class=\"popupSectionContents popupSectionTitle\">" +
 	"<span class=\"popuptitle\">" + text + "</span>";
 
-	result += "<div style=\"float:right\" class=\"paneCloseIcon\" title=\"" +
+	result += "<div class=\"popupCloseIcon\" title=\"" +
 	uiText.tooltipClosePopup(isError) +
 	"\" onclick=\"closePopup(); return false;\"></div>" +
 	"</div></div><div class=\"popupSection" + (isError ? "Error" : "") + "\"><div class=\"popupSectionContents\">";
