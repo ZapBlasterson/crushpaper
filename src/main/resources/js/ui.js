@@ -123,7 +123,7 @@ function forwardToHttpsIfAvailableOrShow(search, func) {
 		if (newPathname === "/signedOut/") {
 			newPathname = "/";
 		}
-
+		
 		var toConcat = "";
 		if (location.search !== search) {
 			toConcat = search;
@@ -136,6 +136,8 @@ function forwardToHttpsIfAvailableOrShow(search, func) {
 		
 		location.assign("https://" + location.hostname + portString +
 				concatUrl(newPathname + location.search, toConcat));
+				
+		clearCommandsAreAllowed();
 	} else {
 		func();
 	}
@@ -473,6 +475,12 @@ var areCommandsAllowedCounter = 0;
 function commandsAreNowAllowed(areThey) {
 	areCommandsAllowedCounter += (areThey ? 1 : -1);
 	areCommandsAllowed = areCommandsAllowedCounter === 0;
+}
+
+/** Clears the state related to whether commands are allowed. */
+function clearCommandsAreAllowed() {
+	areCommandsAllowedCounter = 0;
+	areCommandsAllowed = true;
 }
 
 /** Returns true if a popup is up. */
@@ -2612,7 +2620,12 @@ function handleKeyPressForContextMenu() {
 }
 
 /** An onpopstate handler that makes the back and forward buttons work even though the document is being rewritten by http calls. */
-function handlePopStateGetPage() {
+function handlePopStateGetPage(event) {
+	// Because Safari calls onpopstate onpage load doesn't rerun JavaScript.
+	if (!event.state) {
+		return;
+	}
+	
 	var xhr = createAsyncRequest("GET", addUrlUniquer(window.location.pathname + window.location.search), function() {
 		aRequestIsInProgress(false);
 
@@ -2635,6 +2648,8 @@ function handlePopStateGetPage() {
 			var errorText = getErrorTextNotFound(xhr, uiText.errorInvalidResponse());
 			showPopupForError(uiText.popupTitleRefreshPage(), errorText);
 		}
+		
+		clearCommandsAreAllowed();
 	});
 
 	xhr.setRequestHeader("X-for-refresh", "true");
@@ -5679,7 +5694,7 @@ function showPopupForCreateNotebook() {
 	if (!areCommandsAllowed) {
 		return false;
 	}
-
+	
 	forwardToHttpsIfAvailableOrShow("createNotebook=1", reallyShowPopupForCreateNotebook);
 }
 
@@ -5698,9 +5713,9 @@ function reallyShowPopupForCreateNotebook() {
 	var popup = createPopupForDialog(true, [removeMakePublicOptionShortCuts, removeCreateNotebookPopupShortCuts]);
 	addMakePublicOptionShortCuts();
 	addCreateNotebookPopupShortCuts();
-
+	
 	showPopupWithNoteFields(popup, uiText.popupTitleCreateNotebook(), "notebook", "newNotebook");
-
+	
 	return false;
 }
 
@@ -8550,3 +8565,4 @@ function markFunctionsAsUsed() {
 }
 
 markFunctionsAsUsed();
+
